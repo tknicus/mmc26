@@ -31,7 +31,7 @@
 <body>
 
     <div class="card">
-        <h2>E-Submit Imong Data</h2>
+        <h2>e-SUBMIT imong Data</h2>
         
         <!-- Internet Status -->
         <div id="statusIndicator" class="status online">🌐 Online - Connected</div>
@@ -41,11 +41,14 @@
 
         <form id="myForm">
             <input type="text" id="name" placeholder="Imong Pangalan" required>
-            <input type="email" id="email" placeholder="Imong Email" required>
-            <textarea id="notes" placeholder="Mensahe o Notes" rows="4" required></textarea>
+            <input type="number" id="ODO" placeholder="ODO sa imong motor" required>
+            <textarea id="notes" placeholder="Mensahe o Notes o REMARKS" rows="4" required></textarea>
             <button type="submit">I-Submit ang Data</button>
         </form>
     </div>
+
+
+
 
     <script>
         // Imong Google Apps Script Web App URL
@@ -189,5 +192,8 @@
         updateStatus();
         showLiveLocationOnLoad(); // <-- Kini ang mopagawas sa GPS display sa ibabaw
     </script>
+
+
+
 </body>
 </html>
