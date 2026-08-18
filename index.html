@@ -1,0 +1,151 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>My Offline-First App</title>
+    <style>
+        body { font-family: Arial, sans-serif; padding: 20px; max-width: 400px; margin: auto; background-color: #f4f4f9; }
+        .card { background: white; padding: 20px; border-radius: 8px; box-shadow: 0 4px 8px rgba(0,0,0,0.1); }
+        .status { padding: 10px; margin-bottom: 20px; font-weight: bold; text-align: center; border-radius: 5px; transition: 0.3s; }
+        .online { background-color: #d4edda; color: #155724; }
+        .offline { background-color: #f8d7da; color: #721c24; }
+        input, textarea, button { width: 100%; margin-bottom: 12px; padding: 10px; box-sizing: border-box; border: 1px solid #ccc; border-radius: 4px; }
+        button { background-color: #007bff; color: white; border: none; cursor: pointer; font-weight: bold; }
+        button:hover { background-color: #0056b3; }
+    </style>
+</head>
+<body>
+
+    <div class="card">
+        <h2>E-Submit Imong Data</h2>
+        
+        <!-- Dinhi makita ang internet status -->
+        <div id="statusIndicator" class="status online">🌐 Online - Connected</div>
+
+        <form id="myForm">
+            <input type="text" id="name" placeholder="Imong Pangalan" required>
+            <input type="email" id="email" placeholder="Imong Email" required>
+            <textarea id="notes" placeholder="Mensahe o Notes" rows="4" required></textarea>
+            <button type="submit">I-Submit ang Data</button>
+        </form>
+    </div>
+
+    <script>
+        // Imong Google Apps Script Web App URL
+        const scriptURL = 'https://script.google.com/macros/s/AKfycbx25MwnDvb3scoBPhWc7AQn_rjQ9nR2SJlytZG9Ca3SmO6V8N7142Ml660gZFg0OeIa/exec';
+        
+        const statusIndicator = document.getElementById('statusIndicator');
+        const myForm = document.getElementById('myForm');
+
+        function updateStatus() {
+            if (navigator.onLine) {
+                statusIndicator.textContent = "🌐 Online - Connected";
+                statusIndicator.className = "status online";
+                syncOfflineData(); 
+            } else {
+                statusIndicator.textContent = "⚠️ Offline - Walay Internet";
+                statusIndicator.className = "status offline";
+            }
+        }
+
+        window.addEventListener('online', updateStatus);
+        window.addEventListener('offline', updateStatus);
+
+        async function sendDataToServer(dataPayload) {
+            try {
+                await fetch(scriptURL, {
+                    method: 'POST',
+                    mode: 'no-cors',
+                    headers: { 'Content-Type': 'text/plain;charset=utf-8' }, 
+                    body: JSON.stringify(dataPayload)
+                });
+                return true; 
+            } catch (error) {
+                console.error("Error sending data:", error);
+                return false;
+            }
+        }
+
+        async function syncOfflineData() {
+            let savedData = JSON.parse(localStorage.getItem('offlineData')) || [];
+            
+            if (savedData.length > 0 && navigator.onLine) {
+                statusIndicator.textContent = "🔄 Nag-sync sa imong data, kadiyot lang...";
+                statusIndicator.style.backgroundColor = "#ffc107"; 
+                
+                let success = await sendDataToServer(savedData); 
+                
+                if (success) {
+                    localStorage.removeItem('offlineData'); 
+                    alert("✅ Na-send na sa Google Sheets ang mga data nga gi-save pag offline!");
+                    updateStatus(); 
+                }
+            }
+        }
+
+        // BAG-O: Function para mangita sa GPS Location
+        function getLocation() {
+            return new Promise((resolve) => {
+                if (!navigator.geolocation) {
+                    resolve("GPS Not Supported sa Browser");
+                } else {
+                    navigator.geolocation.getCurrentPosition(
+                        (position) => {
+                            const lat = position.coords.latitude;
+                            const lon = position.coords.longitude;
+                            // Himuon natong Google Maps Link para mas nindot
+                            resolve(`https://www.google.com/maps?q=${lat},${lon}`);
+                        },
+                        (error) => {
+                            resolve("GPS Gibalibaran o Walay Signal");
+                        },
+                        { timeout: 10000 } // Maghuwat siyag 10 seconds pinakadugay
+                    );
+                }
+            });
+        }
+
+        myForm.addEventListener('submit', async function(e) {
+            e.preventDefault();
+
+            const submitBtn = myForm.querySelector('button');
+            submitBtn.textContent = "📍 Gikuha ang Location ug Gipadala...";
+            submitBtn.disabled = true;
+
+            // Maghuwat ang code nga makuha ang GPS sa dili pa niya ipadayon
+            const userLocation = await getLocation();
+
+            const data = {
+                name: document.getElementById('name').value,
+                email: document.getElementById('email').value,
+                notes: document.getElementById('notes').value,
+                timestamp: new Date().toLocaleString(),
+                location: userLocation // Gi-apil na nato ang location sa ipadala
+            };
+
+            if (navigator.onLine) {
+                let success = await sendDataToServer(data);
+                if (success) {
+                    alert("✅ Success! Check imong Google Sheet, nisulod na!");
+                } else {
+                    alert("❌ Naay error sa pag-send. I-try usab.");
+                }
+            } else {
+                let savedData = JSON.parse(localStorage.getItem('offlineData')) || [];
+                savedData.push(data);
+                localStorage.setItem('offlineData', JSON.stringify(savedData));
+                alert("⚠️ Walay Internet! Gi-save usa sa imong browser kauban ang imong Location. Automatic ni mu-send inig balik sa imong WiFi.");
+            }
+
+            myForm.reset();
+            submitBtn.textContent = "I-Submit ang Data";
+            submitBtn.disabled = false;
+        });
+
+        updateStatus();
+    </script>
+
+    
+</body>
+</html>
