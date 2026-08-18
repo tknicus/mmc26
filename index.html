@@ -31,6 +31,7 @@
         </form>
     </div>
 
+
     <script>
         // Imong Google Apps Script Web App URL
         const scriptURL = 'https://script.google.com/macros/s/AKfycbx25MwnDvb3scoBPhWc7AQn_rjQ9nR2SJlytZG9Ca3SmO6V8N7142Ml660gZFg0OeIa/exec';
@@ -69,13 +70,11 @@
 
         async function syncOfflineData() {
             let savedData = JSON.parse(localStorage.getItem('offlineData')) || [];
-            
             if (savedData.length > 0 && navigator.onLine) {
                 statusIndicator.textContent = "🔄 Nag-sync sa imong data, kadiyot lang...";
                 statusIndicator.style.backgroundColor = "#ffc107"; 
                 
                 let success = await sendDataToServer(savedData); 
-                
                 if (success) {
                     localStorage.removeItem('offlineData'); 
                     alert("✅ Na-send na sa Google Sheets ang mga data nga gi-save pag offline!");
@@ -84,23 +83,30 @@
             }
         }
 
-        // BAG-O: Function para mangita sa GPS Location
+        // BAG-O NGA LOCATION FUNCTION: Mukuha na og Lat, Long, ug GPS Time
         function getLocation() {
             return new Promise((resolve) => {
                 if (!navigator.geolocation) {
-                    resolve("GPS Not Supported sa Browser");
+                    resolve({ link: "No GPS", lat: "N/A", lon: "N/A", time: "N/A" });
                 } else {
                     navigator.geolocation.getCurrentPosition(
                         (position) => {
                             const lat = position.coords.latitude;
                             const lon = position.coords.longitude;
-                            // Himuon natong Google Maps Link para mas nindot
-                            resolve(`https://www.google.com/maps?q=${lat},${lon}`);
+                            // position.timestamp mao ang exact time nga ni-lock ang satellite
+                            const locTime = new Date(position.timestamp).toLocaleString(); 
+                            
+                            resolve({
+                                link: `https://www.google.com/maps?q=${lat},${lon}`,
+                                lat: lat,
+                                lon: lon,
+                                time: locTime
+                            });
                         },
                         (error) => {
-                            resolve("GPS Gibalibaran o Walay Signal");
+                            resolve({ link: "Error/Gibalibaran", lat: "N/A", lon: "N/A", time: "N/A" });
                         },
-                        { timeout: 10000 } // Maghuwat siyag 10 seconds pinakadugay
+                        { timeout: 10000, enableHighAccuracy: true } // Gihimo nakong High Accuracy para mas pino
                     );
                 }
             });
@@ -113,15 +119,18 @@
             submitBtn.textContent = "📍 Gikuha ang Location ug Gipadala...";
             submitBtn.disabled = true;
 
-            // Maghuwat ang code nga makuha ang GPS sa dili pa niya ipadayon
-            const userLocation = await getLocation();
+            // Kuhaon una ang kumpleto nga GPS Data
+            const gpsData = await getLocation();
 
             const data = {
                 name: document.getElementById('name').value,
                 email: document.getElementById('email').value,
                 notes: document.getElementById('notes').value,
-                timestamp: new Date().toLocaleString(),
-                location: userLocation // Gi-apil na nato ang location sa ipadala
+                timestamp: new Date().toLocaleString(), // Oras pag-pindot sa Submit Button
+                location: gpsData.link,
+                latitude: gpsData.lat,
+                longitude: gpsData.lon,
+                locationTime: gpsData.time // Oras sa satellite/GPS
             };
 
             if (navigator.onLine) {
@@ -135,7 +144,7 @@
                 let savedData = JSON.parse(localStorage.getItem('offlineData')) || [];
                 savedData.push(data);
                 localStorage.setItem('offlineData', JSON.stringify(savedData));
-                alert("⚠️ Walay Internet! Gi-save usa sa imong browser kauban ang imong Location. Automatic ni mu-send inig balik sa imong WiFi.");
+                alert("⚠️ Walay Internet! Gi-save ang imong Location ug Data sa device.");
             }
 
             myForm.reset();
