@@ -7,9 +7,22 @@
     <style>
         body { font-family: Arial, sans-serif; padding: 20px; max-width: 400px; margin: auto; background-color: #f4f4f9; }
         .card { background: white; padding: 20px; border-radius: 8px; box-shadow: 0 4px 8px rgba(0,0,0,0.1); }
-        .status { padding: 10px; margin-bottom: 20px; font-weight: bold; text-align: center; border-radius: 5px; transition: 0.3s; }
+        .status { padding: 10px; margin-bottom: 15px; font-weight: bold; text-align: center; border-radius: 5px; transition: 0.3s; }
         .online { background-color: #d4edda; color: #155724; }
         .offline { background-color: #f8d7da; color: #721c24; }
+        
+        /* BAG-O: Design para sa imong Live Location Box */
+        .live-location { 
+            background-color: #e2e3e5; 
+            color: #383d41; 
+            padding: 10px; 
+            margin-bottom: 15px; 
+            border-radius: 5px; 
+            font-size: 14px; 
+            text-align: center; 
+            border: 1px dashed #adb5bd;
+        }
+
         input, textarea, button { width: 100%; margin-bottom: 12px; padding: 10px; box-sizing: border-box; border: 1px solid #ccc; border-radius: 4px; }
         button { background-color: #007bff; color: white; border: none; cursor: pointer; font-weight: bold; }
         button:hover { background-color: #0056b3; }
@@ -20,8 +33,11 @@
     <div class="card">
         <h2>E-Submit Imong Data</h2>
         
-        <!-- Dinhi makita ang internet status -->
+        <!-- Internet Status -->
         <div id="statusIndicator" class="status online">🌐 Online - Connected</div>
+
+        <!-- BAG-O: Ang displayhan sa Latitude ug Longitude inig open -->
+        <div id="liveLocation" class="live-location">📍 Nangita sa imong location...</div>
 
         <form id="myForm">
             <input type="text" id="name" placeholder="Imong Pangalan" required>
@@ -31,12 +47,12 @@
         </form>
     </div>
 
-
     <script>
         // Imong Google Apps Script Web App URL
         const scriptURL = 'https://script.google.com/macros/s/AKfycbx25MwnDvb3scoBPhWc7AQn_rjQ9nR2SJlytZG9Ca3SmO6V8N7142Ml660gZFg0OeIa/exec';
         
         const statusIndicator = document.getElementById('statusIndicator');
+        const liveLocationDiv = document.getElementById('liveLocation');
         const myForm = document.getElementById('myForm');
 
         function updateStatus() {
@@ -52,6 +68,25 @@
 
         window.addEventListener('online', updateStatus);
         window.addEventListener('offline', updateStatus);
+
+        // BAG-O: Function para ipakita dayon ang Lat/Long sa screen pag-abli
+        function showLiveLocationOnLoad() {
+            if (navigator.geolocation) {
+                navigator.geolocation.getCurrentPosition(
+                    (position) => {
+                        const lat = position.coords.latitude.toFixed(6); // toFixed(6) para dili taas kaayo ang numbers
+                        const lon = position.coords.longitude.toFixed(6);
+                        liveLocationDiv.innerHTML = `📍 <b>Lat:</b> ${lat} &nbsp;|&nbsp; <b>Lon:</b> ${lon}`;
+                    },
+                    (error) => {
+                        liveLocationDiv.innerHTML = "⚠️ Palihug i-allow ang Location / GPS sa imong device.";
+                    },
+                    { enableHighAccuracy: true }
+                );
+            } else {
+                liveLocationDiv.innerHTML = "❌ GPS wala gisuportahan sa imong device.";
+            }
+        }
 
         async function sendDataToServer(dataPayload) {
             try {
@@ -83,7 +118,7 @@
             }
         }
 
-        // BAG-O NGA LOCATION FUNCTION: Mukuha na og Lat, Long, ug GPS Time
+        // Ang mu-kuha sa final GPS para isulod sa Google Sheet
         function getLocation() {
             return new Promise((resolve) => {
                 if (!navigator.geolocation) {
@@ -93,7 +128,6 @@
                         (position) => {
                             const lat = position.coords.latitude;
                             const lon = position.coords.longitude;
-                            // position.timestamp mao ang exact time nga ni-lock ang satellite
                             const locTime = new Date(position.timestamp).toLocaleString(); 
                             
                             resolve({
@@ -106,7 +140,7 @@
                         (error) => {
                             resolve({ link: "Error/Gibalibaran", lat: "N/A", lon: "N/A", time: "N/A" });
                         },
-                        { timeout: 10000, enableHighAccuracy: true } // Gihimo nakong High Accuracy para mas pino
+                        { timeout: 10000, enableHighAccuracy: true }
                     );
                 }
             });
@@ -119,18 +153,17 @@
             submitBtn.textContent = "📍 Gikuha ang Location ug Gipadala...";
             submitBtn.disabled = true;
 
-            // Kuhaon una ang kumpleto nga GPS Data
             const gpsData = await getLocation();
 
             const data = {
                 name: document.getElementById('name').value,
                 email: document.getElementById('email').value,
                 notes: document.getElementById('notes').value,
-                timestamp: new Date().toLocaleString(), // Oras pag-pindot sa Submit Button
+                timestamp: new Date().toLocaleString(), 
                 location: gpsData.link,
                 latitude: gpsData.lat,
                 longitude: gpsData.lon,
-                locationTime: gpsData.time // Oras sa satellite/GPS
+                locationTime: gpsData.time 
             };
 
             if (navigator.onLine) {
@@ -152,9 +185,9 @@
             submitBtn.disabled = false;
         });
 
+        // E-run dayon ni inig abli sa app
         updateStatus();
+        showLiveLocationOnLoad(); // <-- Kini ang mopagawas sa GPS display sa ibabaw
     </script>
-
-    
 </body>
 </html>
