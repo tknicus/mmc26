@@ -1,5 +1,8 @@
 // KINI ANG IMONG OFFLINE DATABASE
 const riderDatabase = [
+  { idNum: "0001", fullname: "technicus", nickname: "rayHARGG", level: "G5", category: "Adventure 525cc", classification: "Aspirant" },
+  { idNum: "0002", fullname: "Long Way Ph", nickname: "Elkapitan Jr", level: "G5", category: "ADV 350cc", classification: "MASTER" },
+  { idNum: "0017", fullname: "MCcoy", nickname: "17", level: "G5", category: "BMW GS450cc", classification: "MASTER" },
   { idNum: "1001", fullname: "Juan Dela Cruz", nickname: "Juan", level: "G5", category: "Adventure 1000cc", classification: "Veteran" },
   { idNum: "1002", fullname: "Pedro Penduko", nickname: "Pedz", level: "SKM26", category: "Scooter 155cc", classification: "Novice" },
   { idNum: "1234", fullname: "Prof G", nickname: "Master", level: "SKM26", category: "Enduro", classification: "Novice" },
@@ -57,5 +60,6 @@ const riderDatabase = [
   { idNum: "1633", fullname: "", nickname: "", level: "", category: "", classification: "" },
   { idNum: "1634", fullname: "Galvadores, Riche Val", nickname: "Long Way PH", level: "AS26", category: "LONEWOLF", classification: "MASTER" },
   { idNum: "1635", fullname: "German, Henry Gulle", nickname: "technicus", level: "AS26", category: "LONEWOLF", classification: "MASTER" },
+  
   // Dinhi nimo isumpay ang ubang riders...
 ];
