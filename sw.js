@@ -6,6 +6,7 @@ const urlsToCache = [
   './index.html',
   './manifest.json',
   './database.js', // <--- Idugang ni dinhi!
+  './logo.png', // <--- IDUGANG KINI DINHI!
   'https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css',
   'https://cdn.jsdelivr.net/npm/sweetalert2@8',
   'https://lh3.googleusercontent.com/d/1m1NrFKOMKh4YjoUdXD0KvxcpySM5RuwU' // Ang imong banner image
