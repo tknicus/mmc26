@@ -151,6 +151,8 @@
             });
         }
 
+
+        
         myForm.addEventListener('submit', async function(e) {
             e.preventDefault();
 
@@ -158,11 +160,26 @@
             submitBtn.textContent = "📍 Gikuha ang Location ug Gipadala...";
             submitBtn.disabled = true;
 
+            // Mokuha sa GPS data gikan sa imong function
             const gpsData = await getLocation();
 
+            // --- 🛑 SUGOD SA BANTAY (LOCATION VALIDATION) 🛑 ---
+            // Kung mapakyas ang pagkuha sa GPS (N/A o Error), mopara siya dinhi.
+            if (gpsData.lat === "N/A" || gpsData.link === "No GPS" || gpsData.link === "Error/Gibalibaran") {
+                alert("🛑 DILI MA-SAVE! Palihug i-allow o i-on ang Location / GPS sa imong selpon usa ka mo-submit.");
+                
+                // I-reset ang button aron dili ma-lock ug pwede ma-click usab
+                submitBtn.textContent = "I-Submit ang Data";
+                submitBtn.disabled = false;
+                
+                return; // KINI ANG BRAKES! Mopahunong siya aron dili mo-lahos sa pag-save sa ubos.
+            }
+            // --- 🛑 KATAPUSAN SA BANTAY 🛑 ---
+
+            // Kung SUCCESS ang GPS, mo-lahos ang code dinhi aron e-save ang data
             const data = {
                 name: document.getElementById('name').value,
-                odometer: document.getElementById('odometer').value, // Gibag-o nato og ODO
+                odometer: document.getElementById('odometer').value, 
                 notes: document.getElementById('notes').value,
                 timestamp: new Date().toLocaleString(), 
                 location: gpsData.link,
@@ -190,10 +207,13 @@
             submitBtn.disabled = false;
         });
 
+
+        
         // E-run dayon ni inig abli sa app
         updateStatus();
         showLiveLocationOnLoad(); // <-- Kini ang mopagawas sa GPS display sa ibabaw
 
+        
             
         // mao ni ang function tig pangita sa info sa rider    
         function searchProfileLocal() {
