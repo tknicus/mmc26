@@ -195,6 +195,36 @@
         updateStatus();
         showLiveLocationOnLoad(); // <-- Kini ang mopagawas sa GPS display sa ibabaw
 
+            
+        // mao ni ang function tig pangita sa info sa rider    
+        function searchProfileLocal() {
+            const appProfile = document.getElementById("idNum").value;
+            const displayError = document.getElementById("display_error");
+        
+            // Pangitaon niya ang ID didto sa atong database.js
+            const rider = riderDatabase.find(r => r.idNum === appProfile);
+        
+            if (rider) {
+                // KUNG MAKITA ANG RIDER:
+                document.getElementById("fullname").value = rider.fullname;
+                document.getElementById("nickname").value = rider.nickname;
+                document.getElementById("level").value = rider.level;
+                document.getElementById("category").value = rider.category;
+                
+                displayError.innerHTML = "<span style='color:green;'>Registered Rider!</span>";
+            } else {
+                // KUNG WALA MAKITA:
+                document.getElementById("fullname").value = "";
+                document.getElementById("nickname").value = "";
+                document.getElementById("level").value = "";
+                document.getElementById("category").value = "";
+                
+                displayError.innerHTML = "NO RECORD FOUND . . . INVALID";
+            }
+        }
+
+            
+
         // KINI ANG MAGPA-ANDAR SA OFFLINE CACHE (SERVICE WORKER)
         if ('serviceWorker' in navigator) {
         window.addEventListener('load', function() {
