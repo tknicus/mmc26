@@ -1,8 +1,6 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <script src="./database.js"></script>
-    
     <link rel="manifest" href="./manifest.json">
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -43,25 +41,49 @@
         <div id="liveLocation" class="live-location">📍 Nangita sa imong location...</div>
 
         <form id="myForm">
-            <input type="text" id="name" placeholder="Imong Pangalan" required>
+            <!-- BAG-O: Ang box para sa ID nga naka readonly -->
+            <input type="text" id="idNum" placeholder="Rider ID" readonly required>
+
+            <input type="text" id="name" placeholder="Imong Pangalan" readonly required>
             <input type="number" id="odometer" placeholder="Odometer (ODO)" required>
             <textarea id="notes" placeholder="Mensahe o Notes o REMARKS" rows="4" required></textarea>
             <button type="submit">I-Submit ang Data</button>
         </form>
     </div>
 
-    
-    <!-- Dinhi mo gawas ang data -->
-    <p><strong>ID Number:</strong> <span id="displayId">Nag-load...</span></p>
-    <p><strong>Ngalan:</strong> <span id="displayName">Nag-load...</span></p>
 
-    <!-- 1. I-link ang imong database.js -->
-    // <script src="database.js"></script>
+    <script src="database.js"></script>
 
     <script>
+        // KINI ANG MUBASA SA PARAMETER SA LINK (ex. ?theIDno=1234)
+        // 👇👇👇 E-PASTE DINHI ANG KODIGO SULOD SA SCRIPT 👇👇👇
+        window.addEventListener('DOMContentLoaded', function() {
+            const urlParams = new URLSearchParams(window.location.search);
+            const scannedID = urlParams.get('theIDno');  // Kuhaon niya ang 'theIDno'
+
+            if (scannedID) {
+                // Kung naay ID sa link, i-butang niya sa box nga naka readonly
+                document.getElementById('idNum').value = scannedID;
+
+                if (typeof riderDatabase !== 'undefined') {
+                    const rider = riderDatabase.find(r => String(r.idNum) === String(scannedID));
+                    const nameBox = document.getElementById('name');
+
+                    if (rider) {
+                        nameBox.value = rider.fullname;
+                        nameBox.readOnly = true; 
+                        nameBox.style.backgroundColor = "#e9ecef";
+                    } else {
+                        nameBox.value = "❌ Wala sa Masterlist!";
+                        nameBox.style.color = "red";
+                        nameBox.readOnly = true;
+                    }
+                }
+            }
+        });
+        // 👆👆👆 KATAPUSAN SA KODIGO 👆👆👆
 
 
-     
         // Imong Google Apps Script Web App URL
         const scriptURL = 'https://script.google.com/macros/s/AKfycbx25MwnDvb3scoBPhWc7AQn_rjQ9nR2SJlytZG9Ca3SmO6V8N7142Ml660gZFg0OeIa/exec';
         
@@ -82,6 +104,13 @@
 
         window.addEventListener('online', updateStatus);
         window.addEventListener('offline', updateStatus);
+
+
+
+
+
+
+
 
         // BAG-O: Function para ipakita dayon ang Lat/Long sa screen pag-abli
         function showLiveLocationOnLoad() {
@@ -161,7 +190,7 @@
         }
 
 
-        
+
         myForm.addEventListener('submit', async function(e) {
             e.preventDefault();
 
@@ -187,6 +216,7 @@
 
             // Kung SUCCESS ang GPS, mo-lahos ang code dinhi aron e-save ang data
             const data = {
+                idNum: document.getElementById('idNum').value,
                 name: document.getElementById('name').value,
                 odometer: document.getElementById('odometer').value, 
                 notes: document.getElementById('notes').value,
@@ -217,41 +247,10 @@
         });
 
 
-        
+
         // E-run dayon ni inig abli sa app
         updateStatus();
         showLiveLocationOnLoad(); // <-- Kini ang mopagawas sa GPS display sa ibabaw
-
-        
-            
-        // mao ni ang function tig pangita sa info sa rider    
-        function searchProfileLocal() {
-            const appProfile = document.getElementById("idNum").value;
-            const displayError = document.getElementById("display_error");
-        
-            // Pangitaon niya ang ID didto sa atong database.js
-            const rider = riderDatabase.find(r => r.idNum === appProfile);
-        
-            if (rider) {
-                // KUNG MAKITA ANG RIDER:
-                document.getElementById("fullname").value = rider.fullname;
-                document.getElementById("nickname").value = rider.nickname;
-                document.getElementById("level").value = rider.level;
-                document.getElementById("category").value = rider.category;
-                
-                displayError.innerHTML = "<span style='color:green;'>Registered Rider!</span>";
-            } else {
-                // KUNG WALA MAKITA:
-                document.getElementById("fullname").value = "";
-                document.getElementById("nickname").value = "";
-                document.getElementById("level").value = "";
-                document.getElementById("category").value = "";
-                
-                displayError.innerHTML = "NO RECORD FOUND . . . INVALID";
-            }
-        }
-
-            
 
         // KINI ANG MAGPA-ANDAR SA OFFLINE CACHE (SERVICE WORKER)
         if ('serviceWorker' in navigator) {
