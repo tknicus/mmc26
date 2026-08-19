@@ -1,7 +1,9 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <script src="./database.js"></script>
+    <!-- 1. I-link ang imong database.js -->
+    /* <script src="./database.js"></script>  */
+    
     <link rel="manifest" href="./manifest.json">
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -49,10 +51,42 @@
         </form>
     </div>
 
+    
+    <!-- Dinhi mo gawas ang data -->
+    <p><strong>ID Number:</strong> <span id="displayId">Nag-load...</span></p>
+    <p><strong>Ngalan:</strong> <span id="displayName">Nag-load...</span></p>
 
-
+    <!-- 1. I-link ang imong database.js -->
+    <script src="database.js"></script>
 
     <script>
+        // Kuhaon ang parameter gikan sa link (ang naa sa luyo sa '?')
+        const urlParams = new URLSearchParams(window.location.search);
+        const gipangitaNgaId = urlParams.get('id'); // makuha ang "0001"
+
+        // I-check kung naay id nga gibutang sa link
+        if (gipangitaNgaId) {
+            
+            // Pangitaon ang ID didto sa atong database.js (mgaTao array)
+            const resulta = mgaTao.find(tao => tao.idnum === gipangitaNgaId);
+
+            // Kung nay makit-an nga parehas og ID
+            if (resulta) {
+                document.getElementById('displayId').innerText = resulta.idnum;
+                document.getElementById('displayName').innerText = resulta.fullname;
+            } else {
+                // Kung sayop ang ID number nga gibutang
+                document.getElementById('displayName').innerText = "Wala nakit-an sa database";
+                document.getElementById('displayId').innerText = "N/A";
+            }
+
+        } else {
+            // Kung walay gibutang nga '?id=...' sa link
+            document.getElementById('displayName').innerText = "Palihug pagbutang og ID sa link";
+        }
+
+
+        
         // Imong Google Apps Script Web App URL
         const scriptURL = 'https://script.google.com/macros/s/AKfycbx25MwnDvb3scoBPhWc7AQn_rjQ9nR2SJlytZG9Ca3SmO6V8N7142Ml660gZFg0OeIa/exec';
         
