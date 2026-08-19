@@ -259,7 +259,8 @@
         // KINI ANG MAGPA-ANDAR SA OFFLINE CACHE (SERVICE WORKER)
         if ('serviceWorker' in navigator) {
         window.addEventListener('load', function() {
-            navigator.serviceWorker.register('./sw.js')
+            // I-specify ang saktong path sa sw.js
+            navigator.serviceWorker.register('/offlinewebappdemo/sw.js')
             .then(function(registration) {
                 console.log('Success! Ang Service Worker ni-andar na. Scope:', registration.scope);
             })
