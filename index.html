@@ -1,9 +1,10 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
+    <link rel="manifest" href="./manifest.json">
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>My Offline-First App</title>
+    <title>MasterMinds'CUP Offline Locator App</title>
     <style>
         body { font-family: Arial, sans-serif; padding: 20px; max-width: 400px; margin: auto; background-color: #f4f4f9; }
         .card { background: white; padding: 20px; border-radius: 8px; box-shadow: 0 4px 8px rgba(0,0,0,0.1); }
@@ -41,7 +42,7 @@
 
         <form id="myForm">
             <input type="text" id="name" placeholder="Imong Pangalan" required>
-            <input type="number" id="odometer" placeholder="Odometer (ODO) sa imo MC o MV" required>
+            <input type="number" id="odometer" placeholder="Odometer (ODO)" required>
             <textarea id="notes" placeholder="Mensahe o Notes o REMARKS" rows="4" required></textarea>
             <button type="submit">I-Submit ang Data</button>
         </form>
@@ -191,9 +192,19 @@
         // E-run dayon ni inig abli sa app
         updateStatus();
         showLiveLocationOnLoad(); // <-- Kini ang mopagawas sa GPS display sa ibabaw
+
+        // KINI ANG MAGPA-ANDAR SA OFFLINE CACHE (SERVICE WORKER)
+        if ('serviceWorker' in navigator) {
+        window.addEventListener('load', function() {
+            navigator.serviceWorker.register('./sw.js')
+            .then(function(registration) {
+                console.log('Success! Ang Service Worker ni-andar na. Scope:', registration.scope);
+            })
+            .catch(function(error) {
+                console.log('Naay error sa pag-register sa Service Worker:', error);
+            });
+        });
+    }
     </script>
-
-
-
 </body>
 </html>
