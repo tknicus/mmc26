@@ -32,11 +32,7 @@
 <body>
 
     <div class="card">
-        <!-- BAG-O: KINI ANG KODIGO PARA SA IMONG LOGO -->
-        <div style="text-align: center; margin-bottom: 10px;">
-            <img src="./mmc.png" alt="MasterMinds CUP Logo" style="max-width: 280px; height: auto;">
-        </div>
-        <!-- <h1 style="text-align: center;">MasterMinds'CUP</h1> -->
+        <h1 style="text-align: center;">MasterMinds'CUP</h1>
         
         <!-- Internet Status -->
         <div id="statusIndicator" class="status online">🌐 Online - Connected</div>
@@ -51,6 +47,21 @@
             <input type="text" id="name" placeholder="Imong Pangalan" readonly required>
             <input type="number" id="odometer" placeholder="Odometer (ODO)" required>
             <textarea id="notes" placeholder="Mensahe o Notes o REMARKS" rows="4" required></textarea>
+
+            <!-- BAG-O: Camera Input para sa Selfie/Ebidensya -->
+            <div style="margin-top: 15px; margin-bottom: 15px; text-align: left;">
+                <label style="font-weight: bold; color: #333;">📸 Pagkuha og Selfie (Ebidensya):</label>
+                <!-- Ang capture="user" mo-abli dayon sa front camera -->
+                <input type="file" id="cameraInput" accept="image/*" capture="user" required style="width: 100%;">
+                
+                <!-- Dinhi mo-display ang picture human makuha -->
+                <img id="photoPreview" style="display:none; max-width: 100%; border-radius: 8px; margin-top: 10px; border: 2px solid #ccc;">
+                
+                <!-- KINI ANG SEKRETO: Canvas nga tago para pigaon ang picture -->
+                <canvas id="photoCanvas" style="display:none;"></canvas>
+            </div>
+
+
             <button type="submit">I-Submit ang Data</button>
         </form>
     </div>
@@ -59,6 +70,47 @@
     <script src="database.js"></script>
 
     <script>
+        // --- 📸 SUGOD SA CAMERA UG COMPRESSION MAGIC 📸 ---
+        let compressedPhotoBase64 = ""; // Dinhi nato e-save ang 'text' nga porma sa picture
+
+        document.getElementById('cameraInput').addEventListener('change', function(event) {
+            const file = event.target.files[0];
+            if (file) {
+                const reader = new FileReader();
+                reader.onload = function(e) {
+                    const img = new Image();
+                    img.onload = function() {
+                        const canvas = document.getElementById('photoCanvas');
+                        const ctx = canvas.getContext("2d");
+
+                        // Pigaon nato! Himuon lang natong max 400px ang gilapdon (Gaan kaayo ni!)
+                        const MAX_WIDTH = 400;
+                        const scaleSize = MAX_WIDTH / img.width;
+                        canvas.width = MAX_WIDTH;
+                        canvas.height = img.height * scaleSize;
+
+                        // Idibuho ang picture ngadto sa canvas gamit ang bag-ong gidak-on
+                        ctx.drawImage(img, 0, 0, canvas.width, canvas.height);
+
+                        // I-convert ngadto sa Base64 text (Compressed at 50% quality / '0.5')
+                        compressedPhotoBase64 = canvas.toDataURL("image/jpeg", 0.5);
+
+                        // I-display ang preview sa screen para makita sa marshal
+                        const photoPreview = document.getElementById('photoPreview');
+                        photoPreview.src = compressedPhotoBase64;
+                        photoPreview.style.display = "block";
+                    };
+                    img.src = e.target.result;
+                };
+                reader.readAsDataURL(file);
+            }
+        });
+        // --- 📸 KATAPUSAN SA CAMERA MAGIC 📸 ---
+        
+        
+
+        
+        
         // KINI ANG MUBASA SA PARAMETER SA LINK (ex. ?theIDno=1234)
         // 👇👇👇 E-PASTE DINHI ANG KODIGO SULOD SA SCRIPT 👇👇👇
         window.addEventListener('DOMContentLoaded', function() {
@@ -224,6 +276,10 @@
                 name: document.getElementById('name').value,
                 odometer: document.getElementById('odometer').value, 
                 notes: document.getElementById('notes').value,
+
+                // 👇 KINI ANG IMONG GIDUGANG PARA SA PICTURE 👇
+                photo: compressedPhotoBase64,
+
                 timestamp: new Date().toLocaleString(), 
                 location: gpsData.link,
                 latitude: gpsData.lat,
@@ -259,8 +315,7 @@
         // KINI ANG MAGPA-ANDAR SA OFFLINE CACHE (SERVICE WORKER)
         if ('serviceWorker' in navigator) {
         window.addEventListener('load', function() {
-            // I-specify ang saktong path sa sw.js
-            navigator.serviceWorker.register('/offlinewebappdemo/sw.js')
+            navigator.serviceWorker.register('./sw.js')
             .then(function(registration) {
                 console.log('Success! Ang Service Worker ni-andar na. Scope:', registration.scope);
             })
