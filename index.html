@@ -139,7 +139,7 @@
 
 
         // Imong Google Apps Script Web App URL
-        const scriptURL = 'https://script.google.com/macros/s/AKfycbwG3W1PFLLN8HjGEDUhkTgcdSLgAdhtAciN8aLdomlBRclQoRMwuW4qwHgc6wXlI9ZU/exec';
+        const scriptURL = 'https://script.google.com/macros/s/AKfycbwX4q6arVSxQCrzWIJr3r9Oye24ur91CWN6cgNIZpS2IFdoBwopvLKMSnXRcL_CxRt-/exec';
         
         const statusIndicator = document.getElementById('statusIndicator');
         const liveLocationDiv = document.getElementById('liveLocation');
@@ -296,6 +296,8 @@
             }
 
             myForm.reset();
+            compressedPhotoBase64 = ""; // <-- IDUGANG KINI aron ma-clear ang picture
+            document.getElementById('photoPreview').style.display = "none"; // <-- IDUGANG KINI aron mawala ang preview
             submitBtn.textContent = "I-Submit ang Data";
             submitBtn.disabled = false;
         });
