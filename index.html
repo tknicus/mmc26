@@ -350,7 +350,9 @@
         myForm.addEventListener('submit', async function(e) {
             e.preventDefault();
 
-            const submitBtn = myForm.querySelector('button');
+            // BAG-O: Gitumbok gyud nato ang button nga naay type="submit"
+            const submitBtn = myForm.querySelector('button[type="submit"]');
+            
             submitBtn.textContent = "📍 Gipadala ang Data...";
             submitBtn.disabled = true;
 
