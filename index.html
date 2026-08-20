@@ -172,6 +172,29 @@
             margin-bottom: 15px;
             display: none; /* Tago una kung walay pic */
         }
+
+
+        /* DESIGN PARA SA DROPDOWN ARON MASIGO UG MO-ITOM */
+        select {
+            width: 100%;
+            padding: 12px;
+            margin-top: 5px;
+            margin-bottom: 15px;
+            border: 1px solid #444;
+            border-radius: 4px;
+            background-color: #2a2a2a; /* Kini ang mopaitom niya */
+            color: #ffffff; /* Puti nga text */
+            font-size: 16px;
+            box-sizing: border-box; /* KINI GYUD ANG MOPUGOS NGA DILI SIYA MOLAPAS */
+            transition: all 0.3s ease;
+            font-family: Arial, sans-serif;
+        }
+
+        select:focus {
+            outline: none;
+            border-color: #cc0000;
+            box-shadow: 0 0 5px rgba(204, 0, 0, 0.5);
+        }
     </style>
     <!-- 🎨 KATAPUSAN SA THEME 🎨 -->
 </head>
@@ -198,14 +221,14 @@
                 <option value="CP 01">#01 Mr. DIY</option>
                 <option value="CP 02">#02 Junction Paquibato - Kalagangan Rd / Calinan Rd.</option>
                 <option value="CP 03">#03 New Paquibato District Hall</option>
-                <option value="CP 04">#04 Pungco Hill Mandatory Photo Op</option>
-                <option value="CP 05">#05 Junction Panaga - Tapak Road / Paquibato - Kalagangan Rd (Mandatory Photo Op)</option>
+                <option value="CP 04">#04 Pungco Hill</option>
+                <option value="CP 05">#05 Junction Panaga - Tapak Road / Paquibato - Kalagangan Rd</option>
                 <option value="CP 06">#06 Junction Kalagangan - Talaingod Rd</option>
 
                 <option value="CP 07">#07 💪 Junction Bukidnon - Laak Road</option>
-                <option value="CP 08">#08 💪 Sitio Bulo, Brgy Namnam, San Fernando, Bukidnon, Terracing Landscape View (Mandatory Photo Op)</option>
-                <option value="CP 09">#09 💪 Pipisan Bridge, Sitio Pipisan, Brgy. Gupitan, Kapalong (Mandatory Photo Op)</option>
-                <option value="CP 10">#10 💪 Lumondong Bridge / Falls, Sitio Lumondong, Brgy Gupitan, Kapalong (Mandatory Photo Ops)</option>
+                <option value="CP 08">#08 💪 Sitio Bulo, Brgy Namnam, San Fernando, Bukidnon, Terracing Landscape View</option>
+                <option value="CP 09">#09 💪 Pipisan Bridge, Sitio Pipisan, Brgy. Gupitan, Kapalong</option>
+                <option value="CP 10">#10 💪 Lumondong Bridge / Falls, Sitio Lumondong, Brgy Gupitan, Kapalong</option>
 
                 <option value="CP 11">#11 👌 Uraya's Peak Adventure Park</option>
                 <option value="CP 12">#12 👌 Ridge View Mountainview</option>
@@ -214,9 +237,9 @@
                 <option value="CP 15">#15 👌 Sua-on</option>
                 <option value="CP 16">#16 👌 Gupitan</option>
 
-                <option value="CP 17">#17 Junction Kili-Kili, Sitio Kili-Kili, Brgy Gupitan, Kapalong Check Point Vendo Wifi</option>
-                <option value="CP 18">#18 Gatnaon Road, Sitio Butoy, Gupitan, Kapalong (Mandatory Photo Ops)</option>
-                <option value="CP 19">#19 Junction Imelda, Brgy. Imelda, Laak (Mandatory Photo Ops)</option>
+                <option value="CP 17">#17 Junction Kili-Kili, Sitio Kili-Kili, Brgy Gupitan, Kapalong</option>
+                <option value="CP 18">#18 Gatnaon Road, Sitio Butoy, Gupitan, Kapalong</option>
+                <option value="CP 19">#19 Junction Imelda, Brgy. Imelda, Laak</option>
                 <option value="CP 20">#20 Laak ta Bai</option>
                 <option value="CP 21">#21 Sampaguita Junction Park</option>
                 <option value="CP 22">#22 Sta Josefa Petron</option>
@@ -244,7 +267,7 @@
 
                 <option value="CP 43">#43 💪 Araibo, Pantukan, Davao de Oro CheckPoint Vendo WiFi</option>
                 <option value="CP 44">#44 💪 Special Village, Las Arenas, Pantukan</option>
-                <option value="CP 45">#45 💪 Motor Parts, Brgy. Tagugpo, Pantukan (Mandatory Photo Op)</option>
+                <option value="CP 45">#45 💪 Motor Parts, Brgy. Tagugpo, Pantukan</option>
                 <option value="CP 46">#46 💪 Napnapan Mandatory Photo Op</option>
                 <option value="CP 47">#47 💪 Jolibee Pantukan</option>
 
