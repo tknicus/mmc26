@@ -151,6 +151,7 @@
             opacity: 0;
             cursor: pointer;
             height: 100%;
+            width: 100%; /* <-- IDUGANG KINI ARO MASAKOP ANG TIBUOK BUTTON */
         }
 
         /* Picture Preview */
@@ -185,7 +186,7 @@
             <!-- Astig nga Camera Button -->
             <div class="camera-btn-wrapper">
                 <button type="button" class="camera-btn">📸 Pindota aron mag-Picture</button>
-                <input type="file" id="cameraInput" accept="image/*" capture="environment" required>
+                <input type="file" id="cameraInput" accept="image/*" capture="environment">
             </div>
             
             <img id="photoPreview" alt="Ebidensya">
@@ -360,6 +361,14 @@
                 submitBtn.textContent = "I-Submit ang Data";
                 submitBtn.disabled = false;
                 return; 
+            }
+
+            // --- 🛑 BANTAY SA PICTURE 🛑 ---
+            if (compressedPhotoBase64 === "") {
+                alert("📸 DILI MA-SAVE! Palihug pagkuha og Ebidensya/Picture una ka mo-submit.");
+                submitBtn.textContent = "I-Submit ang Data";
+                submitBtn.disabled = false;
+                return; // Mopahunong sa code
             }
 
             const data = {
