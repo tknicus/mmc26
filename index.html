@@ -37,6 +37,16 @@
             margin: 0 auto 15px auto; /* I-center ang logo */
         }
 
+        h4 {
+            text-align: center;
+            color: #ffffff;
+            margin-top: 0;
+            text-transform: lowercase;
+            font-style: italic; /* Pang-racing nga porma */
+            letter-spacing: 1px;
+            font-size: 15px;
+        }
+
         h2 {
             text-align: center;
             color: #ffffff;
@@ -170,7 +180,7 @@
     <div class="container">
         <!-- Kini ang mopagawas sa imong Logo -->
         <img src="mmc.png" alt="MasterMinds CUP Logo" class="app-logo">
-        
+        <h4>" never say never "</h4>
         <h2>Checkpoint Scanner</h2>
         
         <!-- Internet Status & Live Location -->
@@ -180,6 +190,17 @@
         <form id="myForm">
             <input type="text" id="idNum" placeholder="Rider ID" readonly required>
             <input type="text" id="name" placeholder="Imong Pangalan" readonly required>
+            
+            <!-- 👇 ANG BAG-ONG CHECKPOINT DROPDOWN 👇 -->
+            <select id="checkpoint" required>
+                <option value="" disabled selected>-- PILIA ANG CHECKPOINT --</option>
+                <option value="Checkpoint 1">Checkpoint 1</option>
+                <option value="Checkpoint 2">Checkpoint 2</option>
+                <option value="Checkpoint 3">Checkpoint 3</option>
+                <option value="Finish Line">Finish Line</option>
+            </select>
+            <!-- 👆 KAHAPONAN SA DROPDOWN 👆 -->
+            
             <input type="number" id="odometer" placeholder="Odometer (ODO)" required>
             <textarea id="notes" placeholder="Mensahe o Notes o REMARKS" rows="3" required></textarea>
 
@@ -392,6 +413,7 @@
             const data = {
                 idNum: document.getElementById('idNum').value,
                 name: document.getElementById('name').value,
+                checkpoint: document.getElementById('checkpoint').value, // <-- IDUGANG KINI
                 odometer: document.getElementById('odometer').value, 
                 notes: document.getElementById('notes').value,
                 photo: compressedPhotoBase64, 
