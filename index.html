@@ -4,74 +4,201 @@
     <link rel="manifest" href="./manifest.json">
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>MasterMinds'CUP Offline Locator App</title>
+    <title>MasterMinds'CUP Offline Locator</title>
+    
+    <!-- 🎨 SUGOD SA MODERN DARK RACING THEME 🎨 -->
     <style>
-        body { font-family: Arial, sans-serif; padding: 20px; max-width: 400px; margin: auto; background-color: #f4f4f9; }
-        .card { background: white; padding: 20px; border-radius: 8px; box-shadow: 0 4px 8px rgba(0,0,0,0.1); }
-        .status { padding: 10px; margin-bottom: 15px; font-weight: bold; text-align: center; border-radius: 5px; transition: 0.3s; }
-        .online { background-color: #d4edda; color: #155724; }
-        .offline { background-color: #f8d7da; color: #721c24; }
-        
-        /* BAG-O: Design para sa imong Live Location Box */
-        .live-location { 
-            background-color: #e2e3e5; 
-            color: #383d41; 
-            padding: 10px; 
-            margin-bottom: 15px; 
-            border-radius: 5px; 
-            font-size: 14px; 
-            text-align: center; 
-            border: 1px dashed #adb5bd;
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background-color: #121212; /* Dark background */
+            color: #f5f5f5; /* Puti nga text */
+            margin: 0;
+            padding: 15px;
+            display: flex;
+            justify-content: center;
         }
 
-        input, textarea, button { width: 100%; margin-bottom: 12px; padding: 10px; box-sizing: border-box; border: 1px solid #ccc; border-radius: 4px; }
-        button { background-color: #007bff; color: white; border: none; cursor: pointer; font-weight: bold; }
-        button:hover { background-color: #0056b3; }
+        .container {
+            background-color: #1e1e1e; /* Medyo light nga dark */
+            width: 100%;
+            max-width: 450px;
+            padding: 20px;
+            border-radius: 8px;
+            box-shadow: 0px 8px 15px rgba(0, 0, 0, 0.8);
+            border-top: 5px solid #cc0000; /* Pula nga linya sa ibabaw */
+            box-sizing: border-box;
+        }
+
+        /* Logo Styling */
+        .app-logo {
+            width: 100%;
+            max-width: 250px;
+            display: block;
+            margin: 0 auto 15px auto; /* I-center ang logo */
+        }
+
+        h2 {
+            text-align: center;
+            color: #ffffff;
+            margin-top: 0;
+            text-transform: uppercase;
+            font-style: italic; /* Pang-racing nga porma */
+            letter-spacing: 1px;
+            font-size: 20px;
+        }
+
+        /* Status & Location Indicators */
+        #statusIndicator, #liveLocation {
+            text-align: center;
+            padding: 10px;
+            margin-bottom: 15px;
+            border-radius: 5px;
+            font-weight: bold;
+            font-size: 14px;
+        }
+        
+        #liveLocation {
+            background-color: #2a2a2a;
+            border: 1px solid #444;
+            color: #ccc;
+        }
+
+        .status.online { background-color: #1b5e20; color: white; }
+        .status.offline { background-color: #cc0000; color: white; }
+
+        /* Input Boxes */
+        input[type="text"], 
+        input[type="number"],
+        textarea {
+            width: 100%;
+            padding: 12px;
+            margin-top: 5px;
+            margin-bottom: 15px;
+            border: 1px solid #444;
+            border-radius: 4px;
+            background-color: #2a2a2a; /* Dark nga kahon */
+            color: #ffffff;
+            font-size: 16px;
+            box-sizing: border-box;
+            transition: all 0.3s ease;
+            font-family: Arial, sans-serif;
+        }
+
+        input:focus, textarea:focus {
+            outline: none;
+            border-color: #cc0000; /* Mo-pula ang kilid kung i-click */
+            box-shadow: 0 0 5px rgba(204, 0, 0, 0.5);
+        }
+
+        input[readonly] {
+            background-color: #1a1a1a;
+            color: #888;
+        }
+
+        /* Buttons (Dagko para dali ma-click) */
+        button {
+            width: 100%;
+            padding: 15px;
+            font-size: 16px;
+            font-weight: bold;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            text-transform: uppercase;
+            transition: 0.2s;
+        }
+
+        /* Ang Main Submit Button (Pula) */
+        button[type="submit"] {
+            background-color: #cc0000; /* MasterMinds Red */
+            color: white;
+            box-shadow: 0 4px 6px rgba(204, 0, 0, 0.3);
+            margin-top: 5px;
+        }
+
+        button[type="submit"]:hover {
+            background-color: #990000;
+        }
+        
+        button[type="submit"]:disabled {
+            background-color: #555;
+            color: #888;
+            cursor: not-allowed;
+            box-shadow: none;
+        }
+
+        /* Ang Camera Button (Grey/Silver) */
+        .camera-btn-wrapper {
+            position: relative;
+            overflow: hidden;
+            display: inline-block;
+            width: 100%;
+            margin-bottom: 15px;
+        }
+        
+        .camera-btn {
+            background-color: #444;
+            color: white;
+        }
+
+        .camera-btn:hover { background-color: #555; }
+
+        .camera-btn-wrapper input[type=file] {
+            font-size: 100px;
+            position: absolute;
+            left: 0;
+            top: 0;
+            opacity: 0;
+            cursor: pointer;
+            height: 100%;
+        }
+
+        /* Picture Preview */
+        #photoPreview {
+            max-width: 100%;
+            border: 2px dashed #cc0000; /* Pula nga border kung naay pic */
+            border-radius: 5px;
+            margin-bottom: 15px;
+            display: none; /* Tago una kung walay pic */
+        }
     </style>
+    <!-- 🎨 KATAPUSAN SA THEME 🎨 -->
 </head>
 <body>
 
-    <div class="card">
-        <h1 style="text-align: center;">MasterMinds'CUP</h1>
+    <div class="container">
+        <!-- Kini ang mopagawas sa imong Logo -->
+        <img src="mmc.png" alt="MasterMinds CUP Logo" class="app-logo">
         
-        <!-- Internet Status -->
+        <h2>Checkpoint Scanner</h2>
+        
+        <!-- Internet Status & Live Location -->
         <div id="statusIndicator" class="status online">🌐 Online - Connected</div>
-
-        <!-- BAG-O: Ang displayhan sa Latitude ug Longitude inig open -->
-        <div id="liveLocation" class="live-location">📍 Nangita sa imong location...</div>
+        <div id="liveLocation">📍 Nangita sa imong location...</div>
 
         <form id="myForm">
-            <!-- BAG-O: Ang box para sa ID nga naka readonly -->
             <input type="text" id="idNum" placeholder="Rider ID" readonly required>
-
             <input type="text" id="name" placeholder="Imong Pangalan" readonly required>
             <input type="number" id="odometer" placeholder="Odometer (ODO)" required>
-            <textarea id="notes" placeholder="Mensahe o Notes o REMARKS" rows="4" required></textarea>
+            <textarea id="notes" placeholder="Mensahe o Notes o REMARKS" rows="3" required></textarea>
 
-            <!-- BAG-O: Camera Input para sa Selfie/Ebidensya -->
-            <div style="margin-top: 15px; margin-bottom: 15px; text-align: left;">
-                <label style="font-weight: bold; color: #333;">📸 Pagkuha og Selfie (Ebidensya):</label>
-                <!-- Ang capture="user" mo-abli dayon sa front camera -->
-                <input type="file" id="cameraInput" accept="image/*" capture="user" required style="width: 100%;">
-                
-                <!-- Dinhi mo-display ang picture human makuha -->
-                <img id="photoPreview" style="display:none; max-width: 100%; border-radius: 8px; margin-top: 10px; border: 2px solid #ccc;">
-                
-                <!-- KINI ANG SEKRETO: Canvas nga tago para pigaon ang picture -->
-                <canvas id="photoCanvas" style="display:none;"></canvas>
+            <!-- Astig nga Camera Button -->
+            <div class="camera-btn-wrapper">
+                <button type="button" class="camera-btn">📸 Pindota aron mag-Picture</button>
+                <input type="file" id="cameraInput" accept="image/*" capture="environment" required>
             </div>
-
+            
+            <img id="photoPreview" alt="Ebidensya">
+            <canvas id="photoCanvas" style="display:none;"></canvas>
 
             <button type="submit">I-Submit ang Data</button>
         </form>
     </div>
 
-
+    <!-- IMONG ORIGINAL NGA JAVASCRIPT (WALA GITHUBTAN) -->
     <script src="database.js"></script>
-
     <script>
-        // --- 📸 SUGOD SA CAMERA UG COMPRESSION MAGIC 📸 ---
-        let compressedPhotoBase64 = ""; // Dinhi nato e-save ang 'text' nga porma sa picture
+        let compressedPhotoBase64 = ""; 
 
         document.getElementById('cameraInput').addEventListener('change', function(event) {
             const file = event.target.files[0];
@@ -83,19 +210,14 @@
                         const canvas = document.getElementById('photoCanvas');
                         const ctx = canvas.getContext("2d");
 
-                        // Pigaon nato! Himuon lang natong max 400px ang gilapdon (Gaan kaayo ni!)
                         const MAX_WIDTH = 400;
                         const scaleSize = MAX_WIDTH / img.width;
                         canvas.width = MAX_WIDTH;
                         canvas.height = img.height * scaleSize;
 
-                        // Idibuho ang picture ngadto sa canvas gamit ang bag-ong gidak-on
                         ctx.drawImage(img, 0, 0, canvas.width, canvas.height);
-
-                        // I-convert ngadto sa Base64 text (Compressed at 50% quality / '0.5')
                         compressedPhotoBase64 = canvas.toDataURL("image/jpeg", 0.5);
 
-                        // I-display ang preview sa screen para makita sa marshal
                         const photoPreview = document.getElementById('photoPreview');
                         photoPreview.src = compressedPhotoBase64;
                         photoPreview.style.display = "block";
@@ -105,18 +227,12 @@
                 reader.readAsDataURL(file);
             }
         });
-        // --- 📸 KATAPUSAN SA CAMERA MAGIC 📸 ---
         
-        
-        
-        // KINI ANG MUBASA SA PARAMETER SA LINK (ex. ?theIDno=1234)
-        // 👇👇👇 E-PASTE DINHI ANG KODIGO SULOD SA SCRIPT 👇👇👇
         window.addEventListener('DOMContentLoaded', function() {
             const urlParams = new URLSearchParams(window.location.search);
-            const scannedID = urlParams.get('theIDno');  // Kuhaon niya ang 'theIDno'
+            const scannedID = urlParams.get('theIDno'); 
 
             if (scannedID) {
-                // Kung naay ID sa link, i-butang niya sa box nga naka readonly
                 document.getElementById('idNum').value = scannedID;
 
                 if (typeof riderDatabase !== 'undefined') {
@@ -126,7 +242,6 @@
                     if (rider) {
                         nameBox.value = rider.fullname;
                         nameBox.readOnly = true; 
-                        nameBox.style.backgroundColor = "#e9ecef";
                     } else {
                         nameBox.value = "❌ Wala sa Masterlist!";
                         nameBox.style.color = "red";
@@ -135,10 +250,7 @@
                 }
             }
         });
-        // 👆👆👆 KATAPUSAN SA KODIGO 👆👆👆
 
-
-        // Imong Google Apps Script Web App URL
         const scriptURL = 'https://script.google.com/macros/s/AKfycby_4MwwGkRxmWI2zND7fiQN3N9wTmkm3TCg6f5xteV0bEwAj89xOCte6gRYqUE6AsB6/exec';
         
         const statusIndicator = document.getElementById('statusIndicator');
@@ -159,20 +271,16 @@
         window.addEventListener('online', updateStatus);
         window.addEventListener('offline', updateStatus);
 
-
-
-
-        // BAG-O: Function para ipakita dayon ang Lat/Long sa screen pag-abli
         function showLiveLocationOnLoad() {
             if (navigator.geolocation) {
                 navigator.geolocation.getCurrentPosition(
                     (position) => {
-                        const lat = position.coords.latitude.toFixed(6); // toFixed(6) para dili taas kaayo ang numbers
+                        const lat = position.coords.latitude.toFixed(6); 
                         const lon = position.coords.longitude.toFixed(6);
                         liveLocationDiv.innerHTML = `📍 <b>Lat:</b> ${lat} &nbsp;|&nbsp; <b>Lon:</b> ${lon}`;
                     },
                     (error) => {
-                        liveLocationDiv.innerHTML = "⚠️ Palihug i-allow ang Location / GPS sa imong device.";
+                        liveLocationDiv.innerHTML = "⚠️ Palihug i-allow ang Location / GPS.";
                     },
                     { enableHighAccuracy: true }
                 );
@@ -211,7 +319,6 @@
             }
         }
 
-        // Ang mu-kuha sa final GPS para isulod sa Google Sheet
         function getLocation() {
             return new Promise((resolve) => {
                 if (!navigator.geolocation) {
@@ -239,41 +346,28 @@
             });
         }
 
-
-
         myForm.addEventListener('submit', async function(e) {
             e.preventDefault();
 
             const submitBtn = myForm.querySelector('button');
-            submitBtn.textContent = "📍 Gikuha ang Location ug Gipadala...";
+            submitBtn.textContent = "📍 Gipadala ang Data...";
             submitBtn.disabled = true;
 
-            // Mokuha sa GPS data gikan sa imong function
             const gpsData = await getLocation();
 
-            // --- 🛑 SUGOD SA BANTAY (LOCATION VALIDATION) 🛑 ---
-            // Kung mapakyas ang pagkuha sa GPS (N/A o Error), mopara siya dinhi.
             if (gpsData.lat === "N/A" || gpsData.link === "No GPS" || gpsData.link === "Error/Gibalibaran") {
                 alert("🛑 DILI MA-SAVE! Palihug i-allow o i-on ang Location / GPS sa imong selpon usa ka mo-submit.");
-                
-                // I-reset ang button aron dili ma-lock ug pwede ma-click usab
                 submitBtn.textContent = "I-Submit ang Data";
                 submitBtn.disabled = false;
-                
-                return; // KINI ANG BRAKES! Mopahunong siya aron dili mo-lahos sa pag-save sa ubos.
+                return; 
             }
-            // --- 🛑 KATAPUSAN SA BANTAY 🛑 ---
 
-            // Kung SUCCESS ang GPS, mo-lahos ang code dinhi aron e-save ang data
             const data = {
                 idNum: document.getElementById('idNum').value,
                 name: document.getElementById('name').value,
                 odometer: document.getElementById('odometer').value, 
                 notes: document.getElementById('notes').value,
-
-                // 👇 KINI ANG IMONG GIDUGANG PARA SA PICTURE 👇
-                photo: compressedPhotoBase64, // <-- KINI GYUD DAPAT NAA
-
+                photo: compressedPhotoBase64, 
                 timestamp: new Date().toLocaleString(), 
                 location: gpsData.link,
                 latitude: gpsData.lat,
@@ -296,30 +390,26 @@
             }
 
             myForm.reset();
-            compressedPhotoBase64 = ""; // <-- IDUGANG KINI aron ma-clear ang picture
-            document.getElementById('photoPreview').style.display = "none"; // <-- IDUGANG KINI aron mawala ang preview
+            compressedPhotoBase64 = ""; 
+            document.getElementById('photoPreview').style.display = "none"; 
             submitBtn.textContent = "I-Submit ang Data";
             submitBtn.disabled = false;
         });
 
-
-
-        // E-run dayon ni inig abli sa app
         updateStatus();
-        showLiveLocationOnLoad(); // <-- Kini ang mopagawas sa GPS display sa ibabaw
+        showLiveLocationOnLoad(); 
 
-        // KINI ANG MAGPA-ANDAR SA OFFLINE CACHE (SERVICE WORKER)
         if ('serviceWorker' in navigator) {
-        window.addEventListener('load', function() {
-            navigator.serviceWorker.register('./sw.js')
-            .then(function(registration) {
-                console.log('Success! Ang Service Worker ni-andar na. Scope:', registration.scope);
-            })
-            .catch(function(error) {
-                console.log('Naay error sa pag-register sa Service Worker:', error);
+            window.addEventListener('load', function() {
+                navigator.serviceWorker.register('./sw.js')
+                .then(function(registration) {
+                    console.log('Service Worker naka-register!');
+                })
+                .catch(function(error) {
+                    console.log('Error sa Service Worker:', error);
+                });
             });
-        });
-    }
+        }
     </script>
 </body>
 </html>
