@@ -498,23 +498,43 @@
                 locationTime: gpsData.time 
             };
 
+            // MAGHIMO TA OG VARIABLE NGA MAGBANTAY KUNG LUWAS NA BA ANG DATA
+            let isDataSaved = false;
+
             if (navigator.onLine) {
                 let success = await sendDataToServer(data);
                 if (success) {
                     alert("✅ Success! Check imong Google Sheet, nisulod na!");
+                    isDataSaved = true; // Luwas na didto sa server!
                 } else {
-                    alert("❌ Naay error sa pag-send. I-try usab.");
+                    // KUNG MAPUTOL ANG INTERNET PAG-SEND! (Ang imong gipangutana)
+                    alert("⚠️ Na-putol ang signal pag-send! I-save nato sa Offline Data sa imong selpon aron dili masayang.");
+                    
+                    // I-PUGOS OG SAVE SA LOCAL STORAGE BISAN PA OG "ONLINE" SIYA
+                    let savedData = JSON.parse(localStorage.getItem('offlineData')) || [];
+                    savedData.push(data);
+                    localStorage.setItem('offlineData', JSON.stringify(savedData));
+                    isDataSaved = true; // Luwas na kay na-save sa selpon!
+                    
+                    updateStatus(); // I-trigger ang offline indicator kung guba ang signal
                 }
             } else {
+                // NORMAL OFFLINE SAVING
                 let savedData = JSON.parse(localStorage.getItem('offlineData')) || [];
                 savedData.push(data);
                 localStorage.setItem('offlineData', JSON.stringify(savedData));
                 alert("⚠️ Walay Internet! Gi-save ang imong Location ug Data sa device.");
+                isDataSaved = true; // Luwas na kay na-save sa selpon!
             }
 
-            myForm.reset();
-            compressedPhotoBase64 = ""; 
-            document.getElementById('photoPreview').style.display = "none"; 
+            // I-RESET LANG ANG FORM KUNG SIGURADO NGA "SAVED" ANG DATA
+            if (isDataSaved) {
+                myForm.reset();
+                compressedPhotoBase64 = ""; 
+                document.getElementById('photoPreview').style.display = "none"; 
+            }
+            
+            // I-balik ang button sa normal pirme
             submitBtn.textContent = "I-Submit ang Data";
             submitBtn.disabled = false;
         });
