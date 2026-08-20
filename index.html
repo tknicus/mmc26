@@ -290,17 +290,26 @@
             }
         }
 
+        // --- 🛡️ BAG-ONG SEND FUNCTION NAAY TIMER PARA SA LIE-FI 🛡️ ---
         async function sendDataToServer(dataPayload) {
             try {
+                // Maghimo ta og timer nga 8 segundos (8000 milliseconds)
+                const controller = new AbortController();
+                const timeoutId = setTimeout(() => controller.abort(), 8000);
+
                 await fetch(scriptURL, {
                     method: 'POST',
                     mode: 'no-cors',
                     headers: { 'Content-Type': 'text/plain;charset=utf-8' }, 
-                    body: JSON.stringify(dataPayload)
+                    body: JSON.stringify(dataPayload),
+                    signal: controller.signal // Dire natong gi-apil ang timer
                 });
+
+                clearTimeout(timeoutId); // Limpyohan ang timer kay nakuha ra sa oras
                 return true; 
             } catch (error) {
-                console.error("Error sending data:", error);
+                // Kung naay error O nag-timeout kay hinay ang net (Lie-Fi)
+                console.error("Error o Hinay kaayo ang net:", error);
                 return false;
             }
         }
@@ -341,7 +350,7 @@
                         (error) => {
                             resolve({ link: "Error/Gibalibaran", lat: "N/A", lon: "N/A", time: "N/A" });
                         },
-                        { timeout: 10000, enableHighAccuracy: true }
+                        { timeout: 10000, enableHighAccuracy: true, maximumAge: 0 }
                     );
                 }
             });
@@ -352,7 +361,7 @@
 
             // BAG-O: Gitumbok gyud nato ang button nga naay type="submit"
             const submitBtn = myForm.querySelector('button[type="submit"]');
-            
+
             submitBtn.textContent = "📍 Gipadala ang Data...";
             submitBtn.disabled = true;
 
