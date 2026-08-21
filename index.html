@@ -672,43 +672,57 @@
         }
 
 
-        
-        // --- 🔓 SECRET BACKDOOR: DOUBLE TAP TO UNLOCK 🔓 ---
-        
+
+// --- 📚 ANG IMONG LOCAL DATABASE (MASTERLIST) 📚 ---
+        // I-update lang ni basi sa imong tinuod nga listahan sa riders
+        const riderDatabase = {
+            "0001": "Long Way Ph",
+            "0002": "Boy Kamote",
+            "0003": "Team Baktas",
+            "0004": "Kargador Racing",
+            "8888": "MasterMinds Admin"
+        };
+
+        // --- 🔓 DOUBLE-TAP TO UNLOCK & AUTO-SEARCH 🔓 ---
         const idNumBox = document.getElementById('idNum');
         const nameBox = document.getElementById('name');
 
-        // Function para i-unlock inig double tap
-        function unlockTextBox(element) {
-            element.removeAttribute('readonly'); // Tangtangon ang pagka-readonly
-            element.focus(); // I-ready dayon ang keyboard
-            element.style.border = "2px solid #ffcc00"; // Butangan og yellow border aron mailhan nga na-unlock
-        }
-
-        // Function para i-lock og balik inig human og type
-        function lockTextBox(element) {
-            element.setAttribute('readonly', true); // I-lock balik
-            element.style.border = "1px solid #444"; // I-balik sa normal nga border
-        }
-
-        // I-taod ang "Double Tap" (dblclick) sa Rider ID
+        // 1. Inig Double-Tap: I-unlock ug i-ready sa pag-type
         idNumBox.addEventListener('dblclick', function() {
-            unlockTextBox(this);
+            this.removeAttribute('readonly'); // Tangtangon ang lock
+            this.value = ""; // I-clear ang daan nga ID aron maka-type og bag-o
+            nameBox.value = ""; // I-clear apil ang pangalan
+            this.focus(); // I-patawag dayon ang keyboard sa selpon
+            this.style.border = "3px solid #ffcc00"; // Yellow border (nag-ilis nga unlocked na)
         });
 
-        // I-taod ang "Double Tap" (dblclick) sa Pangalan
-        nameBox.addEventListener('dblclick', function() {
-            unlockTextBox(this);
-        });
+        // 2. Inig Type: Magbantay kada digit nga isulod
+        idNumBox.addEventListener('input', function() {
+            // Siguradohon nga NUMERO lang gyud ang pwede i-type (i-delete niya ang letters/spaces)
+            this.value = this.value.replace(/[^0-9]/g, ''); 
 
-        // ✨ PROF G BONUS: I-lock og balik inig click nila sa gawas (blur) ✨
-        idNumBox.addEventListener('blur', function() {
-            lockTextBox(this);
-        });
+            // KUNG MOABOT NA GYUD OG 4 KA DIGITS...
+            if (this.value.length === 4) {
+                
+                // A. I-lock dayon og balik!
+                this.setAttribute('readonly', true);
+                this.style.border = "1px solid #444"; // I-balik sa normal nga kolor
+                this.blur(); // I-tago ang keyboard kay human na og type
 
-        nameBox.addEventListener('blur', function() {
-            lockTextBox(this);
+                // B. Pangitaon ang tag-iya sa Database!
+                const typedID = this.value;
+                
+                if (riderDatabase[typedID]) {
+                    // Kung nakit-an sa listahan
+                    nameBox.value = riderDatabase[typedID];
+                    // Optional: Pwede nimo e-play og sound effect diri kung gusto nimo nga murag "Ting!"
+                } else {
+                    // Kung WALA sa listahan (mopara ang atong bouncer kaganina ani inig submit)
+                    nameBox.value = "❌ Wala sa Masterlist"; 
+                }
+            }
         });
+        
     </script>
 </body>
 </html>
