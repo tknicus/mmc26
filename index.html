@@ -317,17 +317,52 @@
                         const canvas = document.getElementById('photoCanvas');
                         const ctx = canvas.getContext("2d");
 
-                        const MAX_WIDTH = 400;
+                        const MAX_WIDTH = 600;
                         const scaleSize = MAX_WIDTH / img.width;
                         canvas.width = MAX_WIDTH;
                         canvas.height = img.height * scaleSize;
 
+                        // 1. Drawing sa picture
                         ctx.drawImage(img, 0, 0, canvas.width, canvas.height);
-                        compressedPhotoBase64 = canvas.toDataURL("image/jpeg", 0.5);
 
+                        // 2. Drawing sa Logo (Left Bottom)
+                        const logoImg = new Image();
+                        logoImg.src = 'mmc.png';
+                        logoImg.onload = function() {
+                            const logoWidth = canvas.width * 0.15; // 15% sa width
+                            const logoHeight = (logoImg.height / logoImg.width) * logoWidth;
+                            
+                            // Draw Logo sa Left Bottom (x=10)
+                            ctx.drawImage(logoImg, 10, canvas.height - logoHeight - 10, logoWidth, logoHeight);
+
+                        // 3. ✨ Drawing sa Text (ID, Oras, ug GPS sa Right Bottom) ✨
+                        ctx.fillStyle = "white";
+                        ctx.strokeStyle = "black"; // Itom nga border aron mabasa maski hayag ang picture
+                        ctx.lineWidth = 3;
+                        ctx.font = "bold 18px Arial"; // Gi-gamyan nato gamay aron masigo tanan
+                        ctx.textAlign = "right";
+
+                        const riderID = document.getElementById('idNum').value || "WALA I-SCAN";
+                        const timeNow = new Date().toLocaleTimeString(); // Kuhaon ang oras karon
+                        
+                        // A. I-stamp ang Rider ID (Pinakataas)
+                        ctx.strokeText("ID: " + riderID, canvas.width - 10, canvas.height - 55);
+                        ctx.fillText("ID: " + riderID, canvas.width - 10, canvas.height - 55);
+
+                        // B. I-stamp ang Oras (Tunga)
+                        ctx.strokeText("Time: " + timeNow, canvas.width - 10, canvas.height - 35);
+                        ctx.fillText("Time: " + timeNow, canvas.width - 10, canvas.height - 35);
+
+                        // C. I-stamp ang Ready nga GPS Coordinates (Pinaka-ubos)
+                        ctx.strokeText(`Lat: ${globalLat} | Lon: ${globalLon}`, canvas.width - 10, canvas.height - 15);
+                        ctx.fillText(`Lat: ${globalLat} | Lon: ${globalLon}`, canvas.width - 10, canvas.height - 15);
+
+                        // 4. E-convert sa Text (Base64)
+                        compressedPhotoBase64 = canvas.toDataURL("image/jpeg", 0.5);
                         const photoPreview = document.getElementById('photoPreview');
                         photoPreview.src = compressedPhotoBase64;
                         photoPreview.style.display = "block";
+                        };
                     };
                     img.src = e.target.result;
                 };
@@ -378,23 +413,34 @@
         window.addEventListener('online', updateStatus);
         window.addEventListener('offline', updateStatus);
 
+
+
+        // 1. Maghimo ta og global memory para sa GPS aron andam na daan
+        let globalLat = "N/A";
+        let globalLon = "N/A";
+
+        // 2. Ang bag-ong Live Tracker (watchPosition)
         function showLiveLocationOnLoad() {
             if (navigator.geolocation) {
-                navigator.geolocation.getCurrentPosition(
+                // Imbes nga getCurrentPosition, atong gigamit ang watchPosition aron mo-update permi!
+                navigator.geolocation.watchPosition(
                     (position) => {
-                        const lat = position.coords.latitude.toFixed(6); 
-                        const lon = position.coords.longitude.toFixed(6);
-                        liveLocationDiv.innerHTML = `📍 <b>Lat:</b> ${lat} &nbsp;|&nbsp; <b>Lon:</b> ${lon}`;
+                        globalLat = position.coords.latitude.toFixed(6);
+                        globalLon = position.coords.longitude.toFixed(6);
+                        liveLocationDiv.innerHTML = `📍 <b>Lat:</b> ${globalLat} &nbsp;|&nbsp; <b>Lon:</b> ${globalLon}`;
                     },
                     (error) => {
                         liveLocationDiv.innerHTML = "⚠️ Palihug i-allow ang Location / GPS.";
                     },
-                    { enableHighAccuracy: true }
+                    { enableHighAccuracy: true, maximumAge: 0 } // maximumAge: 0 aron presko pirme ang GPS
                 );
             } else {
                 liveLocationDiv.innerHTML = "❌ GPS wala gisuportahan sa imong device.";
             }
         }
+
+
+
 
         // --- 🛡️ BAG-ONG SEND FUNCTION NAAY TIMER PARA SA LIE-FI 🛡️ ---
         async function sendDataToServer(dataPayload) {
