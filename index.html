@@ -475,6 +475,22 @@
             const bgMusic = document.getElementById('submitMusic');
             bgMusic.play();
 
+            // --- 🛑 BANTAY SA RIDER ID UG PANGALAN 🛑 ---
+            const checkId = document.getElementById('idNum').value;
+            const checkName = document.getElementById('name').value;
+
+            if (checkId === "" || checkName === "" || checkName.includes("❌")) {
+                bgMusic.pause(); // Ihunong ang kanta
+                bgMusic.currentTime = 0; // I-rewind
+                
+                alert("🛑 DILI MA-SAVE! Blangko ang Rider ID. Palihug i-scan ang saktong QR Code sa Rider una ka mo-submit.");
+                
+                submitBtn.textContent = "I-Submit ang Data";
+                submitBtn.disabled = false;
+                return; // KINI ANG MOPAHUNONG ARON DILI MOLAHOS OG SAVE!
+            }
+            // --- 🛑 KATAPUSAN SA BANTAY SA ID 🛑 ---
+
             // Mokuha sa GPS data gikan sa imong function
             const gpsData = await getLocation();
 
@@ -493,7 +509,7 @@
             if (compressedPhotoBase64 === "") {
                 bgMusic.pause(); // 🛑 Ihunong ang kanta
                 bgMusic.currentTime = 0; // I-rewind
-                
+
                 alert("📸 DILI MA-SAVE! Palihug pagkuha og Ebidensya/Picture una ka mo-submit.");
                 submitBtn.textContent = "I-Submit ang Data";
                 submitBtn.disabled = false;
