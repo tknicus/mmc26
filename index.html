@@ -673,15 +673,57 @@
 
 
 
-        // --- 📚 ANG IMONG LOCAL DATABASE (MASTERLIST) 📚 ---
-        // I-update lang ni basi sa imong tinuod nga listahan sa riders
-        const riderDatabase = {
-            "0001": "Long Way Ph",
-            "0002": "Boy Kamote",
-            "0003": "Team Baktas",
-            "0004": "Kargador Racing",
-            "8888": "MasterMinds Admin"
-        };
+        // --- 🔓 DOUBLE-TAP TO UNLOCK & AUTO-SEARCH (GAMIT ANG DATABASE.JS) 🔓 ---
+        const idNumBox = document.getElementById('idNum');
+        const nameBox = document.getElementById('name');
+
+        // 1. Inig Double-Tap: I-unlock ug i-ready sa pag-type
+        idNumBox.addEventListener('dblclick', function() {
+            this.removeAttribute('readonly'); 
+            this.value = ""; 
+            nameBox.value = ""; 
+            this.focus(); 
+            this.style.border = "3px solid #ffcc00"; 
+        });
+
+        // 2. Inig Type: Magbantay kada digit nga isulod
+        idNumBox.addEventListener('input', function() {
+            // Siguradohon nga NUMERO lang gyud ang pwede i-type
+            this.value = this.value.replace(/[^0-9]/g, ''); 
+
+            // KUNG MOABOT NA GYUD OG 4 KA DIGITS...
+            if (this.value.length === 4) {
+                
+                // A. I-lock dayon og balik!
+                this.setAttribute('readonly', true);
+                this.style.border = "1px solid #444"; 
+                this.blur(); 
+
+                const typedID = this.value;
+                
+                // --- 🔎 B. PANGITAON ANG TAG-IYA SA IMONG DATABASE.JS 🔎 ---
+                
+                // ⚠️ BANTAYI KINI PROF: 
+                // Unsay ngalan sa variable didto sa imong database.js? 
+                // Kung ang naa sa database.js nimo kay: const riders = { "0001": "Long Way Ph" }
+                // Gamita kining linyaha (i-uncomment):
+                
+                // const foundName = riders[typedID]; 
+                
+                // PERO KUNG array siya like: const riders = [{id: "0001", name: "Long Way Ph"}]
+                // Gamita kining linyaha:
+                // const riderObj = riders.find(r => r.id === typedID);
+                // const foundName = riderObj ? riderObj.name : undefined;
+
+                // Para pananglitan karon (I-ASSUME nako nga 'riders' ang pangalan sa imong listahan didto):
+                if (typeof riders !== 'undefined' && riders[typedID]) {
+                    nameBox.value = riders[typedID]; // I-display ang ngalan!
+                } else {
+                    nameBox.value = "❌ Wala sa Masterlist"; 
+                }
+            }
+        });
+
 
         // --- 🔓 DOUBLE-TAP TO UNLOCK & AUTO-SEARCH 🔓 ---
         const idNumBox = document.getElementById('idNum');
