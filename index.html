@@ -338,28 +338,37 @@
                             // y = canvas.height - logoHeight - 10 (margin sa ubos)
                             ctx.drawImage(logoImg, 10, canvas.height - logoHeight - 10, logoWidth, logoHeight);
 
-                        // 3. ✨ Drawing sa Text (ID, Oras, ug GPS sa Right Bottom) ✨
+                        // 3. ✨ Drawing sa Text (ID+Name, Date+Time, ug GPS sa Right Bottom) ✨
                         ctx.fillStyle = "white";
-                        ctx.strokeStyle = "black"; // Itom nga border aron mabasa maski hayag ang picture
+                        ctx.strokeStyle = "black"; 
                         ctx.lineWidth = 3;
-                        ctx.font = "bold 18px Arial"; // Gi-gamyan nato gamay aron masigo tanan
+                        ctx.font = "bold 16px Arial"; // ⬅️ Gi-gamyan nato sa 16px aron masigo ang taas nga detalye
                         ctx.textAlign = "right";
 
+                        // Kuhaon ang ID ug ang Pangalan (Alias/Nickname)
                         const riderID = document.getElementById('idNum').value || "WALA I-SCAN";
-                        const timeNow = new Date().toLocaleTimeString(); // Kuhaon ang oras karon
+                        const riderName = document.getElementById('name').value || "Wala Kaila";
                         
-                        // A. I-stamp ang Rider ID (Pinakataas)
-                        ctx.strokeText("ID: " + riderID, canvas.width - 10, canvas.height - 55);
-                        ctx.fillText("ID: " + riderID, canvas.width - 10, canvas.height - 55);
+                        // Kuhaon ang Date UG Time dungan (toLocaleString)
+                        const dateTimeNow = new Date().toLocaleString(); 
+                        
+                        // A. I-stamp ang Rider ID ug Pangalan (Pinakataas)
+                        // Porma: ID: 0001 (technicus)
+                        const textA = `ID: ${riderID} (${riderName})`;
+                        ctx.strokeText(textA, canvas.width - 10, canvas.height - 55);
+                        ctx.fillText(textA, canvas.width - 10, canvas.height - 55);
 
-                        // B. I-stamp ang Oras (Tunga)
-                        ctx.strokeText("Time: " + timeNow, canvas.width - 10, canvas.height - 35);
-                        ctx.fillText("Time: " + timeNow, canvas.width - 10, canvas.height - 35);
+                        // B. I-stamp ang Date ug Time (Tunga)
+                        // Porma: Date/Time: 8/21/2026, 10:44:22 PM
+                        const textB = `Date/Time: ${dateTimeNow}`;
+                        ctx.strokeText(textB, canvas.width - 10, canvas.height - 35);
+                        ctx.fillText(textB, canvas.width - 10, canvas.height - 35);
 
-                        // C. I-stamp ang Ready nga GPS Coordinates (Pinaka-ubos)
-                        ctx.strokeText(`Lat: ${globalLat} | Lon: ${globalLon}`, canvas.width - 10, canvas.height - 15);
-                        ctx.fillText(`Lat: ${globalLat} | Lon: ${globalLon}`, canvas.width - 10, canvas.height - 15);
-
+                        // C. I-stamp ang GPS Coordinates (Pinaka-ubos)
+                        const textC = `Lat: ${globalLat} | Lon: ${globalLon}`;
+                        ctx.strokeText(textC, canvas.width - 10, canvas.height - 15);
+                        ctx.fillText(textC, canvas.width - 10, canvas.height - 15);
+                        
                         // 4. E-convert sa Text (Base64)
                         compressedPhotoBase64 = canvas.toDataURL("image/jpeg", 0.5);
                         const photoPreview = document.getElementById('photoPreview');
