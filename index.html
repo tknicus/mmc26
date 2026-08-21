@@ -338,37 +338,62 @@
                             // y = canvas.height - logoHeight - 10 (margin sa ubos)
                             ctx.drawImage(logoImg, 10, canvas.height - logoHeight - 10, logoWidth, logoHeight);
 
-                        // 3. ✨ Drawing sa Text (ID+Name, Date+Time, ug GPS sa Right Bottom) ✨
+
+
+                        // --- 🛠️ HELPER FUNCTION PARA SA DMS (Degrees, Minutes, Seconds) 🛠️ ---
+                        function convertToDMS(decimal, isLat) {
+                            if (decimal === "N/A") return "N/A";
+                            const val = parseFloat(decimal);
+                            const absVal = Math.abs(val);
+                            const d = Math.floor(absVal);
+                            const m = Math.floor((absVal - d) * 60);
+                            const s = ((absVal - d - m / 60) * 3600).toFixed(0); // Walay decimal sa seconds
+                            const dir = isLat ? (val >= 0 ? "N" : "S") : (val >= 0 ? "E" : "W");
+                            return `${d}° ${m}' ${s}" ${dir}`;
+                        }
+                        
+                        // 3. ✨ Drawing sa Text (ID+Name, Military Time, ug DMS GPS) ✨
                         ctx.fillStyle = "white";
                         ctx.strokeStyle = "black"; 
                         ctx.lineWidth = 3;
-                        ctx.font = "bold 16px Arial"; // ⬅️ Gi-gamyan nato sa 16px aron masigo ang taas nga detalye
+                        ctx.font = "bold 16px Arial"; 
                         ctx.textAlign = "right";
 
-                        // Kuhaon ang ID ug ang Pangalan (Alias/Nickname)
                         const riderID = document.getElementById('idNum').value || "WALA I-SCAN";
                         const riderName = document.getElementById('name').value || "Wala Kaila";
                         
-                        // Kuhaon ang Date UG Time dungan (toLocaleString)
-                        const dateTimeNow = new Date().toLocaleString(); 
+                        // --- 🪖 MILITARY TIME FORMAT (YYYY-MM-DD HH:mm:ss) 🪖 ---
+                        const now = new Date();
+                        const year = now.getFullYear();
+                        const month = String(now.getMonth() + 1).padStart(2, '0'); // Butangag '0' sa atubangan kon single digit
+                        const day = String(now.getDate()).padStart(2, '0');
+                        const hours = String(now.getHours()).padStart(2, '0');
+                        const minutes = String(now.getMinutes()).padStart(2, '0');
+                        const seconds = String(now.getSeconds()).padStart(2, '0');
                         
+                        // Ehemplo: 2026-08-21 23:08:13
+                        const militaryDateTime = `${year}-${month}-${day} ${hours}:${minutes}:${seconds}`;
+
+                        // --- 🌍 DMS GPS FORMAT 🌍 ---
+                        const dmsLat = convertToDMS(globalLat, true);
+                        const dmsLon = convertToDMS(globalLon, false);
+
                         // A. I-stamp ang Rider ID ug Pangalan (Pinakataas)
-                        // Porma: ID: 0001 (technicus)
                         const textA = `ID: ${riderID} (${riderName})`;
                         ctx.strokeText(textA, canvas.width - 10, canvas.height - 55);
                         ctx.fillText(textA, canvas.width - 10, canvas.height - 55);
 
-                        // B. I-stamp ang Date ug Time (Tunga)
-                        // Porma: Date/Time: 8/21/2026, 10:44:22 PM
-                        const textB = `Date/Time: ${dateTimeNow}`;
+                        // B. I-stamp ang Military Date ug Time (Tunga)
+                        const textB = `Date/Time: ${militaryDateTime}`;
                         ctx.strokeText(textB, canvas.width - 10, canvas.height - 35);
                         ctx.fillText(textB, canvas.width - 10, canvas.height - 35);
 
-                        // C. I-stamp ang GPS Coordinates (Pinaka-ubos)
-                        const textC = `Lat: ${globalLat} | Lon: ${globalLon}`;
+                        // C. I-stamp ang DMS GPS Coordinates (Pinaka-ubos)
+                        const textC = `${dmsLat}, ${dmsLon}`;
                         ctx.strokeText(textC, canvas.width - 10, canvas.height - 15);
                         ctx.fillText(textC, canvas.width - 10, canvas.height - 15);
-                        
+
+
                         // 4. E-convert sa Text (Base64)
                         compressedPhotoBase64 = canvas.toDataURL("image/jpeg", 0.5);
                         const photoPreview = document.getElementById('photoPreview');
