@@ -503,20 +503,61 @@
             }
         }
 
+
+
+        // --- 🔄 SMART SYNC OFFLINE DATA 🔄 ---
         async function syncOfflineData() {
-            let savedData = JSON.parse(localStorage.getItem('offlineData')) || [];
-            if (savedData.length > 0 && navigator.onLine) {
-                statusIndicator.textContent = "🔄 Nag-sync sa imong data, kadiyot lang...";
-                statusIndicator.style.backgroundColor = "#ffc107"; 
-                
-                let success = await sendDataToServer(savedData); 
-                if (success) {
-                    localStorage.removeItem('offlineData'); 
-                    alert("✅ Na-send na sa Google Sheets ang mga data nga gi-save pag offline!");
-                    updateStatus(); 
+            let offlineData = JSON.parse(localStorage.getItem('offlineData')) || [];
+            
+            if (offlineData.length > 0) {
+                // I-disable ang submit button samtang nag-sync aron dili maka-samok
+                const submitBtn = document.getElementById('myForm').querySelector('button[type="submit"]');
+                if(submitBtn) { submitBtn.textContent = "🔄 Nag-Sync sa Data..."; submitBtn.disabled = true; }
+
+                console.log(`Nagsugod og sync sa ${offlineData.length} ka records...`);
+                let failedData = []; // Dinhi nato ibutang kung unsa gyud ang WALA nisulod
+
+                // 🌟 LOOP: I-SEND NATO USA-USA (One at a time) 🌟
+                for (let i = 0; i < offlineData.length; i++) {
+                    let singleRecord = offlineData[i];
+                    
+                    try {
+                        console.log(`Nag-send sa record ${i+1}...`);
+                        // E-send ang usa ka record
+                        let success = await sendDataToServer(singleRecord); 
+                        
+                        if (!success) {
+                            // Kung mi-fail ni (pananglitan naputol utro ang internet), i-save nato sa failedData
+                            console.log(`❌ Failed ang record ${i+1}. I-tago usa.`);
+                            failedData.push(singleRecord);
+                        } else {
+                            console.log(`✅ Success ang record ${i+1}.`);
+                            // Kung success, DILI nato i-apil sa failedData (so, technically, ma-delete na siya)
+                        }
+                    } catch (error) {
+                        console.log(`❌ Error sa record ${i+1}:`, error);
+                        failedData.push(singleRecord);
+                    }
                 }
+
+                // 🌟 HUMAN SA LOOP, I-SAVE OG BALIK ANG MGA WALA NAKALUSOT 🌟
+                if (failedData.length > 0) {
+                    localStorage.setItem('offlineData', JSON.stringify(failedData));
+                    console.log(`⚠️ Naay ${failedData.length} ka records nga wala nakalusot. I-try usab unya.`);
+                } else {
+                    // KUNG NAKALUSOT TANAN, HAWANAN ANG OFFLINE CACHE!
+                    localStorage.removeItem('offlineData');
+                    console.log("🎉 SUCCESS! Nahawan na ang tanang Offline Data.");
+                    alert("✅ Naka-Sync na ang tanang Offline Data padulong sa Database!");
+                }
+
+                // I-balik sa normal ang button
+                if(submitBtn) { submitBtn.textContent = "I-Submit ang Data"; submitBtn.disabled = false; }
+                updateStatus(); 
             }
         }
+
+
 
         function getLocation() {
             return new Promise((resolve) => {
