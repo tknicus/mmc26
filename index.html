@@ -213,6 +213,30 @@
         <div id="statusIndicator" class="status online">🌐 Online - Connected</div>
         <div id="liveLocation">📍 Nangita sa imong location...</div>
 
+        <!-- 📊 HEADS-UP DASHBOARD (UPGRADE 2 & 3) 📊 -->
+            <div id="dashboard" style="background: #222; border: 2px solid #444; border-radius: 8px; padding: 12px; margin-bottom: 15px; color: white; display: flex; justify-content: space-between; align-items: center; font-family: Arial, sans-serif;">
+                
+                <!-- SIGNAL STATUS -->
+                <div style="text-align: center; width: 33%;">
+                    <span style="color: #aaa; font-size: 11px; font-weight: bold; letter-spacing: 1px;">SIGNAL</span><br>
+                    <b id="signalStatus" style="font-size: 14px;">🟢 ONLINE</b>
+                </div>
+
+                <!-- BATTERY MONITOR -->
+                <div style="text-align: center; width: 33%; border-left: 1px solid #444; border-right: 1px solid #444;">
+                    <span style="color: #aaa; font-size: 11px; font-weight: bold; letter-spacing: 1px;">BATTERY</span><br>
+                    <b id="batteryStatus" style="font-size: 14px;">🔋 --%</b>
+                </div>
+
+                <!-- PENDING OFFLINE DATA -->
+                <div style="text-align: center; width: 33%;">
+                    <span style="color: #aaa; font-size: 11px; font-weight: bold; letter-spacing: 1px;">PENDING</span><br>
+                    <b id="pendingCount" style="font-size: 18px; color: #ff9900;">0</b>
+                </div>
+
+            </div>
+
+
         <form id="myForm">
 
             <!-- 📷 QR SCANNER UI 📷 -->
@@ -847,6 +871,76 @@
                 }
             }
         });
+
+
+
+
+
+        // ==========================================
+        // 🚀 UPGRADE 2 & 3: DASHBOARD LOGIC 🚀
+        // ==========================================
+
+        // --- 📡 A. SIGNAL MONITOR ---
+        function updateSignalStatus() {
+            const sigStatus = document.getElementById('signalStatus');
+            if (navigator.onLine) {
+                sigStatus.innerHTML = "🟢 ONLINE";
+                sigStatus.style.color = "#00ff00"; // Green
+            } else {
+                sigStatus.innerHTML = "🔴 OFFLINE";
+                sigStatus.style.color = "#ff3333"; // Red
+            }
+        }
+        window.addEventListener('online', updateSignalStatus);
+        window.addEventListener('offline', updateSignalStatus);
+        updateSignalStatus(); // I-dagan inig abli
+
+        // --- 🔋 B. BATTERY MONITOR ---
+        if ('getBattery' in navigator) {
+            navigator.getBattery().then(function(battery) {
+                function updateBatteryInfo() {
+                    const level = Math.round(battery.level * 100);
+                    const batStatus = document.getElementById('batteryStatus');
+                    
+                    // Kung nag-charge, butangan natog kilat ⚡
+                    const icon = battery.charging ? "⚡" : "🔋";
+                    batStatus.innerHTML = `${icon} ${level}%`;
+                    
+                    // Kung 15% paubos ug wala nag-charge, pa-pulahon nato!
+                    if (level <= 15 && !battery.charging) {
+                        batStatus.style.color = "#ff3333"; 
+                        // Optional: Pwede ka mag-add og alert diri kung gusto nimo
+                    } else {
+                        batStatus.style.color = "white";
+                    }
+                }
+                updateBatteryInfo();
+                battery.addEventListener('levelchange', updateBatteryInfo);
+                battery.addEventListener('chargingchange', updateBatteryInfo);
+            });
+        } else {
+            document.getElementById('batteryStatus').innerHTML = "🔋 N/A";
+        }
+
+        // --- 📊 C. PENDING COUNTER ---
+        function updateDashboardCounters() {
+            let offlineData = JSON.parse(localStorage.getItem('offlineData')) || [];
+            const pCount = document.getElementById('pendingCount');
+            
+            pCount.innerText = offlineData.length;
+            
+            // Kung naay pending, e-orange nato aron ma-notice. Kung wala, puti lang.
+            if (offlineData.length > 0) {
+                pCount.style.color = "#ff9900"; 
+            } else {
+                pCount.style.color = "white"; 
+            }
+        }
+        // I-check ang pending count kada 2 ka segundo aron auto-update gyud pirmi
+        setInterval(updateDashboardCounters, 2000);
+        updateDashboardCounters(); // I-dagan inig abli
+
+        
 
 
 
