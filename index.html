@@ -272,7 +272,7 @@
                 <option value="CP 47">#47 💪 Jolibee Pantukan</option>
 
                 <option value="CP FL">#48 ELKAPITAN's Headstone</option>
-                <option value="CP XX">#xx Stand by me</option>
+                <option value="CP xx">#xx Stand By Me</option>
             </select>
             <!-- 👆 KAHAPONAN SA DROPDOWN 👆 -->
             
@@ -298,6 +298,9 @@
         <!-- 👆 KAHAPONAN SA FOOTER 👆 -->
 
     </div> <!-- Katapusan sa container -->
+
+    <!-- 🎵 INVISIBLE RADIO PARA SA SUBMIT MUSIC 🎵 -->
+    <audio id="submitMusic" src="loading.mp3" loop></audio>
 
     <!-- IMONG ORIGINAL NGA JAVASCRIPT (WALA GITHUBTAN) -->
     <script src="database.js"></script>
@@ -468,9 +471,18 @@
             submitBtn.textContent = "📍 Gipadala ang Data...";
             submitBtn.disabled = true;
 
+            // 🎵 1. E-PLAY ANG MUSIC DAYON PAG-PISLIT! 🎵
+            const bgMusic = document.getElementById('submitMusic');
+            bgMusic.play();
+
+            // Mokuha sa GPS data gikan sa imong function
             const gpsData = await getLocation();
 
+            // --- 🛑 BANTAY SA LOCATION (KUNG MAG-ERROR) ---
             if (gpsData.lat === "N/A" || gpsData.link === "No GPS" || gpsData.link === "Error/Gibalibaran") {
+                bgMusic.pause(); // 🛑 Ihunong ang kanta
+                bgMusic.currentTime = 0; // I-rewind sa sugod
+
                 alert("🛑 DILI MA-SAVE! Palihug i-allow o i-on ang Location / GPS sa imong selpon usa ka mo-submit.");
                 submitBtn.textContent = "I-Submit ang Data";
                 submitBtn.disabled = false;
@@ -479,6 +491,9 @@
 
             // --- 🛑 BANTAY SA PICTURE 🛑 ---
             if (compressedPhotoBase64 === "") {
+                bgMusic.pause(); // 🛑 Ihunong ang kanta
+                bgMusic.currentTime = 0; // I-rewind
+                
                 alert("📸 DILI MA-SAVE! Palihug pagkuha og Ebidensya/Picture una ka mo-submit.");
                 submitBtn.textContent = "I-Submit ang Data";
                 submitBtn.disabled = false;
@@ -505,9 +520,11 @@
             if (navigator.onLine) {
                 let success = await sendDataToServer(data);
                 if (success) {
+                    bgMusic.pause(); bgMusic.currentTime = 0; // 🛑 IHUNONG ANG KANTA KAY SUCCESS NA!
                     alert("✅ Success! Check imong Google Sheet, nisulod na!");
                     isDataSaved = true; // Luwas na didto sa server!
                 } else {
+                    bgMusic.pause(); bgMusic.currentTime = 0; // 🛑 IHUNONG ANG KANTA
                     // KUNG MAPUTOL ANG INTERNET PAG-SEND! (Ang imong gipangutana)
                     alert("⚠️ Na-putol ang signal pag-send! I-save nato sa Offline Data sa imong selpon aron dili masayang.");
                     
@@ -516,10 +533,10 @@
                     savedData.push(data);
                     localStorage.setItem('offlineData', JSON.stringify(savedData));
                     isDataSaved = true; // Luwas na kay na-save sa selpon!
-                    
                     updateStatus(); // I-trigger ang offline indicator kung guba ang signal
                 }
             } else {
+                bgMusic.pause(); bgMusic.currentTime = 0; // 🛑 IHUNONG ANG KANTA
                 // NORMAL OFFLINE SAVING
                 let savedData = JSON.parse(localStorage.getItem('offlineData')) || [];
                 savedData.push(data);
