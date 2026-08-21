@@ -329,10 +329,13 @@
                         const logoImg = new Image();
                         logoImg.src = 'mmc.png';
                         logoImg.onload = function() {
-                            const logoWidth = canvas.width * 0.15; // 15% sa width
+                            // const logoWidth = canvas.width * 0.15; // 15% sa width
+                            const logoWidth = canvas.width * 0.25; // I-set kini sa 0.25 (25%)
                             const logoHeight = (logoImg.height / logoImg.width) * logoWidth;
                             
-                            // Draw Logo sa Left Bottom (x=10)
+                            // Drawing sa Logo (Left Bottom)
+                            // x = 10 (margin sa left)
+                            // y = canvas.height - logoHeight - 10 (margin sa ubos)
                             ctx.drawImage(logoImg, 10, canvas.height - logoHeight - 10, logoWidth, logoHeight);
 
                         // 3. ✨ Drawing sa Text (ID, Oras, ug GPS sa Right Bottom) ✨
