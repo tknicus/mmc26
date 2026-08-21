@@ -670,6 +670,45 @@
                 });
             });
         }
+
+
+        
+        // --- 🔓 SECRET BACKDOOR: DOUBLE TAP TO UNLOCK 🔓 ---
+        
+        const idNumBox = document.getElementById('idNum');
+        const nameBox = document.getElementById('name');
+
+        // Function para i-unlock inig double tap
+        function unlockTextBox(element) {
+            element.removeAttribute('readonly'); // Tangtangon ang pagka-readonly
+            element.focus(); // I-ready dayon ang keyboard
+            element.style.border = "2px solid #ffcc00"; // Butangan og yellow border aron mailhan nga na-unlock
+        }
+
+        // Function para i-lock og balik inig human og type
+        function lockTextBox(element) {
+            element.setAttribute('readonly', true); // I-lock balik
+            element.style.border = "1px solid #444"; // I-balik sa normal nga border
+        }
+
+        // I-taod ang "Double Tap" (dblclick) sa Rider ID
+        idNumBox.addEventListener('dblclick', function() {
+            unlockTextBox(this);
+        });
+
+        // I-taod ang "Double Tap" (dblclick) sa Pangalan
+        nameBox.addEventListener('dblclick', function() {
+            unlockTextBox(this);
+        });
+
+        // ✨ PROF G BONUS: I-lock og balik inig click nila sa gawas (blur) ✨
+        idNumBox.addEventListener('blur', function() {
+            lockTextBox(this);
+        });
+
+        nameBox.addEventListener('blur', function() {
+            lockTextBox(this);
+        });
     </script>
 </body>
 </html>
