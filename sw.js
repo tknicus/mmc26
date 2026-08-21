@@ -1,4 +1,4 @@
-const CACHE_NAME = 'mmc26-cache-v1.06';
+const CACHE_NAME = 'mmc26-cache-v1.07';
 
 // KINI ANG MGA FILES NGA I-DOWNLOAD UG I-SAVE SA SELPON INIG UNANG ABLI
 const urlsToCache = [
