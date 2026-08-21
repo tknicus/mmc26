@@ -1,4 +1,4 @@
-const CACHE_NAME = 'mmc26-cache-v1.12'; // ⬅️ GI-UPDATE NATO ANG VERSION ARON MO-DOWNLOAD OG BAG-O
+const CACHE_NAME = 'mmc26-cache-v1.13'; // ⬅️ GI-UPDATE NATO ANG VERSION ARON MO-DOWNLOAD OG BAG-O
 
 // KINI ANG MGA FILES NGA I-DOWNLOAD UG I-SAVE SA SELPON INIG UNANG ABLI
 const urlsToCache = [
@@ -7,7 +7,9 @@ const urlsToCache = [
   './manifest.json',
   './database.js', // ⬅️ IDUGANG: Ang imong masterlist
   './mmc.png', // ⬅️ IDUGANG: Ang watermark logo para sa picture
-  './loading.mp3', // ⬅️ IDUGANG: Ang para tugtog inig mag SEND sa DATA
+  // 👇 IDUGANG ANG IMONG KANTA DINHI 👇
+  './never_say_never.mp3', // ⬅️ IDUGANG: Ang para tugtog inig mag SEND sa DATA
+  //'./imong_kanta.mp3', // ⚠️ ILISI KINI KUNG UNSA GYUD ANG EXACT FILENAME SA IMONG AUDIO (ex: never_say_never.mp3)
   'https://unpkg.com/html5-qrcode', // ⬅️ IDUGANG: Ang utok sa QR Scanner
   'https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css',
   'https://cdn.jsdelivr.net/npm/sweetalert2@8',
