@@ -5,6 +5,9 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>MasterMinds'CUP Offline Locator</title>
+
+    <!-- 📷 QR CODE SCANNER LIBRARY 📷 -->
+    <script src="https://unpkg.com/html5-qrcode" type="text/javascript"></script>
     
     <!-- 🎨 SUGOD SA MODERN DARK RACING THEME 🎨 -->
     <style>
@@ -211,6 +214,16 @@
         <div id="liveLocation">📍 Nangita sa imong location...</div>
 
         <form id="myForm">
+
+            <!-- 📷 QR SCANNER UI 📷 -->
+            <button type="button" id="scanQrBtn" style="width: 100%; padding: 12px; background-color: #ff9900; color: black; font-weight: bold; font-size: 16px; border: none; border-radius: 4px; margin-bottom: 10px; cursor: pointer;">
+                📷 I-SCAN ANG RIDER ID
+            </button>
+            
+            <!-- Dinhi mogawas ang video sa camera. Naka-tago (none) ni siya daan. -->
+            <div id="reader" style="display: none; width: 100%; margin-bottom: 10px; border-radius: 8px; overflow: hidden; border: 2px solid #ff9900;"></div>
+
+
             <input type="text" id="idNum" placeholder="Rider ID" readonly required>
             <input type="text" id="name" placeholder="Imong Pangalan" readonly required>
             
@@ -760,6 +773,77 @@
                     }
                 } else {
                     alert("⚠️ Error: Wala nabasa ang database.js. Siguroha nga naka-link kini sa HTML.");
+                }
+            }
+        });
+
+
+
+        // --- 📷 QR CODE SCANNER LOGIC 📷 ---
+        const scanBtn = document.getElementById('scanQrBtn');
+        const scannerDiv = document.getElementById('reader');
+        let html5QrCode; // Ang variable nga mogunit sa camera
+
+        scanBtn.addEventListener('click', function() {
+            // Kung naka-tago ang camera, ablihan nato
+            if (scannerDiv.style.display === "none") {
+                scannerDiv.style.display = "block";
+                scanBtn.textContent = "🛑 I-CANCEL ANG PAG-SCAN";
+                scanBtn.style.backgroundColor = "#cc0000"; // Pula nga button
+                scanBtn.style.color = "white";
+
+                html5QrCode = new Html5Qrcode("reader");
+                
+                // Paandaron ang LIKOD nga camera (environment)
+                html5QrCode.start(
+                    { facingMode: "environment" }, 
+                    {
+                        fps: 10, // Unsa ka paspas mo-basa (Frames per second)
+                        qrbox: { width: 250, height: 250 } // Ang square nga box
+                    },
+                    (decodedText, decodedResult) => {
+                        // 🎉 KUNG MAKA-SCAN OG QR CODE 🎉
+                        
+                        // 1. I-hunong ang camera ug i-tago ang box
+                        html5QrCode.stop().then((ignore) => {
+                            scannerDiv.style.display = "none";
+                            scanBtn.textContent = "📷 I-SCAN ANG RIDER ID";
+                            scanBtn.style.backgroundColor = "#ff9900"; // Balik sa orange
+                            scanBtn.style.color = "black";
+                            
+                            // 2. I-butang ang na-scan nga ID didto sa Textbox!
+                            const scannedID = decodedText;
+                            document.getElementById('idNum').value = scannedID;
+                            
+                            // 3. Pangitaon dayon sa database.js kon kinsa siya!
+                            if (typeof riderDatabase !== 'undefined') {
+                                const foundRider = riderDatabase.find(r => r.idNum === scannedID);
+                                if (foundRider) {
+                                    document.getElementById('name').value = foundRider.fullname;
+                                    // Pwede nato patingogon ang success music diri kung gusto nimo!
+                                } else {
+                                    document.getElementById('name').value = "❌ Wala sa Masterlist";
+                                }
+                            }
+                        }).catch((err) => {
+                            console.log("Error sa pag-stop sa camera.", err);
+                        });
+                    },
+                    (errorMessage) => {
+                        // Normal ra ni kung wala pay makita nga QR ang camera
+                    }
+                ).catch((err) => {
+                    alert("⚠️ Wala ma-access ang Camera. Siguroha nga ni-allow ka sa pag-gamit niini.");
+                });
+            } else {
+                // Kung i-cancel sa Marshal ang pag-scan (Click again)
+                if (html5QrCode) {
+                    html5QrCode.stop().then(() => {
+                        scannerDiv.style.display = "none";
+                        scanBtn.textContent = "📷 I-SCAN ANG RIDER ID";
+                        scanBtn.style.backgroundColor = "#ff9900";
+                        scanBtn.style.color = "black";
+                    });
                 }
             }
         });
