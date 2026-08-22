@@ -548,7 +548,25 @@
             });
         }
 
-        
+
+        // 🚀 1. STABILITY TESTER FUNCTION (Isulod kini sa taas o tupad ani)
+        async function checkInternetStability() {
+            if (!navigator.onLine) return false;
+            const startTime = new Date().getTime();
+            try {
+                await fetch('https://www.google.com/favicon.ico?' + startTime, {
+                    mode: 'no-cors',
+                    cache: 'no-store'
+                });
+                const endTime = new Date().getTime();
+                const duration = endTime - startTime; 
+
+                // Kung ubos sa 2 ka segundo ang pagtubag, STABLE!
+                return duration < 2000;
+            } catch (error) {
+                return false;
+            }
+        }
 
 
         let isSubmitting = false; // I-butang ni sa pinakataas sa imong script o sulod sa submit
@@ -557,7 +575,10 @@
             e.preventDefault();
 
             const submitBtn = myForm.querySelector('button[type="submit"]');
-            if (submitBtn.disabled) return;
+
+            // KUNG GASIGURO NA OG PROCESS, AYAW NA PAG-ABLI
+            if (isSubmitting || submitBtn.disabled) return;
+            isSubmitting = true;
 
             submitBtn.textContent = "📍 Gipadala ang Data...";
             submitBtn.disabled = true; 
@@ -575,6 +596,7 @@
                 submitBtn.textContent = "I-Submit ang Data";
                 submitBtn.disabled = false;
                 submitBtn.style.opacity = "1";
+                isSubmitting = false;
                 return;
             }
 
@@ -586,6 +608,7 @@
                 submitBtn.textContent = "I-Submit ang Data";
                 submitBtn.disabled = false;
                 submitBtn.style.opacity = "1";
+                isSubmitting = false;
                 return; 
             }
 
@@ -595,6 +618,7 @@
                 submitBtn.textContent = "I-Submit ang Data";
                 submitBtn.disabled = false;
                 submitBtn.style.opacity = "1";
+                isSubmitting = false;
                 return; 
             }
 
@@ -612,10 +636,16 @@
                 locationTime: gpsData.time 
             };
 
+
+            // 🌐 SUSIHON USA NATO KUNG STABLE BA GYUD ANG INTERNET SA BUKID
+            submitBtn.textContent = "🌐 Gisusi ang Internet...";
+            let isStable = await checkInternetStability();
             let isDataSaved = false;
 
-            if (navigator.onLine) {
+            if (isStable) {
+                submitBtn.textContent = "📍 Gipadala sa Server...";
                 let success = await sendDataToServer(data);
+                
                 if (success) {
                     bgMusic.pause(); bgMusic.currentTime = 0; 
                     alert("✅ Success! Check imong Google Sheet, nisulod na!");
@@ -623,18 +653,15 @@
                 } else {
                     bgMusic.pause(); bgMusic.currentTime = 0; 
                     alert("⚠️ Na-putol ang signal pag-send! Gi-save sa Offline Data.");
-                    let savedData = JSON.parse(localStorage.getItem('offlineData')) || [];
-                    savedData.push(data);
-                    localStorage.setItem('offlineData', JSON.stringify(savedData));
+                    saveToOfflineStorage(data);
                     isDataSaved = true; 
                 }
             } else {
+                // KUNG HINAY / LIE-FI / WALAY INTERNET: I-save dayon sa lokal (localStorage)
                 bgMusic.pause(); bgMusic.currentTime = 0; 
-                let savedData = JSON.parse(localStorage.getItem('offlineData')) || [];
-                savedData.push(data);
-                localStorage.setItem('offlineData', JSON.stringify(savedData));
-                alert("⚠️ Walay Internet! Gi-save ang Data sa device.");
-                isDataSaved = true; 
+                saveToOfflineStorage(data);
+                alert("⚠️ Hinay ang internet (Lie-Fi)! Gi-save sa Offline Data sa device. Mo-sync ra ni inig balik sa tarong nga signal.");
+                isDataSaved = true;
             }
 
             if (isDataSaved) {
@@ -646,7 +673,22 @@
             submitBtn.textContent = "I-Submit ang Data";
             submitBtn.disabled = false;
             submitBtn.style.opacity = "1"; 
+            isSubmitting = false; // 🔓 I-unlock na para sa sunod nga rider
         });
+
+        // 📌 HELPER FUNCTION PARA SA OFFLINE SAVING
+        function saveToOfflineStorage(recordData) {
+            let savedData = JSON.parse(localStorage.getItem('offlineData')) || [];
+            savedData.push(recordData);
+            localStorage.setItem('offlineData', JSON.stringify(savedData));
+            updateDashboardCounters();
+        }
+
+
+
+
+
+
 
         showLiveLocationOnLoad(); 
 
