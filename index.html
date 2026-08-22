@@ -590,7 +590,7 @@
 
                 // I-balik sa normal ang button
                 if(submitBtn) { submitBtn.textContent = "I-Submit ang Data"; submitBtn.disabled = false; }
-                updateStatus(); 
+                //updateStatus(); 
             }
         }
 
@@ -710,7 +710,7 @@
                     savedData.push(data);
                     localStorage.setItem('offlineData', JSON.stringify(savedData));
                     isDataSaved = true; // Luwas na kay na-save sa selpon!
-                    updateStatus(); // I-trigger ang offline indicator kung guba ang signal
+                    //updateStatus(); // I-trigger ang offline indicator kung guba ang signal
                 }
             } else {
                 bgMusic.pause(); bgMusic.currentTime = 0; // 🛑 IHUNONG ANG KANTA
@@ -734,7 +734,7 @@
             submitBtn.disabled = false;
         });
 
-        updateStatus();
+        //updateStatus();
         showLiveLocationOnLoad(); 
 
         if ('serviceWorker' in navigator) {
@@ -800,6 +800,8 @@
     //            }
     //        }
     //    });
+
+
 
 
        // ==========================================
