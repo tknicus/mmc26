@@ -462,26 +462,26 @@
             }
         }
 
+
+        // --- 🛡️ BAG-ONG SEND FUNCTION NGA WALAY TIMER 🛡️ ---
         async function sendDataToServer(dataPayload) {
             try {
-                const controller = new AbortController();
-                const timeoutId = setTimeout(() => controller.abort(), 8000);
-
+                // WALA NAY AbortController! Pabay-i nga ang browser moy magbuot kanus-a mahuman
                 await fetch(scriptURL, {
                     method: 'POST',
                     mode: 'no-cors',
                     headers: { 'Content-Type': 'text/plain;charset=utf-8' }, 
-                    body: JSON.stringify(dataPayload),
-                    signal: controller.signal
+                    body: JSON.stringify(dataPayload)
                 });
 
-                clearTimeout(timeoutId);
+                // Kon makaabot kini nga linya, sigurado na gyud nga nakalusot!
                 return true; 
             } catch (error) {
-                console.error("Error o Hinay kaayo ang net:", error);
+                console.error("Tinuod nga naputol ang internet:", error);
                 return false;
             }
         }
+
 
         // ==========================================
         // 🔄 SMART SYNC OFFLINE DATA (NAA NAY LOCK) 🔄
