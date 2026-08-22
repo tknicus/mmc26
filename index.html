@@ -444,28 +444,7 @@
             }
         });
         
-        //window.addEventListener('DOMContentLoaded', function() {
-        //    const urlParams = new URLSearchParams(window.location.search);
-        //    const scannedID = urlParams.get('theIDno'); 
 
-        //    if (scannedID) {
-        //        document.getElementById('idNum').value = scannedID;
-
-        //       if (typeof riderDatabase !== 'undefined') {
-        //            const rider = riderDatabase.find(r => String(r.idNum) === String(scannedID));
-        //            const nameBox = document.getElementById('name');
-
-        //            if (rider) {
-        //                nameBox.value = rider.fullname;
-        //                nameBox.readOnly = true; 
-        //            } else {
-        //                nameBox.value = "❌ Wala sa Masterlist!";
-        //                nameBox.style.color = "red";
-        //                nameBox.readOnly = true;
-        //            }
-        //        }
-        //    }
-        //});
 
         const scriptURL = 'https://script.google.com/macros/s/AKfycby_4MwwGkRxmWI2zND7fiQN3N9wTmkm3TCg6f5xteV0bEwAj89xOCte6gRYqUE6AsB6/exec';
         
@@ -473,19 +452,6 @@
         const liveLocationDiv = document.getElementById('liveLocation');
         const myForm = document.getElementById('myForm');
 
-        //function updateStatus() {
-        //    if (navigator.onLine) {
-        //        statusIndicator.textContent = "🌐 Online - Connected";
-        //        statusIndicator.className = "status online";
-        //        syncOfflineData(); 
-        //    } else {
-        //        statusIndicator.textContent = "⚠️ Offline - Walay Internet";
-        //        statusIndicator.className = "status offline";
-        //    }
-        //}
-
-        //window.addEventListener('online', updateStatus);
-        //window.addEventListener('offline', updateStatus);
 
 
 
@@ -751,57 +717,6 @@
 
 
 
-        // --- 🔓 DOUBLE-TAP TO UNLOCK & AUTO-SEARCH (GAMIT ANG DATABASE.JS) 🔓 ---
-    //    const idNumBox = document.getElementById('idNum');
-    //    const nameBox = document.getElementById('name');
-
-        // 1. Inig Double-Tap: I-unlock ug i-ready sa pag-type
-    //    idNumBox.addEventListener('dblclick', function() {
-    //        this.removeAttribute('readonly'); 
-    //        this.value = ""; 
-    //        nameBox.value = ""; 
-    //        this.focus(); 
-    //        this.style.border = "3px solid #ffcc00"; 
-    //    });
-
-        // 2. Inig Type: Magbantay kada digit nga isulod
-    //    idNumBox.addEventListener('input', function() {
-            // Siguradohon nga NUMERO lang gyud ang pwede i-type
-    //        this.value = this.value.replace(/[^0-9]/g, ''); 
-
-            // KUNG MOABOT NA GYUD OG 4 KA DIGITS...
-    //        if (this.value.length === 4) {
-                
-                // A. I-lock dayon og balik!
-    //            this.setAttribute('readonly', true);
-    //            this.style.border = "1px solid #444"; 
-    //           this.blur(); 
-
-    //            const typedID = this.value;
-                
-                // --- 🔎 B. PANGITAON ANG TAG-IYA SA IMONG riderDatabase 🔎 ---
-                // Gamiton nato ang .find() kay Array of Objects ang imong database.js
-                
-    //            if (typeof riderDatabase !== 'undefined') {
-    //                const foundRider = riderDatabase.find(rider => rider.idNum === typedID);
-                    
-    //                if (foundRider) {
-                        // Nakit-an! I-display ang fullname didto sa text box.
-    //                    nameBox.value = foundRider.fullname; 
-                        
-                        // Optional: Kung gusto nimo i-apil ang nickname, pwede nimo usbon ang sa taas ngadto sa:
-                        // nameBox.value = foundRider.fullname + " (" + foundRider.nickname + ")";
-    //                } else {
-                        // Wala makit-i ang 4-digit ID
-    //                    nameBox.value = "❌ Wala sa Masterlist"; 
-    //                }
-    //            } else {
-    //                alert("⚠️ Error: Wala nabasa ang database.js. Siguroha nga naka-link kini sa HTML.");
-    //            }
-    //        }
-    //    });
-
-
 
 
        // ==========================================
@@ -941,10 +856,6 @@
         // ==========================================
 
         
-        
-
-
-
         // --- 📡 A. SIGNAL MONITOR (SMART INTERNET CHECKER) ---
         async function checkRealInternet() {
             const sigStatus = document.getElementById('signalStatus');
