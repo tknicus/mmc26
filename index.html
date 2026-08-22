@@ -444,8 +444,60 @@
             }
         });
         
+        
         window.addEventListener('DOMContentLoaded', function() {
+            
+            // ==========================================
+            // 💾 DEVICE MEMORY (RIDER'S DEFAULT ID) 💾
+            // ==========================================
+
+            const idNumInput = document.getElementById('idNum');
+            const nameInput = document.getElementById('name');
+            
+            // 1. Pangitaon ang ID gikan sa URL (?theIDno=...)
             const urlParams = new URLSearchParams(window.location.search);
+            let paramID = urlParams.get('theIDno');
+
+            // 2. Pangitaon kung naay naka-save nga ID sa selpon kaniadto
+            let savedID = localStorage.getItem('defaultRiderID');
+
+            // 3. LOGIC KUNG UNSAY IBUTANG NGA ID SA TEXTBOX
+            if (paramID) {
+                // Kung naay ni-click og link nga naay ID, maoy unahon nato og gamit
+                idNumInput.value = paramID;
+                localStorage.setItem('defaultRiderID', paramID); // I-save dayon isip Default
+            } 
+            else if (savedID) {
+                // Kung walay parameter sa link, apan naay naka-save sa selpon kaniadto, mao nay gamiton!
+                idNumInput.value = savedID;
+            }
+
+            // 4. PANGITAON DAYON SA DATABASE.JS ANG NGALAN
+            function autoFillNameFromDatabase(idToSearch) {
+                if (idToSearch && typeof riderDatabase !== 'undefined') {
+                    const foundRider = riderDatabase.find(r => r.idNum === idToSearch);
+                    if (foundRider) {
+                        nameInput.value = foundRider.fullname;
+                    } else {
+                        nameInput.value = "❌ Wala sa Masterlist";
+                    }
+                }
+            }
+            
+            // I-dagan ang search aron mo-gawas ang pangalan inig abli
+            autoFillNameFromDatabase(idNumInput.value);
+
+
+            // 5. UPDATE ANG DEFAULT ID KUNG MAG-USAB ANG MARSHAL/RIDER
+            // Inig type o inig scan sa bag-ong ID, i-save kini isip bag-ong default
+            idNumInput.addEventListener('change', function() {
+                if (this.value.length === 4) {
+                    localStorage.setItem('defaultRiderID', this.value);
+                }
+            });
+            
+            
+            
             const scannedID = urlParams.get('theIDno'); 
 
             if (scannedID) {
@@ -920,9 +972,6 @@
         setInterval(checkRealInternet, 5000);
         checkRealInternet(); // I-dagan inig abli
 
-        
-        
-        
         
         // --- 🔋 B. BATTERY MONITOR ---
         if ('getBattery' in navigator) {
