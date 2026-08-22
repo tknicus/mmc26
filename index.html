@@ -548,6 +548,11 @@
             });
         }
 
+        
+
+
+        let isSubmitting = false; // I-butang ni sa pinakataas sa imong script o sulod sa submit
+
         myForm.addEventListener('submit', async function(e) {
             e.preventDefault();
 
@@ -819,6 +824,25 @@
         }
         setInterval(updateDashboardCounters, 2000);
         updateDashboardCounters(); 
+
+
+        // I-reset ang form kung luwas na
+        if (isDataSaved) {
+            myForm.reset();
+            compressedPhotoBase64 = ""; 
+            document.getElementById('photoPreview').style.display = "none"; 
+        }
+            
+        submitBtn.textContent = "I-Submit ang Data";
+        submitBtn.disabled = false;
+        submitBtn.style.opacity = "1"; 
+
+        isSubmitting = false; // 🔓 I-UNLOCK NA KARON ARON PWEDE NA MOKAB-OT SUNOD RIDER
+
+    
+    
+    
+    
     </script>
 
 
