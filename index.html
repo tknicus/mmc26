@@ -593,11 +593,24 @@
             e.preventDefault();
 
             // BAG-O: Gitumbok gyud nato ang button nga naay type="submit"
+            // 1. I-kuha ang button
             const submitBtn = myForm.querySelector('button[type="submit"]');
 
-            submitBtn.textContent = "📍 Gipadala ang Data...";
-            submitBtn.disabled = true;
+            // 2. KUNG DISABLED NA ANG BUTTON, AYAW NA PAG-DAGAN (Anti-Double Click)
+            if (submitBtn.disabled) {
+                return; // Mo-undang dayon siya, dili mo-padala og balik
+            }
 
+            // 3. I-DISABLE ANG BUTTON DAYON!
+            submitBtn.textContent = "📍 Gipadala ang Data...";
+            submitBtn.disabled = true; 
+            submitBtn.style.opacity = "0.5"; // I-dim nato aron mahibalo ang marshal nga busy ang app
+
+           
+            
+            
+            
+            
             // 🎵 1. E-PLAY ANG MUSIC DAYON PAG-PISLIT! 🎵
             const bgMusic = document.getElementById('submitMusic');
             bgMusic.play();
@@ -698,6 +711,7 @@
             // I-balik ang button sa normal pirme
             submitBtn.textContent = "I-Submit ang Data";
             submitBtn.disabled = false;
+            submitBtn.style.opacity = "1"; // I-balik ang hayag
         });
 
         //updateStatus();
