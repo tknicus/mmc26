@@ -484,7 +484,7 @@
         //    }
         //}
 
-        window.addEventListener('online', updateStatus);
+        //window.addEventListener('online', updateStatus);
         window.addEventListener('offline', updateStatus);
 
 
@@ -752,54 +752,112 @@
 
 
         // --- 🔓 DOUBLE-TAP TO UNLOCK & AUTO-SEARCH (GAMIT ANG DATABASE.JS) 🔓 ---
-        const idNumBox = document.getElementById('idNum');
-        const nameBox = document.getElementById('name');
+    //    const idNumBox = document.getElementById('idNum');
+    //    const nameBox = document.getElementById('name');
 
         // 1. Inig Double-Tap: I-unlock ug i-ready sa pag-type
-        idNumBox.addEventListener('dblclick', function() {
-            this.removeAttribute('readonly'); 
-            this.value = ""; 
-            nameBox.value = ""; 
-            this.focus(); 
-            this.style.border = "3px solid #ffcc00"; 
-        });
+    //    idNumBox.addEventListener('dblclick', function() {
+    //        this.removeAttribute('readonly'); 
+    //        this.value = ""; 
+    //        nameBox.value = ""; 
+    //        this.focus(); 
+    //        this.style.border = "3px solid #ffcc00"; 
+    //    });
 
         // 2. Inig Type: Magbantay kada digit nga isulod
-        idNumBox.addEventListener('input', function() {
+    //    idNumBox.addEventListener('input', function() {
             // Siguradohon nga NUMERO lang gyud ang pwede i-type
-            this.value = this.value.replace(/[^0-9]/g, ''); 
+    //        this.value = this.value.replace(/[^0-9]/g, ''); 
 
             // KUNG MOABOT NA GYUD OG 4 KA DIGITS...
-            if (this.value.length === 4) {
+    //        if (this.value.length === 4) {
                 
                 // A. I-lock dayon og balik!
-                this.setAttribute('readonly', true);
-                this.style.border = "1px solid #444"; 
-                this.blur(); 
+    //            this.setAttribute('readonly', true);
+    //            this.style.border = "1px solid #444"; 
+    //           this.blur(); 
 
-                const typedID = this.value;
+    //            const typedID = this.value;
                 
                 // --- 🔎 B. PANGITAON ANG TAG-IYA SA IMONG riderDatabase 🔎 ---
                 // Gamiton nato ang .find() kay Array of Objects ang imong database.js
                 
-                if (typeof riderDatabase !== 'undefined') {
-                    const foundRider = riderDatabase.find(rider => rider.idNum === typedID);
+    //            if (typeof riderDatabase !== 'undefined') {
+    //                const foundRider = riderDatabase.find(rider => rider.idNum === typedID);
                     
-                    if (foundRider) {
+    //                if (foundRider) {
                         // Nakit-an! I-display ang fullname didto sa text box.
-                        nameBox.value = foundRider.fullname; 
+    //                    nameBox.value = foundRider.fullname; 
                         
                         // Optional: Kung gusto nimo i-apil ang nickname, pwede nimo usbon ang sa taas ngadto sa:
                         // nameBox.value = foundRider.fullname + " (" + foundRider.nickname + ")";
-                    } else {
+    //                } else {
                         // Wala makit-i ang 4-digit ID
-                        nameBox.value = "❌ Wala sa Masterlist"; 
-                    }
+    //                    nameBox.value = "❌ Wala sa Masterlist"; 
+    //                }
+    //            } else {
+    //                alert("⚠️ Error: Wala nabasa ang database.js. Siguroha nga naka-link kini sa HTML.");
+    //            }
+    //        }
+    //    });
+
+
+       // ==========================================
+        // 🏍️ RIDER ID & NAME LOGIC (ALL-IN-ONE) 🏍️
+        // ==========================================
+        const idNumBox = document.getElementById('idNum');
+        const nameBox = document.getElementById('name');
+
+        // --- 1. DEVICE MEMORY (Default ID) ---
+        const urlParams = new URLSearchParams(window.location.search);
+        let paramID = urlParams.get('theIDno');
+        let savedID = localStorage.getItem('defaultRiderID');
+
+        if (paramID) {
+            idNumBox.value = paramID;
+            localStorage.setItem('defaultRiderID', paramID); // I-save dayon isip Default
+        } else if (savedID) {
+            idNumBox.value = savedID; // Gamiton ang naka-save kaniadto
+        }
+
+        // --- 2. AUTO-SEARCH SA MASTERLIST ---
+        function searchDatabase(idToSearch) {
+            if (idToSearch && typeof riderDatabase !== 'undefined') {
+                const foundRider = riderDatabase.find(r => r.idNum === idToSearch);
+                if (foundRider) {
+                    nameBox.value = foundRider.fullname;
                 } else {
-                    alert("⚠️ Error: Wala nabasa ang database.js. Siguroha nga naka-link kini sa HTML.");
+                    nameBox.value = "❌ Wala sa Masterlist";
                 }
             }
+        }
+        searchDatabase(idNumBox.value); // Daganon dayon inig abli sa app
+
+        // --- 3. DOUBLE-TAP TO UNLOCK ---
+        idNumBox.addEventListener('dblclick', function() {
+            this.removeAttribute('readonly'); // I-unlock
+            this.value = ""; // I-clear ang daan nga ID
+            nameBox.value = ""; // I-clear ang pangalan
+            this.focus(); // I-ready ang keyboard
+            this.style.border = "3px solid #ffcc00"; // Mo-yellow ang border
         });
+
+        // --- 4. BANTAYAN ANG PAG-TYPE (Auto-Lock inig 4 digits) ---
+        idNumBox.addEventListener('input', function() {
+            // Siguradohon nga NUMERO lang gyud ang pwede i-type
+            this.value = this.value.replace(/[^0-9]/g, ''); 
+
+            // Kung mo-abot na sa 4 ka digits...
+            if (this.value.length === 4) {
+                this.setAttribute('readonly', true); // I-lock og balik
+                this.style.border = "1px solid #444"; // Balik sa normal ang border
+                this.blur(); // I-tago ang keyboard
+                
+                searchDatabase(this.value); // Pangitaon dayon ang ngalan
+                localStorage.setItem('defaultRiderID', this.value); // I-save isip bag-ong Default ID
+            }
+        });
+
 
 
 
@@ -908,6 +966,13 @@
                 // Kung naka-lusot ang request, pasabot naay tinuod nga internet!
                 sigStatus.innerHTML = "🟢 ONLINE";
                 sigStatus.style.color = "#00ff00"; // Green
+
+                // 🔥 SALBARON NATO ANG AUTO-SYNC DINHI 🔥
+                // Kung naay pending data, i-send dayon kay naka-detect tag tinuod nga internet!
+                let offlineData = JSON.parse(localStorage.getItem('offlineData')) || [];
+                if (offlineData.length > 0) {
+                    syncOfflineData(); 
+                }
 
             } catch (error) {
                 // Kung mapakyas (naay signal sa wifi pero walay internet / walay data load)
