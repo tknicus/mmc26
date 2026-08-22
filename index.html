@@ -342,6 +342,7 @@
     <!-- IMONG ORIGINAL NGA JAVASCRIPT (WALA GITHUBTAN) -->
     <script src="database.js"></script>
     <script>
+        let isSyncing = false; // Kini ang atong "Lock"
         let compressedPhotoBase64 = ""; 
 
         document.getElementById('cameraInput').addEventListener('change', function(event) {
@@ -508,57 +509,64 @@
 
 
 
-        // --- 🔄 SMART SYNC OFFLINE DATA 🔄 ---
+
+
+        // ==========================================
+        // 🔄 SMART SYNC OFFLINE DATA (NAA NAY LOCK) 🔄
+        // ==========================================
+        let isSyncing = false; // Kini ang atong "Lock" aron dili mag-ilog ang pag-send
+
         async function syncOfflineData() {
-            let offlineData = JSON.parse(localStorage.getItem('offlineData')) || [];
+            if (isSyncing) return; // KUNG NAG-SYNC NA, AYAW NA PAG-DAGAN UG USAB!
             
-            if (offlineData.length > 0) {
-                // I-disable ang submit button samtang nag-sync aron dili maka-samok
-                const submitBtn = document.getElementById('myForm').querySelector('button[type="submit"]');
-                if(submitBtn) { submitBtn.textContent = "🔄 Nag-Sync sa Data..."; submitBtn.disabled = true; }
+            let offlineData = JSON.parse(localStorage.getItem('offlineData')) || [];
+            if (offlineData.length === 0) return; // Kung walay sulod,undang dayon
 
-                console.log(`Nagsugod og sync sa ${offlineData.length} ka records...`);
-                let failedData = []; // Dinhi nato ibutang kung unsa gyud ang WALA nisulod
+            isSyncing = true; // I-LOCK ANG SYNCING!
 
-                // 🌟 LOOP: I-SEND NATO USA-USA (One at a time) 🌟
-                for (let i = 0; i < offlineData.length; i++) {
-                    let singleRecord = offlineData[i];
+            // I-disable ang submit button samtang nag-sync aron dili maka-samok
+            const submitBtn = document.getElementById('myForm').querySelector('button[type="submit"]');
+            if(submitBtn) { submitBtn.textContent = "🔄 Nag-Sync sa Data..."; submitBtn.disabled = true; }
+
+            console.log(`Nagsugod og sync sa ${offlineData.length} ka records...`);
+            let failedData = []; 
+
+            // 🌟 LOOP: I-SEND NATO USA-USA (One at a time) 🌟
+            for (let i = 0; i < offlineData.length; i++) {
+                let singleRecord = offlineData[i];
+                
+                try {
+                    console.log(`Nag-send sa record ${i+1}...`);
+                    let success = await sendDataToServer(singleRecord); 
                     
-                    try {
-                        console.log(`Nag-send sa record ${i+1}...`);
-                        // E-send ang usa ka record
-                        let success = await sendDataToServer(singleRecord); 
-                        
-                        if (!success) {
-                            // Kung mi-fail ni (pananglitan naputol utro ang internet), i-save nato sa failedData
-                            console.log(`❌ Failed ang record ${i+1}. I-tago usa.`);
-                            failedData.push(singleRecord);
-                        } else {
-                            console.log(`✅ Success ang record ${i+1}.`);
-                            // Kung success, DILI nato i-apil sa failedData (so, technically, ma-delete na siya)
-                        }
-                    } catch (error) {
-                        console.log(`❌ Error sa record ${i+1}:`, error);
+                    if (!success) {
+                        console.log(`❌ Failed ang record ${i+1}. I-tago usa.`);
                         failedData.push(singleRecord);
+                    } else {
+                        console.log(`✅ Success ang record ${i+1}.`);
                     }
+                } catch (error) {
+                    console.log(`❌ Error sa record ${i+1}:`, error);
+                    failedData.push(singleRecord);
                 }
-
-                // 🌟 HUMAN SA LOOP, I-SAVE OG BALIK ANG MGA WALA NAKALUSOT 🌟
-                if (failedData.length > 0) {
-                    localStorage.setItem('offlineData', JSON.stringify(failedData));
-                    console.log(`⚠️ Naay ${failedData.length} ka records nga wala nakalusot. I-try usab unya.`);
-                } else {
-                    // KUNG NAKALUSOT TANAN, HAWANAN ANG OFFLINE CACHE!
-                    localStorage.removeItem('offlineData');
-                    console.log("🎉 SUCCESS! Nahawan na ang tanang Offline Data.");
-                    alert("✅ Naka-Sync na ang tanang Offline Data padulong sa Database!");
-                }
-
-                // I-balik sa normal ang button
-                if(submitBtn) { submitBtn.textContent = "I-Submit ang Data"; submitBtn.disabled = false; }
-                //updateStatus(); 
             }
+
+            // 🌟 HUMAN SA LOOP, I-SAVE OG BALIK ANG MGA WALA NAKALUSOT 🌟
+            if (failedData.length > 0) {
+                localStorage.setItem('offlineData', JSON.stringify(failedData));
+                console.log(`⚠️ Naay ${failedData.length} ka records nga wala nakalusot.`);
+            } else {
+                localStorage.removeItem('offlineData');
+                console.log("🎉 SUCCESS! Nahawan na ang tanang Offline Data.");
+                alert("✅ Naka-Sync na ang tanang Offline Data padulong sa Database!");
+            }
+
+            // I-balik sa normal ang button
+            if(submitBtn) { submitBtn.textContent = "I-Submit ang Data"; submitBtn.disabled = false; }
+
+            isSyncing = false; // I-UNLOCK NA Karon aron pwede na usabig sync sunod
         }
+
 
 
 
