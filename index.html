@@ -880,21 +880,50 @@
         // 🚀 UPGRADE 2 & 3: DASHBOARD LOGIC 🚀
         // ==========================================
 
-        // --- 📡 A. SIGNAL MONITOR ---
-        function updateSignalStatus() {
+
+        // --- 📡 A. SIGNAL MONITOR (SMART INTERNET CHECKER) ---
+        async function checkRealInternet() {
             const sigStatus = document.getElementById('signalStatus');
-            if (navigator.onLine) {
+
+            // 1. Kung patay ang WiFi/Data (Airplane Mode), 100% OFFLINE dayon
+            if (!navigator.onLine) {
+                sigStatus.innerHTML = "🔴 OFFLINE";
+                sigStatus.style.color = "#ff3333"; // Pula
+                return;
+            }
+
+            // 2. Kung naka-connect sa WiFi/Data, TESTINGAN NATO KUNG NAAY INTERNET
+            try {
+                // Magpadala ta og gamayng 'ping' sa gawas (gigamit nato ang favicon sa Google)
+                // Gibutangan nato og oras (new Date().getTime()) aron dili ta ilaron sa Service Worker
+                await fetch('https://www.google.com/favicon.ico?' + new Date().getTime(), {
+                    mode: 'no-cors',  // Pwersahon pag-gawas sa internet
+                    cache: 'no-store' // Bawal mangopya sa daan nga gi-save
+                });
+
+                // Kung naka-lusot ang request, pasabot naay tinuod nga internet!
                 sigStatus.innerHTML = "🟢 ONLINE";
                 sigStatus.style.color = "#00ff00"; // Green
-            } else {
-                sigStatus.innerHTML = "🔴 OFFLINE";
-                sigStatus.style.color = "#ff3333"; // Red
+
+            } catch (error) {
+                // Kung mapakyas (naay signal sa wifi pero walay internet / walay data load)
+                sigStatus.innerHTML = "⚠️ NO INTERNET";
+                sigStatus.style.color = "#ff9900"; // Orange nga Warning
             }
         }
-        window.addEventListener('online', updateSignalStatus);
-        window.addEventListener('offline', updateSignalStatus);
-        updateSignalStatus(); // I-dagan inig abli
 
+        // I-dagan kini inig usab sa connection
+        window.addEventListener('online', checkRealInternet);
+        window.addEventListener('offline', checkRealInternet);
+        
+        // I-check kada 5 ka segundo aron sigurado gyud nga updated ang dashboard
+        setInterval(checkRealInternet, 5000);
+        checkRealInternet(); // I-dagan inig abli
+
+        
+        
+        
+        
         // --- 🔋 B. BATTERY MONITOR ---
         if ('getBattery' in navigator) {
             navigator.getBattery().then(function(battery) {
