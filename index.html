@@ -340,7 +340,9 @@
     <audio id="submitMusic" src="never_say_never.mp3" loop></audio>
 
     <!-- IMONG ORIGINAL NGA JAVASCRIPT (WALA GITHUBTAN) -->
-    <script src="database.js"></script>
+
+
+<script src="database.js"></script>
     <script>
         let isSyncing = false; // Kini ang atong "Lock"
         let compressedPhotoBase64 = ""; 
@@ -367,16 +369,11 @@
                         const logoImg = new Image();
                         logoImg.src = 'mmc.png';
                         logoImg.onload = function() {
-                            // const logoWidth = canvas.width * 0.15; // 15% sa width
-                            const logoWidth = canvas.width * 0.28; // I-set kini sa 0.25 (25%)
+                            const logoWidth = canvas.width * 0.28; // I-set kini sa 0.28 (28%)
                             const logoHeight = (logoImg.height / logoImg.width) * logoWidth;
                             
                             // Drawing sa Logo (Left Bottom)
-                            // x = 10 (margin sa left)
-                            // y = canvas.height - logoHeight - 10 (margin sa ubos)
                             ctx.drawImage(logoImg, 10, canvas.height - logoHeight - 10, logoWidth, logoHeight);
-
-
 
                         // --- 🛠️ HELPER FUNCTION PARA SA DMS (Degrees, Minutes, Seconds) 🛠️ ---
                         function convertToDMS(decimal, isLat) {
@@ -385,7 +382,7 @@
                             const absVal = Math.abs(val);
                             const d = Math.floor(absVal);
                             const m = Math.floor((absVal - d) * 60);
-                            const s = ((absVal - d - m / 60) * 3600).toFixed(0); // Walay decimal sa seconds
+                            const s = ((absVal - d - m / 60) * 3600).toFixed(0);
                             const dir = isLat ? (val >= 0 ? "N" : "S") : (val >= 0 ? "E" : "W");
                             return `${d}° ${m}' ${s}" ${dir}`;
                         }
@@ -400,37 +397,32 @@
                         const riderID = document.getElementById('idNum').value || "WALA I-SCAN";
                         const riderName = document.getElementById('name').value || "Wala Kaila";
                         
-                        // --- 🪖 MILITARY TIME FORMAT (YYYY-MM-DD HH:mm:ss) 🪖 ---
+                        // --- 🪖 MILITARY TIME FORMAT ---
                         const now = new Date();
                         const year = now.getFullYear();
-                        const month = String(now.getMonth() + 1).padStart(2, '0'); // Butangag '0' sa atubangan kon single digit
+                        const month = String(now.getMonth() + 1).padStart(2, '0');
                         const day = String(now.getDate()).padStart(2, '0');
                         const hours = String(now.getHours()).padStart(2, '0');
                         const minutes = String(now.getMinutes()).padStart(2, '0');
                         const seconds = String(now.getSeconds()).padStart(2, '0');
                         
-                        // Ehemplo: 2026-08-21 23:08:13
                         const militaryDateTime = `${year}-${month}-${day} ${hours}:${minutes}:${seconds}`;
 
-                        // --- 🌍 DMS GPS FORMAT 🌍 ---
+                        // --- 🌍 DMS GPS FORMAT ---
                         const dmsLat = convertToDMS(globalLat, true);
                         const dmsLon = convertToDMS(globalLon, false);
 
-                        // A. I-stamp ang Rider ID ug Pangalan (Pinakataas)
                         const textA = `ID: ${riderID} (${riderName})`;
                         ctx.strokeText(textA, canvas.width - 10, canvas.height - 55);
                         ctx.fillText(textA, canvas.width - 10, canvas.height - 55);
 
-                        // B. I-stamp ang Military Date ug Time (Tunga)
                         const textB = `Date/Time: ${militaryDateTime}`;
                         ctx.strokeText(textB, canvas.width - 10, canvas.height - 35);
                         ctx.fillText(textB, canvas.width - 10, canvas.height - 35);
 
-                        // C. I-stamp ang DMS GPS Coordinates (Pinaka-ubos)
                         const textC = `${dmsLat}, ${dmsLon}`;
                         ctx.strokeText(textC, canvas.width - 10, canvas.height - 15);
                         ctx.fillText(textC, canvas.width - 10, canvas.height - 15);
-
 
                         // 4. E-convert sa Text (Base64)
                         compressedPhotoBase64 = canvas.toDataURL("image/jpeg", 0.5);
@@ -445,25 +437,15 @@
             }
         });
         
-
-
         const scriptURL = 'https://script.google.com/macros/s/AKfycby_4MwwGkRxmWI2zND7fiQN3N9wTmkm3TCg6f5xteV0bEwAj89xOCte6gRYqUE6AsB6/exec';
-        
-        //const statusIndicator = document.getElementById('statusIndicator');
         const liveLocationDiv = document.getElementById('liveLocation');
         const myForm = document.getElementById('myForm');
 
-
-
-
-        // 1. Maghimo ta og global memory para sa GPS aron andam na daan
         let globalLat = "N/A";
         let globalLon = "N/A";
 
-        // 2. Ang bag-ong Live Tracker (watchPosition)
         function showLiveLocationOnLoad() {
             if (navigator.geolocation) {
-                // Imbes nga getCurrentPosition, atong gigamit ang watchPosition aron mo-update permi!
                 navigator.geolocation.watchPosition(
                     (position) => {
                         globalLat = position.coords.latitude.toFixed(6);
@@ -473,20 +455,15 @@
                     (error) => {
                         liveLocationDiv.innerHTML = "⚠️ Palihug i-allow ang Location / GPS.";
                     },
-                    { enableHighAccuracy: true, maximumAge: 0 } // maximumAge: 0 aron presko pirme ang GPS
+                    { enableHighAccuracy: true, maximumAge: 0 }
                 );
             } else {
                 liveLocationDiv.innerHTML = "❌ GPS wala gisuportahan sa imong device.";
             }
         }
 
-
-
-
-        // --- 🛡️ BAG-ONG SEND FUNCTION NAAY TIMER PARA SA LIE-FI 🛡️ ---
         async function sendDataToServer(dataPayload) {
             try {
-                // Maghimo ta og timer nga 8 segundos (8000 milliseconds)
                 const controller = new AbortController();
                 const timeoutId = setTimeout(() => controller.abort(), 8000);
 
@@ -495,80 +472,55 @@
                     mode: 'no-cors',
                     headers: { 'Content-Type': 'text/plain;charset=utf-8' }, 
                     body: JSON.stringify(dataPayload),
-                    signal: controller.signal // Dire natong gi-apil ang timer
+                    signal: controller.signal
                 });
 
-                clearTimeout(timeoutId); // Limpyohan ang timer kay nakuha ra sa oras
+                clearTimeout(timeoutId);
                 return true; 
             } catch (error) {
-                // Kung naay error O nag-timeout kay hinay ang net (Lie-Fi)
                 console.error("Error o Hinay kaayo ang net:", error);
                 return false;
             }
         }
 
-
-
-
-
         // ==========================================
         // 🔄 SMART SYNC OFFLINE DATA (NAA NAY LOCK) 🔄
         // ==========================================
-        let isSyncing = false; // Kini ang atong "Lock" aron dili mag-ilog ang pag-send
-
         async function syncOfflineData() {
-            if (isSyncing) return; // KUNG NAG-SYNC NA, AYAW NA PAG-DAGAN UG USAB!
+            if (isSyncing) return; 
             
             let offlineData = JSON.parse(localStorage.getItem('offlineData')) || [];
-            if (offlineData.length === 0) return; // Kung walay sulod,undang dayon
+            if (offlineData.length === 0) return; 
 
-            isSyncing = true; // I-LOCK ANG SYNCING!
+            isSyncing = true; 
 
-            // I-disable ang submit button samtang nag-sync aron dili maka-samok
             const submitBtn = document.getElementById('myForm').querySelector('button[type="submit"]');
             if(submitBtn) { submitBtn.textContent = "🔄 Nag-Sync sa Data..."; submitBtn.disabled = true; }
 
-            console.log(`Nagsugod og sync sa ${offlineData.length} ka records...`);
             let failedData = []; 
 
-            // 🌟 LOOP: I-SEND NATO USA-USA (One at a time) 🌟
             for (let i = 0; i < offlineData.length; i++) {
                 let singleRecord = offlineData[i];
-                
                 try {
-                    console.log(`Nag-send sa record ${i+1}...`);
                     let success = await sendDataToServer(singleRecord); 
-                    
                     if (!success) {
-                        console.log(`❌ Failed ang record ${i+1}. I-tago usa.`);
                         failedData.push(singleRecord);
-                    } else {
-                        console.log(`✅ Success ang record ${i+1}.`);
                     }
                 } catch (error) {
-                    console.log(`❌ Error sa record ${i+1}:`, error);
                     failedData.push(singleRecord);
                 }
             }
 
-            // 🌟 HUMAN SA LOOP, I-SAVE OG BALIK ANG MGA WALA NAKALUSOT 🌟
             if (failedData.length > 0) {
                 localStorage.setItem('offlineData', JSON.stringify(failedData));
-                console.log(`⚠️ Naay ${failedData.length} ka records nga wala nakalusot.`);
             } else {
                 localStorage.removeItem('offlineData');
-                console.log("🎉 SUCCESS! Nahawan na ang tanang Offline Data.");
                 alert("✅ Naka-Sync na ang tanang Offline Data padulong sa Database!");
             }
 
-            // I-balik sa normal ang button
             if(submitBtn) { submitBtn.textContent = "I-Submit ang Data"; submitBtn.disabled = false; }
-
-            isSyncing = false; // I-UNLOCK NA Karon aron pwede na usabig sync sunod
+            isSyncing = false; 
         }
-
-
-
 
         function getLocation() {
             return new Promise((resolve) => {
@@ -580,7 +532,6 @@
                             const lat = position.coords.latitude;
                             const lon = position.coords.longitude;
                             const locTime = new Date(position.timestamp).toLocaleString(); 
-                            
                             resolve({
                                 link: `https://www.google.com/maps?q=${lat},${lon}`,
                                 lat: lat,
@@ -600,74 +551,52 @@
         myForm.addEventListener('submit', async function(e) {
             e.preventDefault();
 
-            // BAG-O: Gitumbok gyud nato ang button nga naay type="submit"
-            // 1. I-kuha ang button
             const submitBtn = myForm.querySelector('button[type="submit"]');
+            if (submitBtn.disabled) return;
 
-            // 2. KUNG DISABLED NA ANG BUTTON, AYAW NA PAG-DAGAN (Anti-Double Click)
-            if (submitBtn.disabled) {
-                return; // Mo-undang dayon siya, dili mo-padala og balik
-            }
-
-            // 3. I-DISABLE ANG BUTTON DAYON!
             submitBtn.textContent = "📍 Gipadala ang Data...";
             submitBtn.disabled = true; 
-            submitBtn.style.opacity = "0.5"; // I-dim nato aron mahibalo ang marshal nga busy ang app
+            submitBtn.style.opacity = "0.5"; 
 
-           
-            
-            
-            
-            
-            // 🎵 1. E-PLAY ANG MUSIC DAYON PAG-PISLIT! 🎵
             const bgMusic = document.getElementById('submitMusic');
             bgMusic.play();
 
-            // --- 🛑 BANTAY SA RIDER ID UG PANGALAN 🛑 ---
             const checkId = document.getElementById('idNum').value;
             const checkName = document.getElementById('name').value;
 
             if (checkId === "" || checkName === "" || checkName.includes("❌")) {
-                bgMusic.pause(); // Ihunong ang kanta
-                bgMusic.currentTime = 0; // I-rewind
-                
-                alert("🛑 DILI MA-SAVE! Blangko ang Rider ID. Palihug i-scan ang saktong QR Code sa Rider una ka mo-submit.");
-                
+                bgMusic.pause(); bgMusic.currentTime = 0; 
+                alert("🛑 DILI MA-SAVE! Blangko ang Rider ID. Palihug i-scan ang saktong QR Code.");
                 submitBtn.textContent = "I-Submit ang Data";
                 submitBtn.disabled = false;
-                return; // KINI ANG MOPAHUNONG ARON DILI MOLAHOS OG SAVE!
+                submitBtn.style.opacity = "1";
+                return;
             }
-            // --- 🛑 KATAPUSAN SA BANTAY SA ID 🛑 ---
 
-            // Mokuha sa GPS data gikan sa imong function
             const gpsData = await getLocation();
 
-            // --- 🛑 BANTAY SA LOCATION (KUNG MAG-ERROR) ---
             if (gpsData.lat === "N/A" || gpsData.link === "No GPS" || gpsData.link === "Error/Gibalibaran") {
-                bgMusic.pause(); // 🛑 Ihunong ang kanta
-                bgMusic.currentTime = 0; // I-rewind sa sugod
-
-                alert("🛑 DILI MA-SAVE! Palihug i-allow o i-on ang Location / GPS sa imong selpon usa ka mo-submit.");
+                bgMusic.pause(); bgMusic.currentTime = 0; 
+                alert("🛑 DILI MA-SAVE! Palihug i-on ang Location / GPS.");
                 submitBtn.textContent = "I-Submit ang Data";
                 submitBtn.disabled = false;
+                submitBtn.style.opacity = "1";
                 return; 
             }
 
-            // --- 🛑 BANTAY SA PICTURE 🛑 ---
             if (compressedPhotoBase64 === "") {
-                bgMusic.pause(); // 🛑 Ihunong ang kanta
-                bgMusic.currentTime = 0; // I-rewind
-
+                bgMusic.pause(); bgMusic.currentTime = 0; 
                 alert("📸 DILI MA-SAVE! Palihug pagkuha og Ebidensya/Picture una ka mo-submit.");
                 submitBtn.textContent = "I-Submit ang Data";
                 submitBtn.disabled = false;
-                return; // Mopahunong sa code
+                submitBtn.style.opacity = "1";
+                return; 
             }
 
             const data = {
                 idNum: document.getElementById('idNum').value,
                 name: document.getElementById('name').value,
-                checkpoint: document.getElementById('checkpoint').value, // <-- IDUGANG KINI
+                checkpoint: document.getElementById('checkpoint').value, 
                 odometer: document.getElementById('odometer').value, 
                 notes: document.getElementById('notes').value,
                 photo: compressedPhotoBase64, 
@@ -678,88 +607,69 @@
                 locationTime: gpsData.time 
             };
 
-            // MAGHIMO TA OG VARIABLE NGA MAGBANTAY KUNG LUWAS NA BA ANG DATA
             let isDataSaved = false;
 
             if (navigator.onLine) {
                 let success = await sendDataToServer(data);
                 if (success) {
-                    bgMusic.pause(); bgMusic.currentTime = 0; // 🛑 IHUNONG ANG KANTA KAY SUCCESS NA!
+                    bgMusic.pause(); bgMusic.currentTime = 0; 
                     alert("✅ Success! Check imong Google Sheet, nisulod na!");
-                    isDataSaved = true; // Luwas na didto sa server!
+                    isDataSaved = true; 
                 } else {
-                    bgMusic.pause(); bgMusic.currentTime = 0; // 🛑 IHUNONG ANG KANTA
-                    // KUNG MAPUTOL ANG INTERNET PAG-SEND! (Ang imong gipangutana)
-                    alert("⚠️ Na-putol ang signal pag-send! I-save nato sa Offline Data sa imong selpon aron dili masayang.");
-                    
-                    // I-PUGOS OG SAVE SA LOCAL STORAGE BISAN PA OG "ONLINE" SIYA
+                    bgMusic.pause(); bgMusic.currentTime = 0; 
+                    alert("⚠️ Na-putol ang signal pag-send! Gi-save sa Offline Data.");
                     let savedData = JSON.parse(localStorage.getItem('offlineData')) || [];
                     savedData.push(data);
                     localStorage.setItem('offlineData', JSON.stringify(savedData));
-                    isDataSaved = true; // Luwas na kay na-save sa selpon!
-                    //updateStatus(); // I-trigger ang offline indicator kung guba ang signal
+                    isDataSaved = true; 
                 }
             } else {
-                bgMusic.pause(); bgMusic.currentTime = 0; // 🛑 IHUNONG ANG KANTA
-                // NORMAL OFFLINE SAVING
+                bgMusic.pause(); bgMusic.currentTime = 0; 
                 let savedData = JSON.parse(localStorage.getItem('offlineData')) || [];
                 savedData.push(data);
                 localStorage.setItem('offlineData', JSON.stringify(savedData));
-                alert("⚠️ Walay Internet! Gi-save ang imong Location ug Data sa device.");
-                isDataSaved = true; // Luwas na kay na-save sa selpon!
+                alert("⚠️ Walay Internet! Gi-save ang Data sa device.");
+                isDataSaved = true; 
             }
 
-            // I-RESET LANG ANG FORM KUNG SIGURADO NGA "SAVED" ANG DATA
             if (isDataSaved) {
                 myForm.reset();
                 compressedPhotoBase64 = ""; 
                 document.getElementById('photoPreview').style.display = "none"; 
             }
             
-            // I-balik ang button sa normal pirme
             submitBtn.textContent = "I-Submit ang Data";
             submitBtn.disabled = false;
-            submitBtn.style.opacity = "1"; // I-balik ang hayag
+            submitBtn.style.opacity = "1"; 
         });
 
-        //updateStatus();
         showLiveLocationOnLoad(); 
 
         if ('serviceWorker' in navigator) {
             window.addEventListener('load', function() {
                 navigator.serviceWorker.register('./sw.js')
-                .then(function(registration) {
-                    console.log('Service Worker naka-register!');
-                })
-                .catch(function(error) {
-                    console.log('Error sa Service Worker:', error);
-                });
+                .then(function(registration) { console.log('Service Worker naka-register!'); })
+                .catch(function(error) { console.log('Error sa Service Worker:', error); });
             });
         }
 
-
-
-
-
-       // ==========================================
+        // ==========================================
         // 🏍️ RIDER ID & NAME LOGIC (ALL-IN-ONE) 🏍️
         // ==========================================
         const idNumBox = document.getElementById('idNum');
         const nameBox = document.getElementById('name');
 
-        // --- 1. DEVICE MEMORY (Default ID) ---
         const urlParams = new URLSearchParams(window.location.search);
         let paramID = urlParams.get('theIDno');
         let savedID = localStorage.getItem('defaultRiderID');
 
         if (paramID) {
             idNumBox.value = paramID;
-            localStorage.setItem('defaultRiderID', paramID); // I-save dayon isip Default
+            localStorage.setItem('defaultRiderID', paramID); 
         } else if (savedID) {
-            idNumBox.value = savedID; // Gamiton ang naka-save kaniadto
+            idNumBox.value = savedID; 
         }
 
-        // --- 2. AUTO-SEARCH SA MASTERLIST ---
         function searchDatabase(idToSearch) {
             if (idToSearch && typeof riderDatabase !== 'undefined') {
                 const foundRider = riderDatabase.find(r => r.idNum === idToSearch);
@@ -770,94 +680,67 @@
                 }
             }
         }
-        searchDatabase(idNumBox.value); // Daganon dayon inig abli sa app
+        searchDatabase(idNumBox.value); 
 
-        // --- 3. DOUBLE-TAP TO UNLOCK ---
         idNumBox.addEventListener('dblclick', function() {
-            this.removeAttribute('readonly'); // I-unlock
-            this.value = ""; // I-clear ang daan nga ID
-            nameBox.value = ""; // I-clear ang pangalan
-            this.focus(); // I-ready ang keyboard
-            this.style.border = "3px solid #ffcc00"; // Mo-yellow ang border
+            this.removeAttribute('readonly'); 
+            this.value = ""; 
+            nameBox.value = ""; 
+            this.focus(); 
+            this.style.border = "3px solid #ffcc00"; 
         });
 
-        // --- 4. BANTAYAN ANG PAG-TYPE (Auto-Lock inig 4 digits) ---
         idNumBox.addEventListener('input', function() {
-            // Siguradohon nga NUMERO lang gyud ang pwede i-type
             this.value = this.value.replace(/[^0-9]/g, ''); 
-
-            // Kung mo-abot na sa 4 ka digits...
             if (this.value.length === 4) {
-                this.setAttribute('readonly', true); // I-lock og balik
-                this.style.border = "1px solid #444"; // Balik sa normal ang border
-                this.blur(); // I-tago ang keyboard
-                
-                searchDatabase(this.value); // Pangitaon dayon ang ngalan
-                localStorage.setItem('defaultRiderID', this.value); // I-save isip bag-ong Default ID
+                this.setAttribute('readonly', true); 
+                this.style.border = "1px solid #444"; 
+                this.blur(); 
+                searchDatabase(this.value); 
+                localStorage.setItem('defaultRiderID', this.value); 
             }
         });
-
-
-
 
         // --- 📷 QR CODE SCANNER LOGIC 📷 ---
         const scanBtn = document.getElementById('scanQrBtn');
         const scannerDiv = document.getElementById('reader');
-        let html5QrCode; // Ang variable nga mogunit sa camera
+        let html5QrCode; 
 
         scanBtn.addEventListener('click', function() {
-            // Kung naka-tago ang camera, ablihan nato
             if (scannerDiv.style.display === "none") {
                 scannerDiv.style.display = "block";
                 scanBtn.textContent = "🛑 I-CANCEL ANG PAG-SCAN";
-                scanBtn.style.backgroundColor = "#cc0000"; // Pula nga button
+                scanBtn.style.backgroundColor = "#cc0000"; 
                 scanBtn.style.color = "white";
 
                 html5QrCode = new Html5Qrcode("reader");
-                
-                // Paandaron ang LIKOD nga camera (environment)
                 html5QrCode.start(
                     { facingMode: "environment" }, 
-                    {
-                        fps: 10, // Unsa ka paspas mo-basa (Frames per second)
-                        qrbox: { width: 250, height: 250 } // Ang square nga box
-                    },
+                    { fps: 10, qrbox: { width: 250, height: 250 } },
                     (decodedText, decodedResult) => {
-                        // 🎉 KUNG MAKA-SCAN OG QR CODE 🎉
-                        
-                        // 1. I-hunong ang camera ug i-tago ang box
                         html5QrCode.stop().then((ignore) => {
                             scannerDiv.style.display = "none";
                             scanBtn.textContent = "📷 I-SCAN ANG RIDER ID";
-                            scanBtn.style.backgroundColor = "#ff9900"; // Balik sa orange
+                            scanBtn.style.backgroundColor = "#ff9900"; 
                             scanBtn.style.color = "black";
                             
-                            // 2. I-butang ang na-scan nga ID didto sa Textbox!
                             const scannedID = decodedText;
                             document.getElementById('idNum').value = scannedID;
                             
-                            // 3. Pangitaon dayon sa database.js kon kinsa siya!
                             if (typeof riderDatabase !== 'undefined') {
                                 const foundRider = riderDatabase.find(r => r.idNum === scannedID);
                                 if (foundRider) {
                                     document.getElementById('name').value = foundRider.fullname;
-                                    // Pwede nato patingogon ang success music diri kung gusto nimo!
+                                    localStorage.setItem('defaultRiderID', scannedID);
                                 } else {
                                     document.getElementById('name').value = "❌ Wala sa Masterlist";
                                 }
                             }
-                        }).catch((err) => {
-                            console.log("Error sa pag-stop sa camera.", err);
-                        });
+                        }).catch((err) => { console.log("Error sa pag-stop sa camera.", err); });
                     },
-                    (errorMessage) => {
-                        // Normal ra ni kung wala pay makita nga QR ang camera
-                    }
-                ).catch((err) => {
-                    alert("⚠️ Wala ma-access ang Camera. Siguroha nga ni-allow ka sa pag-gamit niini.");
-                });
+                    (errorMessage) => {}
+                ).catch((err) => { alert("⚠️ Wala ma-access ang Camera."); });
             } else {
-                // Kung i-cancel sa Marshal ang pag-scan (Click again)
                 if (html5QrCode) {
                     html5QrCode.stop().then(() => {
                         scannerDiv.style.display = "none";
@@ -869,80 +752,49 @@
             }
         });
 
-
-
-
-
         // ==========================================
-        // 🚀 UPGRADE 2 & 3: DASHBOARD LOGIC 🚀
+        // 🚀 DASHBOARD LOGIC (SIGNAL, BATTERY, PENDING) 🚀
         // ==========================================
-
-        
-        // --- 📡 A. SIGNAL MONITOR (SMART INTERNET CHECKER) ---
         async function checkRealInternet() {
             const sigStatus = document.getElementById('signalStatus');
-
-            // 1. Kung patay ang WiFi/Data (Airplane Mode), 100% OFFLINE dayon
             if (!navigator.onLine) {
                 sigStatus.innerHTML = "🔴 OFFLINE";
-                sigStatus.style.color = "#ff3333"; // Pula
+                sigStatus.style.color = "#ff3333"; 
                 return;
             }
 
-            // 2. Kung naka-connect sa WiFi/Data, TESTINGAN NATO KUNG NAAY INTERNET
             try {
-                // Magpadala ta og gamayng 'ping' sa gawas (gigamit nato ang favicon sa Google)
-                // Gibutangan nato og oras (new Date().getTime()) aron dili ta ilaron sa Service Worker
                 await fetch('https://www.google.com/favicon.ico?' + new Date().getTime(), {
-                    mode: 'no-cors',  // Pwersahon pag-gawas sa internet
-                    cache: 'no-store' // Bawal mangopya sa daan nga gi-save
+                    mode: 'no-cors',  
+                    cache: 'no-store' 
                 });
-
-                // Kung naka-lusot ang request, pasabot naay tinuod nga internet!
                 sigStatus.innerHTML = "🟢 ONLINE";
-                sigStatus.style.color = "#00ff00"; // Green
+                sigStatus.style.color = "#00ff00"; 
 
-                // 🔥 SALBARON NATO ANG AUTO-SYNC DINHI 🔥
-                // Kung naay pending data, i-send dayon kay naka-detect tag tinuod nga internet!
                 let offlineData = JSON.parse(localStorage.getItem('offlineData')) || [];
                 if (offlineData.length > 0) {
                     syncOfflineData(); 
                 }
-
             } catch (error) {
-                // Kung mapakyas (naay signal sa wifi pero walay internet / walay data load)
                 sigStatus.innerHTML = "⚠️ NO INTERNET";
-                sigStatus.style.color = "#ff9900"; // Orange nga Warning
+                sigStatus.style.color = "#ff9900"; 
             }
         }
 
-        // I-dagan kini inig usab sa connection
         window.addEventListener('online', checkRealInternet);
         window.addEventListener('offline', checkRealInternet);
-        
-        // I-check kada 5 ka segundo aron sigurado gyud nga updated ang dashboard
         setInterval(checkRealInternet, 5000);
-        checkRealInternet(); // I-dagan inig abli
+        checkRealInternet(); 
 
-        
-        
-        
-        
-        // --- 🔋 B. BATTERY MONITOR ---
         if ('getBattery' in navigator) {
             navigator.getBattery().then(function(battery) {
                 function updateBatteryInfo() {
                     const level = Math.round(battery.level * 100);
                     const batStatus = document.getElementById('batteryStatus');
-                    
-                    // Kung nag-charge, butangan natog kilat ⚡
                     const icon = battery.charging ? "⚡" : "🔋";
                     batStatus.innerHTML = `${icon} ${level}%`;
-                    
-                    // Kung 15% paubos ug wala nag-charge, pa-pulahon nato!
                     if (level <= 15 && !battery.charging) {
                         batStatus.style.color = "#ff3333"; 
-                        // Optional: Pwede ka mag-add og alert diri kung gusto nimo
                     } else {
                         batStatus.style.color = "white";
                     }
@@ -955,28 +807,20 @@
             document.getElementById('batteryStatus').innerHTML = "🔋 N/A";
         }
 
-        // --- 📊 C. PENDING COUNTER ---
         function updateDashboardCounters() {
             let offlineData = JSON.parse(localStorage.getItem('offlineData')) || [];
             const pCount = document.getElementById('pendingCount');
-            
             pCount.innerText = offlineData.length;
-            
-            // Kung naay pending, e-orange nato aron ma-notice. Kung wala, puti lang.
             if (offlineData.length > 0) {
                 pCount.style.color = "#ff9900"; 
             } else {
                 pCount.style.color = "white"; 
             }
         }
-        // I-check ang pending count kada 2 ka segundo aron auto-update gyud pirmi
         setInterval(updateDashboardCounters, 2000);
-        updateDashboardCounters(); // I-dagan inig abli
-
-
-
-
-
+        updateDashboardCounters(); 
     </script>
+
+
 </body>
 </html>
