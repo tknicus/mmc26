@@ -210,7 +210,7 @@
         <h2>Checkpoint Scanner</h2>
         
         <!-- Internet Status & Live Location -->
-        <div id="statusIndicator" class="status online">🌐 Online - Connected</div>
+        // <div id="statusIndicator" class="status online">🌐 Online - Connected</div>
         <div id="liveLocation">📍 Nangita sa imong location...</div>
 
         <!-- 📊 HEADS-UP DASHBOARD (UPGRADE 2 & 3) 📊 -->
@@ -444,7 +444,7 @@
             }
         });
         
-        
+
         window.addEventListener('DOMContentLoaded', function() {
             
             // ==========================================
@@ -525,16 +525,16 @@
         const liveLocationDiv = document.getElementById('liveLocation');
         const myForm = document.getElementById('myForm');
 
-        function updateStatus() {
-            if (navigator.onLine) {
-                statusIndicator.textContent = "🌐 Online - Connected";
-                statusIndicator.className = "status online";
-                syncOfflineData(); 
-            } else {
-                statusIndicator.textContent = "⚠️ Offline - Walay Internet";
-                statusIndicator.className = "status offline";
-            }
-        }
+        //function updateStatus() {
+        //    if (navigator.onLine) {
+        //        statusIndicator.textContent = "🌐 Online - Connected";
+        //        statusIndicator.className = "status online";
+        //        syncOfflineData(); 
+        //    } else {
+        //        statusIndicator.textContent = "⚠️ Offline - Walay Internet";
+        //        statusIndicator.className = "status offline";
+        //    }
+        //}
 
         window.addEventListener('online', updateStatus);
         window.addEventListener('offline', updateStatus);
@@ -932,33 +932,36 @@
         // 🚀 UPGRADE 2 & 3: DASHBOARD LOGIC 🚀
         // ==========================================
 
-
         // --- 📡 A. SIGNAL MONITOR (SMART INTERNET CHECKER) ---
         async function checkRealInternet() {
             const sigStatus = document.getElementById('signalStatus');
 
-            // 1. Kung patay ang WiFi/Data (Airplane Mode), 100% OFFLINE dayon
+            // 1. Kung patay ang WiFi/Data (Airplane Mode)
             if (!navigator.onLine) {
                 sigStatus.innerHTML = "🔴 OFFLINE";
                 sigStatus.style.color = "#ff3333"; // Pula
                 return;
             }
 
-            // 2. Kung naka-connect sa WiFi/Data, TESTINGAN NATO KUNG NAAY INTERNET
+            // 2. Testingan nato kung makalusot ba gyud ang internet
             try {
-                // Magpadala ta og gamayng 'ping' sa gawas (gigamit nato ang favicon sa Google)
-                // Gibutangan nato og oras (new Date().getTime()) aron dili ta ilaron sa Service Worker
                 await fetch('https://www.google.com/favicon.ico?' + new Date().getTime(), {
-                    mode: 'no-cors',  // Pwersahon pag-gawas sa internet
-                    cache: 'no-store' // Bawal mangopya sa daan nga gi-save
+                    mode: 'no-cors',  
+                    cache: 'no-store' 
                 });
 
-                // Kung naka-lusot ang request, pasabot naay tinuod nga internet!
                 sigStatus.innerHTML = "🟢 ONLINE";
                 sigStatus.style.color = "#00ff00"; // Green
 
+                // 🔥 SALBARON NATO ANG AUTO-SYNC DINHI 🔥
+                // Kung naay pending data, i-send dayon kay naka-detect tag tinuod nga internet!
+                let offlineData = JSON.parse(localStorage.getItem('offlineData')) || [];
+                if (offlineData.length > 0) {
+                    syncOfflineData(); 
+                }
+
             } catch (error) {
-                // Kung mapakyas (naay signal sa wifi pero walay internet / walay data load)
+                // Kung naay signal pero walay load/internet
                 sigStatus.innerHTML = "⚠️ NO INTERNET";
                 sigStatus.style.color = "#ff9900"; // Orange nga Warning
             }
@@ -972,7 +975,10 @@
         setInterval(checkRealInternet, 5000);
         checkRealInternet(); // I-dagan inig abli
 
-        
+
+    
+
+
         // --- 🔋 B. BATTERY MONITOR ---
         if ('getBattery' in navigator) {
             navigator.getBattery().then(function(battery) {
