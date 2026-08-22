@@ -469,20 +469,20 @@
 
         const scriptURL = 'https://script.google.com/macros/s/AKfycby_4MwwGkRxmWI2zND7fiQN3N9wTmkm3TCg6f5xteV0bEwAj89xOCte6gRYqUE6AsB6/exec';
         
-        const statusIndicator = document.getElementById('statusIndicator');
+        //const statusIndicator = document.getElementById('statusIndicator');
         const liveLocationDiv = document.getElementById('liveLocation');
         const myForm = document.getElementById('myForm');
 
-        function updateStatus() {
-            if (navigator.onLine) {
-                statusIndicator.textContent = "🌐 Online - Connected";
-                statusIndicator.className = "status online";
-                syncOfflineData(); 
-            } else {
-                statusIndicator.textContent = "⚠️ Offline - Walay Internet";
-                statusIndicator.className = "status offline";
-            }
-        }
+        //function updateStatus() {
+        //    if (navigator.onLine) {
+        //        statusIndicator.textContent = "🌐 Online - Connected";
+        //        statusIndicator.className = "status online";
+        //        syncOfflineData(); 
+        //    } else {
+        //        statusIndicator.textContent = "⚠️ Offline - Walay Internet";
+        //        statusIndicator.className = "status offline";
+        //    }
+        //}
 
         window.addEventListener('online', updateStatus);
         window.addEventListener('offline', updateStatus);
