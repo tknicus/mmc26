@@ -444,28 +444,28 @@
             }
         });
         
-        window.addEventListener('DOMContentLoaded', function() {
-            const urlParams = new URLSearchParams(window.location.search);
-            const scannedID = urlParams.get('theIDno'); 
+        //window.addEventListener('DOMContentLoaded', function() {
+        //    const urlParams = new URLSearchParams(window.location.search);
+        //    const scannedID = urlParams.get('theIDno'); 
 
-            if (scannedID) {
-                document.getElementById('idNum').value = scannedID;
+        //    if (scannedID) {
+        //        document.getElementById('idNum').value = scannedID;
 
-                if (typeof riderDatabase !== 'undefined') {
-                    const rider = riderDatabase.find(r => String(r.idNum) === String(scannedID));
-                    const nameBox = document.getElementById('name');
+        //       if (typeof riderDatabase !== 'undefined') {
+        //            const rider = riderDatabase.find(r => String(r.idNum) === String(scannedID));
+        //            const nameBox = document.getElementById('name');
 
-                    if (rider) {
-                        nameBox.value = rider.fullname;
-                        nameBox.readOnly = true; 
-                    } else {
-                        nameBox.value = "❌ Wala sa Masterlist!";
-                        nameBox.style.color = "red";
-                        nameBox.readOnly = true;
-                    }
-                }
-            }
-        });
+        //            if (rider) {
+        //                nameBox.value = rider.fullname;
+        //                nameBox.readOnly = true; 
+        //            } else {
+        //                nameBox.value = "❌ Wala sa Masterlist!";
+        //                nameBox.style.color = "red";
+        //                nameBox.readOnly = true;
+        //            }
+        //        }
+        //    }
+        //});
 
         const scriptURL = 'https://script.google.com/macros/s/AKfycby_4MwwGkRxmWI2zND7fiQN3N9wTmkm3TCg6f5xteV0bEwAj89xOCte6gRYqUE6AsB6/exec';
         
