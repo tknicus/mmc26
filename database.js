@@ -1,7 +1,14 @@
 // KINI ANG IMONG OFFLINE DATABASE
 const riderDatabase = [
   { idNum: "0000", fullname: "ELKAPITAN", nickname: "invictus", level: "Street Pilot", category: "Adventure 500cc", classification: "MASTER" },
-  { idNum: "0001", fullname: "technicus", nickname: "rayHARGG", level: "G5", category: "Adventure 525cc", classification: "Aspirant" },
+  { idNum: "0001", 
+    fullname: "technicus", 
+    nickname: "rayHARGG", 
+    level: "G5", 
+    category: "Adventure 525cc", 
+    classification: "Aspirant", 
+    password: "5729", 
+    isMarshal: true },
   { idNum: "0002", fullname: "Long Way Ph", nickname: "Elkapitan Jr", level: "G5", category: "ADV 350cc", classification: "MASTER" },
   { idNum: "0017", fullname: "MCcoy", nickname: "17", level: "G5", category: "BMW GS450cc", classification: "MASTER" },
   { idNum: "0251", fullname: "Zhack", nickname: "zhackyyy", level: "G1", category: "Rouser RS2000", classification: "Aspirant" },

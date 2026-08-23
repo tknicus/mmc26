@@ -692,16 +692,13 @@
         // 🕵️‍♂️ SIKRETONG PULTAHAN: MARSHAL MODE 🕵️‍♂️
         // ==========================================
         
-        // I-check kung na-unlock na ba niya kaniadto aron dili na sige'g pangayog password
         let isMarshalMode = localStorage.getItem('marshalMode') === 'true';
         const scanQrBtn = document.getElementById('scanQrBtn');
         
-        // A. I-TAGO ANG SCANNER KUNG DILI MARSHAL (RIDER MODE)
         if (!isMarshalMode) {
             if (scanQrBtn) scanQrBtn.style.display = "none";
         }
 
-        // B. ANG TRIPLE-TAP SENSOR (Atong ibutang sa Signal Status Indicator)
         let tapCount = 0;
         let tapTimeout;
         const secretButton = document.getElementById('signalStatus'); 
@@ -709,39 +706,45 @@
         secretButton.addEventListener('click', function() {
             tapCount++;
             
-            // I-reset ang ihap human sa 1.5 segundos kung wala nakaabot og 3 ka tap
             clearTimeout(tapTimeout);
             tapTimeout = setTimeout(() => { tapCount = 0; }, 1500);
 
-            // KUNG NAKA-TRIPLE TAP GYUD...
             if (tapCount === 3) {
-                tapCount = 0; // I-reset ang counter
+                tapCount = 0; 
                 
                 if (!isMarshalMode) {
-                    // 🔓 PANGAYOAN OG PASSWORD
                     let passcode = prompt("🕵️‍♂️ MARSHAL MODE: Pagsulod og Passcode:");
                     
-                    if (passcode === "5729") { // Pwede nimo ilisan ang "1234" sa inyong sikretong code!
-                        isMarshalMode = true;
-                        localStorage.setItem('marshalMode', 'true'); 
-                        if (scanQrBtn) scanQrBtn.style.display = "block"; // I-gawas ang Scanner
-                        alert("🔓 MARSHAL MODE ON! Pwede na nimo gamiton ang Scanner ug mag-usab og ID.");
-                    } else if (passcode !== null) {
-                        alert("❌ Sayop nga Passcode! Rider mode lang ka.");
+                    // 🛡️ ANG BAG-ONG SECURITY CHECKER 🛡️
+                    // Imbes hardcoded nga "1234", mangita siya didto sa database.js
+                    if (typeof riderDatabase !== 'undefined') {
+                        // Pangitaon niya kinsa ang nag-iya aning password UG kung Marshal ba siya
+                        let validMarshal = riderDatabase.find(r => r.passcode === passcode && r.isMarshal === true);
+                        
+                        if (validMarshal) {
+                            isMarshalMode = true;
+                            localStorage.setItem('marshalMode', 'true'); 
+                            if (scanQrBtn) scanQrBtn.style.display = "block"; 
+                            
+                            // Nindot kay mo-greet pa gyud ang app kinsa nga marshal ang ni-log in!
+                            alert(`🔓 MARSHAL MODE ON! Welcome, Master ${validMarshal.fullname}! Pwede na nimo gamiton ang Scanner.`);
+                        } else if (passcode !== null) {
+                            alert("❌ Sayop nga Passcode o dili ka awtorisado! Rider mode lang ka.");
+                        }
+                    } else {
+                        alert("⚠️ Error: Wala nabasa ang database.js");
                     }
                 } else {
-                    // 🔒 KUNG GUSTO I-LOCK UG IBALIK SA RIDER MODE
                     let confirmLock = confirm("🔒 Gusto nimo i-lock ug ibalik sa Rider Mode?");
                     if (confirmLock) {
                         isMarshalMode = false;
                         localStorage.setItem('marshalMode', 'false');
-                        if (scanQrBtn) scanQrBtn.style.display = "none"; // I-tago ang Scanner
+                        if (scanQrBtn) scanQrBtn.style.display = "none"; 
                         alert("🔒 Naka-RIDER MODE na ang app.");
                     }
                 }
             }
         });
-
 
 
 
@@ -801,14 +804,6 @@
             this.focus(); 
             this.style.border = "3px solid #ffcc00"; 
         });
-        
-        // idNumBox.addEventListener('dblclick', function() {
-        //    this.removeAttribute('readonly'); 
-        //    this.value = ""; 
-        //    nameBox.value = ""; 
-        //    this.focus(); 
-        //    this.style.border = "3px solid #ffcc00"; 
-        //});
 
         idNumBox.addEventListener('input', function() {
             this.value = this.value.replace(/[^0-9]/g, ''); 
