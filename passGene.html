@@ -1,0 +1,49 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Marshal Password Generator</title>
+    <style>
+        body { font-family: Arial, sans-serif; text-align: center; margin-top: 50px; background-color: #222; color: white; }
+        input { padding: 10px; font-size: 18px; text-align: center; border-radius: 5px; border: none; }
+        button { padding: 10px 20px; font-size: 18px; background-color: #ffcc00; color: black; border: none; font-weight: bold; cursor: pointer; border-radius: 5px;}
+        .result-box { margin-top: 20px; padding: 20px; background-color: #333; display: inline-block; border-radius: 10px; font-size: 24px; color: #00ff00;}
+    </style>
+</head>
+<body>
+
+    <h1>🕵️‍♂️ Secret Marshal Generator</h1>
+    <p>I-type ang gusto nga PIN sa ubos (pananglitan: 1234, 9999, o bisan unsa).</p>
+    
+    <input type="text" id="rawPassword" placeholder="I-type ang Password">
+    <button onclick="getScrambledCode()">Gamaa ang Hash</button>
+
+    <div class="result-box">
+        Scrambled Code: <br>
+        <b id="hashResult">-----</b>
+    </div>
+
+    <script>
+        // Kini ang kaparehas nga makina sa imong Checkpoint App
+        function cypherHash(str) {
+            let hash = 0;
+            for (let i = 0; i < str.length; i++) {
+                hash = (hash * 31) + str.charCodeAt(i);
+                hash = hash | 0;
+            }
+            return hash.toString();
+        }
+
+        function getScrambledCode() {
+            const pass = document.getElementById("rawPassword").value;
+            if(pass === "") {
+                alert("Pag-type usa og password, Prof!");
+                return;
+            }
+            const scrambled = cypherHash(pass);
+            document.getElementById("hashResult").innerText = scrambled;
+        }
+    </script>
+</body>
+</html>

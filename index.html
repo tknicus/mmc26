@@ -342,10 +342,22 @@
     <!-- IMONG ORIGINAL NGA JAVASCRIPT (WALA GITHUBTAN) -->
 
 
+
+
 <script src="database.js"></script>
     <script>
         let isSyncing = false; // Kini ang atong "Lock"
         let compressedPhotoBase64 = ""; 
+
+        // 🔐 SIKRETONG SCRAMBLER (HASH FUNCTION)
+        function cypherHash(str) {
+            let hash = 0;
+            for (let i = 0; i < str.length; i++) {
+                hash = (hash * 31) + str.charCodeAt(i);
+                hash = hash | 0; // Convert to 32bit integer
+            }
+            return hash.toString();
+        }
 
         document.getElementById('cameraInput').addEventListener('change', function(event) {
             const file = event.target.files[0];
@@ -719,8 +731,9 @@
                     // Imbes hardcoded nga "1234", mangita siya didto sa database.js
                     if (typeof riderDatabase !== 'undefined') {
                         // Pangitaon niya kinsa ang nag-iya aning password UG kung Marshal ba siya
-                        let validMarshal = riderDatabase.find(r => r.passcode === passcode && r.isMarshal === true);
-                        
+                        // I-agi usa sa scrambler ang gi-type sa Marshal!
+                        let hashedInput = cypherHash(passcode); 
+                        let validMarshal = riderDatabase.find(r => r.passcode === hashedInput && r.isMarshal === true);      
                         if (validMarshal) {
                             isMarshalMode = true;
                             localStorage.setItem('marshalMode', 'true'); 
