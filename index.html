@@ -601,6 +601,7 @@
 
             const checkId = document.getElementById('idNum').value;
             const checkName = document.getElementById('name').value;
+            const currentCheckpoint = document.getElementById('checkpoint').value;
 
             if (checkId === "" || checkName === "" || checkName.includes("❌")) {
                 bgMusic.pause(); bgMusic.currentTime = 0; 
@@ -611,6 +612,56 @@
                 isSubmitting = false;
                 return;
             }
+
+            // =========================================================
+            // ⚡ GOD-MODE: RULE OF 3 & CP xx EXEMPTION LOGIC ⚡
+            // =========================================================
+            let isPracticeCheckpoint = currentCheckpoint.toLowerCase().includes("xx");
+            let completedCheckpoints = [];
+            let riderHistoryKey = 'history_' + checkId;
+
+            if (!isPracticeCheckpoint) {
+                // KUNG NUMERONG CHECKPOINT RA (CP 01, CP 02, etc.): I-apply ang Rule of 3
+                completedCheckpoints = JSON.parse(localStorage.getItem(riderHistoryKey)) || [];
+                let submissionCount = completedCheckpoints.filter(cp => cp === currentCheckpoint).length;
+
+                if (submissionCount >= 3) {
+                    if (isMarshalMode) {
+                        let allowExtra = confirm(`⚠️ GOD-MODE MARSHAL OVERRIDE!\nNaabot na sa 3 ka beses nag-submit si Rider ${checkId} sa ${currentCheckpoint}.\nGusto ba nimo i-allow ang ika-4 nga pag-submit?`);
+                        if (!allowExtra) {
+                            bgMusic.pause(); bgMusic.currentTime = 0;
+                            submitBtn.textContent = "I-Submit ang Data";
+                            submitBtn.disabled = false;
+                            submitBtn.style.opacity = "1";
+                            isSubmitting = false;
+                            return;
+                        }
+                    } else {
+                        bgMusic.pause(); bgMusic.currentTime = 0;
+                        alert(`🛑 LIMIT REACHED! Master ${checkId}, nakatulo na ka nag-submit sa ${currentCheckpoint}!\n\nNaabot na nimo ang maximum limit (3/3). Palihug pangitaa ang Marshal aron siya ang mo-unlock.`);
+                        submitBtn.textContent = "I-Submit ang Data";
+                        submitBtn.disabled = false;
+                        submitBtn.style.opacity = "1";
+                        isSubmitting = false;
+                        return; 
+                    }
+                } else if (submissionCount > 0) {
+                    let attemptNum = submissionCount + 1;
+                    let proceedAgain = confirm(`⚠️ PAHINUMDOM: Kini ang imong ika-${attemptNum} nga pag-submit sa ${currentCheckpoint}.\n\nSiguradoha nga sakto na ang imong Odometer ug Notes. Gusto ba nimo ipadayon?`);
+                    if (!proceedAgain) {
+                        bgMusic.pause(); bgMusic.currentTime = 0;
+                        submitBtn.textContent = "I-Submit ang Data";
+                        submitBtn.disabled = false;
+                        submitBtn.style.opacity = "1";
+                        isSubmitting = false;
+                        return;
+                    }
+                }
+            } else {
+                // KUNG CP xx: Walay limit, gawasnon ang pagpraktis!
+                console.log("Practice Checkpoint detected: Excluded gikan sa Rule of 3.");
+            }
+            // =========================================================
 
             const gpsData = await getLocation();
 
@@ -637,7 +688,7 @@
             const data = {
                 idNum: document.getElementById('idNum').value,
                 name: document.getElementById('name').value,
-                checkpoint: document.getElementById('checkpoint').value, 
+                checkpoint: currentCheckpoint, 
                 odometer: document.getElementById('odometer').value, 
                 notes: document.getElementById('notes').value,
                 photo: compressedPhotoBase64, 
@@ -647,7 +698,6 @@
                 longitude: gpsData.lon,
                 locationTime: gpsData.time 
             };
-
 
             // 🌐 SUSIHON USA NATO KUNG STABLE BA GYUD ANG INTERNET SA BUKID
             submitBtn.textContent = "🌐 Gisusi ang Internet...";
@@ -677,6 +727,12 @@
             }
 
             if (isDataSaved) {
+                // 🛂 I-TATAK SA DIGITAL PASSPORT KUNG DILI PRACTICE CHECKPOINT
+                if (!isPracticeCheckpoint) {
+                    completedCheckpoints.push(currentCheckpoint);
+                    localStorage.setItem(riderHistoryKey, JSON.stringify(completedCheckpoints));
+                }
+
                 myForm.reset();
                 compressedPhotoBase64 = ""; 
                 document.getElementById('photoPreview').style.display = "none"; 
@@ -687,6 +743,7 @@
             submitBtn.style.opacity = "1"; 
             isSubmitting = false; // 🔓 I-unlock na para sa sunod nga rider
         });
+
 
         // 📌 HELPER FUNCTION PARA SA OFFLINE SAVING
         function saveToOfflineStorage(recordData) {
