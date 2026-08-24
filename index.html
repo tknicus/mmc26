@@ -581,6 +581,8 @@
         }
 
 
+        
+
         let isSubmitting = false; // I-butang ni sa pinakataas sa imong script o sulod sa submit
 
         myForm.addEventListener('submit', async function(e) {
@@ -614,15 +616,36 @@
             }
 
             // =========================================================
-            // ⚡ GOD-MODE: RULE OF 3 & CP xx EXEMPTION LOGIC ⚡
+            // 🏆 AUTOMATIC TOUR COMPLETION & DYNAMIC ROUTE EXTRACTOR
             // =========================================================
-            let isPracticeCheckpoint = currentCheckpoint.toLowerCase().includes("xx");
-            let completedCheckpoints = [];
+            // Kuhaon dayon sa app ang TANANG opisyal nga checkpoints direkta sa HTML <select> 
+            // (Awtomatikong gi-apil ang CP 00 hangtod CP 46, ug CP FL, gawas ang CP xx ug blangko)
+            const checkpointSelect = document.getElementById('checkpoint');
+            const officialRoute = Array.from(checkpointSelect.options)
+                .map(opt => opt.value)
+                .filter(val => val !== "" && !val.toLowerCase().includes("xx"));
+
             let riderHistoryKey = 'history_' + checkId;
+            let completedCheckpoints = JSON.parse(localStorage.getItem(riderHistoryKey)) || [];
+
+            // Susihon kung nahuman na ba niya ang TANANG opisyal nga checkpoints sa rota
+            let isTourCompleted = officialRoute.every(cp => completedCheckpoints.includes(cp));
+
+            if (isTourCompleted) {
+                bgMusic.pause(); bgMusic.currentTime = 0;
+                alert(`🏆 CONGRATULATIONS, MASTER ${checkId}!\n\nNahuman na nimo ang tibuok rota sa MasterMinds ONTOUR! Kompleto na nimo ang tanang Checkpoints gikan sa sugod hangtod sa katapusan.\n\nGusto ba mo-apil sa sunod nga rota o laing ONTOUR adventure? Kontaka dayon ang Admin / Organizer para sa imong pag-register! 🏍️🔥`);
+                
+                submitBtn.textContent = "I-Submit ang Data";
+                submitBtn.disabled = false;
+                submitBtn.style.opacity = "1";
+                isSubmitting = false;
+                return; // Babagan na ang pag-submit kay human na ang tibuok tour!
+            }
+            // =========================================================
+
+            let isPracticeCheckpoint = currentCheckpoint.toLowerCase().includes("xx");
 
             if (!isPracticeCheckpoint) {
-                // KUNG NUMERONG CHECKPOINT RA (CP 01, CP 02, etc.): I-apply ang Rule of 3
-                completedCheckpoints = JSON.parse(localStorage.getItem(riderHistoryKey)) || [];
                 let submissionCount = completedCheckpoints.filter(cp => cp === currentCheckpoint).length;
 
                 if (submissionCount >= 3) {
@@ -638,7 +661,7 @@
                         }
                     } else {
                         bgMusic.pause(); bgMusic.currentTime = 0;
-                        alert(`🛑 LIMIT REACHED! Master ${checkId}, nakatulo na ka nag-submit sa ${currentCheckpoint}!\n\nNaabot na nimo ang maximum limit (3/3). Palihug pangitaa ang Marshal aron siya ang mo-unlock.`);
+                        alert(`🛑 LIMIT REACHED! Master ${checkId}, nakatulo na ka nag-submit sa ${currentCheckpoint}!\n\nNaabot na nimo ang maximum limit (3/3). Palihug pangitaa ang Marshal.`);
                         submitBtn.textContent = "I-Submit ang Data";
                         submitBtn.disabled = false;
                         submitBtn.style.opacity = "1";
@@ -647,7 +670,7 @@
                     }
                 } else if (submissionCount > 0) {
                     let attemptNum = submissionCount + 1;
-                    let proceedAgain = confirm(`⚠️ PAHINUMDOM: Kini ang imong ika-${attemptNum} nga pag-submit sa ${currentCheckpoint}.\n\nSiguradoha nga sakto na ang imong Odometer ug Notes. Gusto ba nimo ipadayon?`);
+                    let proceedAgain = confirm(`⚠️ PAHINUMDOM: Kini ang imong ika-${attemptNum} nga pag-submit sa ${currentCheckpoint}.\n\nSiguradoha nga sakto na ang Odometer. Gusto ba nimo ipadayon?`);
                     if (!proceedAgain) {
                         bgMusic.pause(); bgMusic.currentTime = 0;
                         submitBtn.textContent = "I-Submit ang Data";
@@ -657,11 +680,7 @@
                         return;
                     }
                 }
-            } else {
-                // KUNG CP xx: Walay limit, gawasnon ang pagpraktis!
-                console.log("Practice Checkpoint detected: Excluded gikan sa Rule of 3.");
             }
-            // =========================================================
 
             const gpsData = await getLocation();
 
@@ -686,8 +705,8 @@
             }
 
             const data = {
-                idNum: document.getElementById('idNum').value,
-                name: document.getElementById('name').value,
+                idNum: checkId,
+                name: checkName,
                 checkpoint: currentCheckpoint, 
                 odometer: document.getElementById('odometer').value, 
                 notes: document.getElementById('notes').value,
@@ -699,7 +718,6 @@
                 locationTime: gpsData.time 
             };
 
-            // 🌐 SUSIHON USA NATO KUNG STABLE BA GYUD ANG INTERNET SA BUKID
             submitBtn.textContent = "🌐 Gisusi ang Internet...";
             let isStable = await checkInternetStability();
             let isDataSaved = false;
@@ -714,20 +732,18 @@
                     isDataSaved = true; 
                 } else {
                     bgMusic.pause(); bgMusic.currentTime = 0; 
-                    alert("⚠️ Na-putol ang signal pag-send! Gi-save sa Offline Data.");
+                    alert("⚠️ Na-putol ang signal! Gi-save sa Offline Data.");
                     saveToOfflineStorage(data);
                     isDataSaved = true; 
                 }
             } else {
-                // KUNG HINAY / LIE-FI / WALAY INTERNET: I-save dayon sa lokal (localStorage)
                 bgMusic.pause(); bgMusic.currentTime = 0; 
                 saveToOfflineStorage(data);
-                alert("⚠️ Hinay ang internet (Lie-Fi)! Gi-save sa Offline Data sa device. Mo-sync ra ni inig balik sa tarong nga signal.");
+                alert("⚠️ Hinay ang internet! Gi-save sa Offline Data sa device.");
                 isDataSaved = true;
             }
 
             if (isDataSaved) {
-                // 🛂 I-TATAK SA DIGITAL PASSPORT KUNG DILI PRACTICE CHECKPOINT
                 if (!isPracticeCheckpoint) {
                     completedCheckpoints.push(currentCheckpoint);
                     localStorage.setItem(riderHistoryKey, JSON.stringify(completedCheckpoints));
@@ -741,9 +757,8 @@
             submitBtn.textContent = "I-Submit ang Data";
             submitBtn.disabled = false;
             submitBtn.style.opacity = "1"; 
-            isSubmitting = false; // 🔓 I-unlock na para sa sunod nga rider
+            isSubmitting = false; 
         });
-
 
         // 📌 HELPER FUNCTION PARA SA OFFLINE SAVING
         function saveToOfflineStorage(recordData) {
@@ -752,7 +767,6 @@
             localStorage.setItem('offlineData', JSON.stringify(savedData));
             updateDashboardCounters();
         }
-
 
 
 
