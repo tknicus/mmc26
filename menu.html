@@ -1,0 +1,130 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>MasterMinds - Admin Menu</title>
+    <style>
+        body { font-family: Arial, sans-serif; background-color: #121212; color: #fff; margin: 0; padding: 20px; display: flex; justify-content: center; align-items: center; min-height: 100vh; }
+        .container { width: 100%; max-width: 450px; background: #1e1e1e; padding: 25px; border-radius: 12px; box-shadow: 0 4px 15px rgba(0,0,0,0.8); text-align: center; }
+        
+        h1 { color: #fff; font-style: italic; margin-bottom: 5px; font-size: 26px; font-weight: 900; letter-spacing: 1px; }
+        h1 span { color: #ff0000; }
+        h2 { color: #ffcc00; margin-top: 0; font-size: 14px; letter-spacing: 2px; text-transform: uppercase; }
+        
+        .menu-btn { display: block; width: 100%; padding: 15px; margin: 15px 0; font-size: 15px; font-weight: bold; color: #fff; background-color: #333; border: 2px solid #555; border-radius: 8px; text-decoration: none; cursor: pointer; transition: 0.3s; box-sizing: border-box; }
+        .menu-btn:hover { background-color: #444; border-color: #ffcc00; }
+        .menu-btn.primary { background-color: #cc0000; border-color: #ff0000; }
+        .menu-btn.primary:hover { background-color: #ff0000; }
+        .menu-btn.secondary { background-color: #e6b800; color: #000; border-color: #ffcc00; }
+        .menu-btn.secondary:hover { background-color: #ffcc00; }
+        
+        hr { border: 1px solid #333; margin: 20px 0; }
+        
+        /* GENERATOR STYLES */
+        .hash-box { background: #2a2a2a; padding: 15px; border-radius: 8px; margin-bottom: 15px; text-align: left; }
+        .box-custom { border-left: 5px solid #00ff00; } /* Green para sa Custom */
+        .box-sha { border-left: 5px solid #00d2ff; } /* Blue para sa SHA-256 */
+        
+        .hash-box h3 { margin-top: 0; font-size: 15px; margin-bottom: 5px; }
+        .box-custom h3 { color: #00ff00; }
+        .box-sha h3 { color: #00d2ff; }
+        
+        .hash-box p { font-size: 11px; color: #aaa; margin-top: 0; margin-bottom: 10px; }
+        input[type="text"] { width: 100%; padding: 10px; margin-bottom: 10px; font-size: 14px; border-radius: 5px; border: none; background: #121212; color: #fff; box-sizing: border-box; text-align: center; font-weight: bold; letter-spacing: 2px; }
+        
+        .copy-btn { color: #000; padding: 10px; font-weight: bold; border: none; border-radius: 5px; cursor: pointer; width: 100%; font-size: 13px; }
+        .btn-custom { background: #00ff00; }
+        .btn-custom:hover { background: #00cc00; }
+        .btn-sha { background: #00d2ff; }
+        .btn-sha:hover { background: #00b8e6; }
+        
+        .hash-result { word-break: break-all; font-family: monospace; font-size: 14px; margin-top: 10px; background: #121212; padding: 10px; border-radius: 5px; text-align: center; min-height: 15px; font-weight: bold; }
+        .result-custom { color: #00ff00; }
+        .result-sha { color: #00d2ff; font-size: 11px; }
+        
+        .footer { margin-top: 20px; font-size: 11px; color: #666; }
+    </style>
+</head>
+<body>
+
+    <div class="container">
+        <h1>MASTERMINDS<span>'CUP</span></h1>
+        <h2>Admin & Marshal Portal</h2>
+        
+        <a href="index.html" class="menu-btn primary">📸 Ablihi ang Checkpoint Scanner</a>
+        <a href="report.html" class="menu-btn secondary">📊 Ablihi ang Rider Report Tracker</a>
+
+        <hr>
+
+        <!-- 1. IMONG CUSTOM GENERATOR (cypherHash) -->
+        <div class="hash-box box-custom">
+            <h3>🕵️‍♂️ Custom Marshal PIN (cypherHash)</h3>
+            <p>Kini ang kasamtangang gigamit sa imong Checkpoint App.</p>
+            <input type="text" id="rawPasswordCustom" placeholder="Type PIN (e.g. 1234)">
+            <button class="copy-btn btn-custom" onclick="getCustomHash()">Gamaa & Kopyaha (Custom)</button>
+            <div id="resultCustom" class="hash-result result-custom">-----</div>
+        </div>
+
+        <!-- 2. ADVANCED SHA-256 GENERATOR (Future-Proof) -->
+        <div class="hash-box box-sha">
+            <h3>🔐 Advanced Security PIN (SHA-256)</h3>
+            <p>Gamita kini puhon kung gusto nimo og mas taas ug mas secure nga hash logic.</p>
+            <input type="text" id="rawPasswordSHA" placeholder="Type PIN (e.g. 123456)">
+            <button class="copy-btn btn-sha" onclick="getShaHash()">Gamaa & Kopyaha (SHA-256)</button>
+            <div id="resultSHA" class="hash-result result-sha">-----</div>
+        </div>
+        
+        <div class="footer">
+            &copy; 2026 MasterMinds'CUP. Admin Tools.<br>
+            <span style="color: #00ff00;">System Active 🛡️</span>
+        </div>
+    </div>
+
+    <script>
+        // ==========================================
+        // 1. KINI ANG IMONG CUSTOM CYPHERHASH
+        // ==========================================
+        function cypherHash(str) {
+            let hash = 0;
+            for (let i = 0; i < str.length; i++) {
+                hash = (hash * 31) + str.charCodeAt(i);
+                hash = hash | 0;
+            }
+            return hash.toString();
+        }
+
+        function getCustomHash() {
+            const pass = document.getElementById("rawPasswordCustom").value;
+            if(pass === "") { alert("Type PIN sa Custom Generator!"); return; }
+            
+            const scrambled = cypherHash(pass);
+            document.getElementById("resultCustom").innerText = scrambled;
+
+            navigator.clipboard.writeText(scrambled).then(() => {
+                alert("✅ CUSTOM HASH COPIED:\n" + scrambled);
+            });
+        }
+
+        // ==========================================
+        // 2. KINI ANG ADVANCED SHA-256 HASH
+        // ==========================================
+        async function getShaHash() {
+            const pass = document.getElementById("rawPasswordSHA").value.trim();
+            if(!pass) { alert("Type PIN sa Advanced Generator!"); return; }
+            
+            const encoder = new TextEncoder();
+            const data = encoder.encode(pass);
+            const hashBuffer = await crypto.subtle.digest('SHA-256', data);
+            const hashArray = Array.from(new Uint8Array(hashBuffer));
+            const hashHex = hashArray.map(b => b.toString(16).padStart(2, '0')).join('');
+            
+            document.getElementById("resultSHA").innerText = hashHex;
+
+            navigator.clipboard.writeText(hashHex).then(() => {
+                alert("✅ ADVANCED SHA-256 HASH COPIED:\n" + hashHex);
+            });
+        }
+    </script>
+</body>
+</html>

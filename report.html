@@ -1,0 +1,96 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>MasterMinds Rider Report Tracker</title>
+    <style>
+        body { font-family: Arial, sans-serif; background-color: #121212; color: #fff; margin: 0; padding: 20px; }
+        .container { max-width: 600px; margin: auto; background: #1e1e1e; padding: 20px; border-radius: 10px; box-shadow: 0 4px 10px rgba(0,0,0,0.5); }
+        h2 { text-align: center; color: #ffcc00; }
+        .search-box { display: flex; gap: 10px; margin-bottom: 20px; }
+        input { flex: 1; padding: 12px; font-size: 16px; border-radius: 5px; border: none; background: #333; color: white; text-align: center; }
+        button { padding: 12px 20px; font-size: 16px; background-color: #ffcc00; color: black; border: none; font-weight: bold; cursor: pointer; border-radius: 5px; }
+        button:hover { background-color: #e6b800; }
+        .card { background: #2a2a2a; padding: 15px; margin-bottom: 15px; border-radius: 8px; border-left: 5px solid #00ff00; }
+        .card p { margin: 5px 0; font-size: 14px; }
+        .card a { color: #00d2ff; text-decoration: none; }
+        .card img { max-width: 100%; height: auto; border-radius: 5px; margin-top: 10px; }
+        .no-data { text-align: center; color: #ff4d4d; font-weight: bold; margin-top: 20px; }
+    </style>
+</head>
+<body>
+
+    <div class="container">
+        <h2>📊 Rider Progress Tracker</h2>
+
+        <!-- 🔙 BACK TO MENU BUTTON -->
+        <div style="text-align: center; margin-bottom: 15px; margin-top: 10px;">
+            <a href="menu.html" style="background-color: #222; color: #ffcc00; text-decoration: none; font-size: 12px; font-weight: bold; border: 1px solid #ffcc00; padding: 8px 15px; border-radius: 20px; display: inline-block; box-shadow: 0 2px 5px rgba(0,0,0,0.5);">
+                ⬅️ Balik sa Main Menu
+            </a>
+        </div>
+
+        <div class="search-box">
+            <input type="text" id="searchId" placeholder="I-type ang Rider ID (e.g. 0001)">
+            <button onclick="fetchRiderReport()">Pangitaa</button>
+        </div>
+
+        <div id="loading" style="text-align: center; display: none; color: #ffcc00;">Gisusi ang database sa Google Sheet...</div>
+        <div id="resultContainer"></div>
+    </div>
+
+    <script>
+        // ILISANI KINING URL SA IMONG BAG-ONG GOOGLE APPS SCRIPT WEB APP URL
+        const WEB_APP_URL = "https://script.google.com/macros/s/AKfycby_4MwwGkRxmWI2zND7fiQN3N9wTmkm3TCg6f5xteV0bEwAj89xOCte6gRYqUE6AsB6/exec";
+
+        async function fetchRiderReport() {
+            const id = document.getElementById('searchId').value.trim();
+            const container = document.getElementById('resultContainer');
+            const loading = document.getElementById('loading');
+
+            if (!id) {
+                alert("Palihug pag-type og Rider ID, Prof!");
+                return;
+            }
+
+            container.innerHTML = "";
+            loading.style.display = "block";
+
+            try {
+                let response = await fetch(`${WEB_APP_URL}?action=getReport&id=${id}`);
+                let records = await response.json();
+
+                loading.style.display = "none";
+
+                if (records.length === 0) {
+                    container.innerHTML = `<div class="no-data">Wala pay nakit-an nga rekord para sa Rider ID: ${id}</div>`;
+                    return;
+                }
+
+                let html = `<h3>Mga Naagian ni Rider ID: ${id} (${records.length} Checkpoints)</h3>`;
+                
+                records.forEach((rec, index) => {
+                    html += `
+                        <div class="card">
+                            <p><strong>#${index + 1} Checkpoint:</strong> <span style="color: #ffcc00;">${rec.checkpoint}</span></p>
+                            <p><strong>Odometer:</strong> ${rec.odometer}</p>
+                            <p><strong>Notes/Remarks:</strong> ${rec.notes || "Wala'y notes"}</p>
+                            <p><strong>Oras sa Pagpasa:</strong> ${rec.appTime}</p>
+                            <p><strong>Map Link:</strong> <a href="${rec.mapLink}" target="_blank">Tan-awa sa Google Maps 🗺️</a></p>
+                            ${rec.photoUrl && rec.photoUrl !== "Walay Ebidensya" ? `<p><strong>Ebidensya:</strong><br><img src="${rec.photoUrl}" alt="Checkpoint Photo"></p>` : ''}
+                        </div>
+                    `;
+                });
+
+                container.innerHTML = html;
+
+            } catch (error) {
+                loading.style.display = "none";
+                container.innerHTML = `<div class="no-data">Error sa pagkuha sa data. Susiha ang iyong Web App URL.</div>`;
+                console.error(error);
+            }
+        }
+    </script>
+</body>
+</html>
