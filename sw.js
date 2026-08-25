@@ -1,9 +1,9 @@
-const CACHE_NAME = 'mmc26-cache-v1.19'; // ⬅️ GI-UPDATE NATO ANG VERSION ARON MO-DOWNLOAD OG BAG-O
+const CACHE_NAME = 'mmc26-cache-v1.20'; // ⬅️ GI-UPDATE NATO ANG VERSION ARON MO-DOWNLOAD OG BAG-O
 
 // KINI ANG MGA FILES NGA I-DOWNLOAD UG I-SAVE SA SELPON INIG UNANG ABLI
 const urlsToCache = [
   './',
-  './index.html',
+  './menu.html',
   './manifest.json',
   './database.js', // ⬅️ IDUGANG: Ang imong masterlist
   './mmc.png', // ⬅️ IDUGANG: Ang watermark logo para sa picture

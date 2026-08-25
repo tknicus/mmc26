@@ -1,7 +1,7 @@
 {
-  "name": "MasterMinds'CUP Offline Locator",
-  "short_name": "MMC Offline",
-  "start_url": "./index.html",
+  "name": "MasterMinds'CUP Admin Portal",
+  "short_name": "MMC Admin",
+  "start_url": "./menu.html",
   "display": "standalone",
   "background_color": "#121212",
   "theme_color": "#121212",
@@ -18,23 +18,6 @@
     }
   ]
 }
-
-
-//{
-//  "name": "MasterMinds'CUP Offline Locator",
-//  "short_name": "MMC Offline",
-//  "start_url": "./index.html",
-//  "display": "standalone",
-//  "background_color": "#ffffff",
-//  "theme_color": "#0000ff",
-//  "icons": [
-//    {
-//      "src": "https://cdn-icons-png.flaticon.com/512/3211/3211438.png",
-//      "sizes": "512x512",
-//      "type": "image/png"
-//    }
-//  ]
-//}
 
 
 //{

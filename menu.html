@@ -3,17 +3,55 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>MasterMinds - Admin Menu</title>
+    <title>MasterMinds - Admin Portal</title>
     
-    <!-- PWA MANIFEST UG ICON ISUKSOK DINHI -->
+    <!-- 🛡️ ADVANCED PASSCODE SECURITY BOUNCER (SHA-256) -->
+    <script>
+        // Gilap-os nato sa "async function" aron mogana ang SHA-256
+        (async function checkAdminSecurity() {
+            if (sessionStorage.getItem("admin_authenticated") !== "true") {
+                
+                // I-PASTE DINHI ANG SHA-256 HASH SA IMONG GUSTO NGA ADMIN PASSCODE!
+                // (Kining taas nga code sa ubos kay ang hash para sa "2026")
+                const ADMIN_HASH = "4c327801d652b4e7b3449684f83febb4fea62dbd2c80ee4136f32ecbccc0f45e"; 
+                
+                let userPin = prompt("🛡️ MASTERMINDS ADMIN PORTAL\nPalihug i-type ang Admin Passcode:");
+                
+                // Kung mo-click og Cancel ang user, ilabog dayon pawagtang
+                if (userPin === null) {
+                    window.location.href = "https://www.google.com";
+                    return;
+                }
+                
+                // I-proseso (hash) ang gi-type nga PIN sa user gamit ang SHA-256
+                const encoder = new TextEncoder();
+                const data = encoder.encode(userPin);
+                const hashBuffer = await crypto.subtle.digest('SHA-256', data);
+                const hashArray = Array.from(new Uint8Array(hashBuffer));
+                const hashedInput = hashArray.map(b => b.toString(16).padStart(2, '0')).join('');
+                
+                // I-kumpara ang na-hash nga gi-type sa user ngadto sa nakasave nga ADMIN_HASH
+                if (hashedInput === ADMIN_HASH) {
+                    sessionStorage.setItem("admin_authenticated", "true");
+                    alert("✅ Husto ang Passcode. Welcome, Admin!");
+                } else {
+                    alert("❌ Sayop nga Passcode! Gisirhan ang pag-abli.");
+                    // Ilabog pabalik sa gawas kung sayop
+                    window.location.href = "https://www.google.com";
+                }
+            }
+        })();
+    </script>
+
+    <!-- PWA MANIFEST UG ICON -->
     <link rel="manifest" href="manifest.json">
     <link rel="icon" type="image/png" href="icon.png">
     <link rel="apple-touch-icon" href="icon.png">
     <meta name="theme-color" content="#121212">
-    
+
     <style>
-        body { font-family: Arial, sans-serif; background-color: #121212; color: #fff; margin: 0; padding: 20px; display: flex; justify-content: center; align-items: center; min-height: 100vh; }
-        .container { width: 100%; max-width: 450px; background: #1e1e1e; padding: 25px; border-radius: 12px; box-shadow: 0 4px 15px rgba(0,0,0,0.8); text-align: center; }
+        body { font-family: Arial, sans-serif; background-color: #121212; color: #fff; margin: 0; padding: 20px; display: flex; justify-content: center; align-items: center; min-height: 100vh; box-sizing: border-box; }
+        .container { width: 100%; max-width: 450px; background: #1e1e1e; padding: 25px; border-radius: 12px; box-shadow: 0 4px 15px rgba(0,0,0,0.8); text-align: center; box-sizing: border-box; }
         
         h1 { color: #fff; font-style: italic; margin-bottom: 5px; font-size: 26px; font-weight: 900; letter-spacing: 1px; }
         h1 span { color: #ff0000; }
@@ -29,9 +67,9 @@
         hr { border: 1px solid #333; margin: 20px 0; }
         
         /* GENERATOR STYLES */
-        .hash-box { background: #2a2a2a; padding: 15px; border-radius: 8px; margin-bottom: 15px; text-align: left; }
-        .box-custom { border-left: 5px solid #00ff00; } /* Green para sa Custom */
-        .box-sha { border-left: 5px solid #00d2ff; } /* Blue para sa SHA-256 */
+        .hash-box { background: #2a2a2a; padding: 15px; border-radius: 8px; margin-bottom: 15px; text-align: left; box-sizing: border-box; }
+        .box-custom { border-left: 5px solid #00ff00; } 
+        .box-sha { border-left: 5px solid #00d2ff; } 
         
         .hash-box h3 { margin-top: 0; font-size: 15px; margin-bottom: 5px; }
         .box-custom h3 { color: #00ff00; }
@@ -40,13 +78,13 @@
         .hash-box p { font-size: 11px; color: #aaa; margin-top: 0; margin-bottom: 10px; }
         input[type="text"] { width: 100%; padding: 10px; margin-bottom: 10px; font-size: 14px; border-radius: 5px; border: none; background: #121212; color: #fff; box-sizing: border-box; text-align: center; font-weight: bold; letter-spacing: 2px; }
         
-        .copy-btn { color: #000; padding: 10px; font-weight: bold; border: none; border-radius: 5px; cursor: pointer; width: 100%; font-size: 13px; }
+        .copy-btn { color: #000; padding: 10px; font-weight: bold; border: none; border-radius: 5px; cursor: pointer; width: 100%; font-size: 13px; box-sizing: border-box; }
         .btn-custom { background: #00ff00; }
         .btn-custom:hover { background: #00cc00; }
         .btn-sha { background: #00d2ff; }
         .btn-sha:hover { background: #00b8e6; }
         
-        .hash-result { word-break: break-all; font-family: monospace; font-size: 14px; margin-top: 10px; background: #121212; padding: 10px; border-radius: 5px; text-align: center; min-height: 15px; font-weight: bold; }
+        .hash-result { word-break: break-all; font-family: monospace; font-size: 14px; margin-top: 10px; background: #121212; padding: 10px; border-radius: 5px; text-align: center; min-height: 15px; font-weight: bold; box-sizing: border-box; }
         .result-custom { color: #00ff00; }
         .result-sha { color: #00d2ff; font-size: 11px; }
         
@@ -57,26 +95,26 @@
 
     <div class="container">
         <h1>MASTERMINDS<span>'CUP</span></h1>
-        <h2>Admin & Marshal Portal</h2>
+        <h2>Admin Portal (Secure)</h2>
         
         <a href="index.html" class="menu-btn primary">📸 Ablihi ang Checkpoint Scanner</a>
         <a href="report.html" class="menu-btn secondary">📊 Ablihi ang Rider Report Tracker</a>
 
         <hr>
 
-        <!-- 1. IMONG CUSTOM GENERATOR (cypherHash) -->
+        <!-- 1. CUSTOM GENERATOR (cypherHash) -->
         <div class="hash-box box-custom">
             <h3>🕵️‍♂️ Custom Marshal PIN (cypherHash)</h3>
-            <p>Kini ang kasamtangang gigamit sa imong Checkpoint App.</p>
+            <p>Aktibong gigamit sa app.</p>
             <input type="text" id="rawPasswordCustom" placeholder="Type PIN (e.g. 1234)">
             <button class="copy-btn btn-custom" onclick="getCustomHash()">Gamaa & Kopyaha (Custom)</button>
             <div id="resultCustom" class="hash-result result-custom">-----</div>
         </div>
 
-        <!-- 2. ADVANCED SHA-256 GENERATOR (Future-Proof) -->
+        <!-- 2. ADVANCED SHA-256 GENERATOR -->
         <div class="hash-box box-sha">
             <h3>🔐 Advanced Security PIN (SHA-256)</h3>
-            <p>Gamita kini puhon kung gusto nimo og mas taas ug mas secure nga hash logic.</p>
+            <p>Future-proof security hash.</p>
             <input type="text" id="rawPasswordSHA" placeholder="Type PIN (e.g. 123456)">
             <button class="copy-btn btn-sha" onclick="getShaHash()">Gamaa & Kopyaha (SHA-256)</button>
             <div id="resultSHA" class="hash-result result-sha">-----</div>
@@ -84,14 +122,11 @@
         
         <div class="footer">
             &copy; 2026 MasterMinds'CUP. Admin Tools.<br>
-            <span style="color: #00ff00;">System Active 🛡️</span>
+            <span style="color: #00ff00;">Secured & Protected 🛡️</span>
         </div>
     </div>
 
     <script>
-        // ==========================================
-        // 1. KINI ANG IMONG CUSTOM CYPHERHASH
-        // ==========================================
         function cypherHash(str) {
             let hash = 0;
             for (let i = 0; i < str.length; i++) {
@@ -113,9 +148,6 @@
             });
         }
 
-        // ==========================================
-        // 2. KINI ANG ADVANCED SHA-256 HASH
-        // ==========================================
         async function getShaHash() {
             const pass = document.getElementById("rawPasswordSHA").value.trim();
             if(!pass) { alert("Type PIN sa Advanced Generator!"); return; }

@@ -355,6 +355,15 @@
 
 <script src="database.js"></script>
     <script>
+        // 🌟 BAG-ONG SHA-256 HASH ENGINE
+        async function sha256Hash(str) {
+            const encoder = new TextEncoder();
+            const data = encoder.encode(str);
+            const hashBuffer = await crypto.subtle.digest('SHA-256', data);
+            const hashArray = Array.from(new Uint8Array(hashBuffer));
+            return hashArray.map(b => b.toString(16).padStart(2, '0')).join('');
+        }
+        
         let isSyncing = false; // Kini ang atong "Lock"
         let compressedPhotoBase64 = ""; 
 
@@ -795,7 +804,7 @@
         let tapTimeout;
         const secretButton = document.getElementById('signalStatus'); 
 
-        secretButton.addEventListener('click', function() {
+        secretButton.addEventListener('click', async function() {
             tapCount++;
             
             clearTimeout(tapTimeout);
@@ -807,13 +816,18 @@
                 if (!isMarshalMode) {
                     let passcode = prompt("🕵️‍♂️ MARSHAL MODE: Pagsulod og Passcode:");
                     
-                    // 🛡️ ANG BAG-ONG SECURITY CHECKER 🛡️
-                    // Imbes hardcoded nga "1234", mangita siya didto sa database.js
+                    // Kung pisliton ang "Cancel", undangon dayon ang proseso
+                    if (passcode === null) return;
+                    
+                    // 🛡️ ANG BAG-ONG ADVANCED SECURITY CHECKER (SHA-256) 🛡️
                     if (typeof riderDatabase !== 'undefined') {
+                        
+                        // I-agi sa SHA-256 scrambler ang gi-type sa Marshal! (Bantayi ang 'await')
+                        let hashedInput = await sha256Hash(passcode); 
+                        
                         // Pangitaon niya kinsa ang nag-iya aning password UG kung Marshal ba siya
-                        // I-agi usa sa scrambler ang gi-type sa Marshal!
-                        let hashedInput = cypherHash(passcode); 
                         let validMarshal = riderDatabase.find(r => r.passcode === hashedInput && r.isMarshal === true);      
+                        
                         if (validMarshal) {
                             isMarshalMode = true;
                             localStorage.setItem('marshalMode', 'true'); 
@@ -821,7 +835,7 @@
                             
                             // Nindot kay mo-greet pa gyud ang app kinsa nga marshal ang ni-log in!
                             alert(`🔓 MARSHAL MODE ON! Welcome, Master ${validMarshal.fullname}! Pwede na nimo gamiton ang Scanner.`);
-                        } else if (passcode !== null) {
+                        } else {
                             alert("❌ Sayop nga Passcode o dili ka awtorisado! Rider mode lang ka.");
                         }
                     } else {
@@ -837,6 +851,7 @@
                     }
                 }
             }
+
         });
 
 
