@@ -73,6 +73,24 @@
                     return;
                 }
 
+                // ==========================================
+                // 🌟 SMART SORTING MAGIC (CP 00 TO CP FL)
+                // ==========================================
+                records.sort((a, b) => {
+                    let cpA = String(a.checkpoint).toUpperCase();
+                    let cpB = String(b.checkpoint).toUpperCase();
+
+                    // I-siguro nga ang Finish Line (FL) kay pirme naa sa pinaka-katapusan
+                    if (cpA.includes("FL")) return 1;
+                    if (cpB.includes("FL")) return -1;
+
+                    // I-sort ang uban base sa alphanumeric sequence (CP 00, CP 01...)
+                    if (cpA < cpB) return -1;
+                    if (cpA > cpB) return 1;
+                    return 0;
+                });
+                // ==========================================
+
                 let html = `<h3>Mga Naagian ni Rider ID: ${id} (${records.length} Checkpoints)</h3>`;
                 
                 records.forEach((rec, index) => {
@@ -97,5 +115,9 @@
             }
         }
     </script>
+
+
+
+
 </body>
 </html>
