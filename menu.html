@@ -5,44 +5,6 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>MasterMinds - Admin Portal</title>
     
-    <!-- 🛡️ ADVANCED PASSCODE SECURITY BOUNCER (SHA-256) -->
-    <script>
-        // Gilap-os nato sa "async function" aron mogana ang SHA-256
-        (async function checkAdminSecurity() {
-            if (sessionStorage.getItem("admin_authenticated") !== "true") {
-                
-                // I-PASTE DINHI ANG SHA-256 HASH SA IMONG GUSTO NGA ADMIN PASSCODE!
-                // (Kining taas nga code sa ubos kay ang hash para sa "2026")
-                const ADMIN_HASH = "4c327801d652b4e7b3449684f83febb4fea62dbd2c80ee4136f32ecbccc0f45e"; 
-                
-                let userPin = prompt("🛡️ MASTERMINDS ADMIN PORTAL\nPalihug i-type ang Admin Passcode:");
-                
-                // Kung mo-click og Cancel ang user, ilabog dayon pawagtang
-                if (userPin === null) {
-                    window.location.href = "https://www.google.com";
-                    return;
-                }
-                
-                // I-proseso (hash) ang gi-type nga PIN sa user gamit ang SHA-256
-                const encoder = new TextEncoder();
-                const data = encoder.encode(userPin);
-                const hashBuffer = await crypto.subtle.digest('SHA-256', data);
-                const hashArray = Array.from(new Uint8Array(hashBuffer));
-                const hashedInput = hashArray.map(b => b.toString(16).padStart(2, '0')).join('');
-                
-                // I-kumpara ang na-hash nga gi-type sa user ngadto sa nakasave nga ADMIN_HASH
-                if (hashedInput === ADMIN_HASH) {
-                    sessionStorage.setItem("admin_authenticated", "true");
-                    alert("✅ Husto ang Passcode. Welcome, Admin!");
-                } else {
-                    alert("❌ Sayop nga Passcode! Gisirhan ang pag-abli.");
-                    // Ilabog pabalik sa gawas kung sayop
-                    window.location.href = "https://www.google.com";
-                }
-            }
-        })();
-    </script>
-
     <!-- PWA MANIFEST UG ICON -->
     <link rel="manifest" href="manifest.json">
     <link rel="icon" type="image/png" href="icon.png">
@@ -50,8 +12,16 @@
     <meta name="theme-color" content="#121212">
 
     <style>
-        body { font-family: Arial, sans-serif; background-color: #121212; color: #fff; margin: 0; padding: 20px; display: flex; justify-content: center; align-items: center; min-height: 100vh; box-sizing: border-box; }
-        .container { width: 100%; max-width: 450px; background: #1e1e1e; padding: 25px; border-radius: 12px; box-shadow: 0 4px 15px rgba(0,0,0,0.8); text-align: center; box-sizing: border-box; }
+        body { font-family: Arial, sans-serif; background-color: #121212; color: #fff; margin: 0; padding: 0; display: flex; justify-content: center; align-items: center; min-height: 100vh; box-sizing: border-box; }
+        
+        /* 🛡️ CUSTOM LOGIN SCREEN STYLES (ASTERISK) */
+        #login-screen { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background-color: #121212; display: flex; justify-content: center; align-items: center; z-index: 9999; padding: 20px; box-sizing: border-box; }
+        .login-box { background: #1e1e1e; padding: 30px; border-radius: 12px; box-shadow: 0 4px 15px rgba(0,0,0,0.8); text-align: center; width: 100%; max-width: 350px; border: 1px solid #333; }
+        .login-box h2 { color: #fff; margin-bottom: 5px; font-style: italic; }
+        .login-box p { color: #aaa; font-size: 13px; margin-bottom: 20px; }
+
+        /* MAIN MENU STYLES */
+        .container { width: 100%; max-width: 450px; background: #1e1e1e; padding: 25px; border-radius: 12px; box-shadow: 0 4px 15px rgba(0,0,0,0.8); text-align: center; box-sizing: border-box; margin: 20px; }
         
         h1 { color: #fff; font-style: italic; margin-bottom: 5px; font-size: 26px; font-weight: 900; letter-spacing: 1px; }
         h1 span { color: #ff0000; }
@@ -66,7 +36,6 @@
         
         hr { border: 1px solid #333; margin: 20px 0; }
         
-        /* GENERATOR STYLES */
         .hash-box { background: #2a2a2a; padding: 15px; border-radius: 8px; margin-bottom: 15px; text-align: left; box-sizing: border-box; }
         .box-custom { border-left: 5px solid #00ff00; } 
         .box-sha { border-left: 5px solid #00d2ff; } 
@@ -76,7 +45,7 @@
         .box-sha h3 { color: #00d2ff; }
         
         .hash-box p { font-size: 11px; color: #aaa; margin-top: 0; margin-bottom: 10px; }
-        input[type="text"] { width: 100%; padding: 10px; margin-bottom: 10px; font-size: 14px; border-radius: 5px; border: none; background: #121212; color: #fff; box-sizing: border-box; text-align: center; font-weight: bold; letter-spacing: 2px; }
+        input[type="text"], input[type="password"] { width: 100%; padding: 12px; margin-bottom: 15px; font-size: 18px; border-radius: 5px; border: none; background: #121212; color: #fff; box-sizing: border-box; text-align: center; font-weight: bold; letter-spacing: 5px; }
         
         .copy-btn { color: #000; padding: 10px; font-weight: bold; border: none; border-radius: 5px; cursor: pointer; width: 100%; font-size: 13px; box-sizing: border-box; }
         .btn-custom { background: #00ff00; }
@@ -88,12 +57,26 @@
         .result-custom { color: #00ff00; }
         .result-sha { color: #00d2ff; font-size: 11px; }
         
-        .footer { margin-top: 20px; font-size: 11px; color: #666; }
+        .footer { margin-top: 20px; font-size: 11px; color: #666; text-align: center; }
     </style>
 </head>
 <body>
 
-    <div class="container">
+    <!-- 🛡️ ANG BAG-ONG CUSTOM LOGIN SCREEN NGA NAKA-ASTERISK -->
+    <div id="login-screen">
+        <div class="login-box">
+            <h2>🛡️ ADMIN PORTAL</h2>
+            <p>Palihug i-type ang Admin Passcode</p>
+            
+            <!-- KINI ANG MAGHIMO OG ASTERISK (type="password") -->
+            <input type="password" id="adminPassInput" placeholder="••••" onkeypress="handleEnter(event)">
+            
+            <button class="menu-btn primary" style="margin-bottom: 0;" onclick="verifyAdminPass()">SULOD</button>
+        </div>
+    </div>
+
+    <!-- 🚀 MAIN CONTENT (TAGO DAAN HANGTOD DILI MAKA-LOGIN) -->
+    <div class="container" id="main-content" style="display: none;">
         <h1>MASTERMINDS<span>'CUP</span></h1>
         <h2>Admin Portal (Secure)</h2>
         
@@ -126,7 +109,61 @@
         </div>
     </div>
 
+    <!-- 🌟 KINI IMPORTANTE: GIKONEKTA NATO ANG DATABASE 🌟 -->
+    <script src="database.js"></script>
+
     <script>
+        // 1️⃣ CHECK KUNG NAKA-LOGIN NA DAAN
+        if (sessionStorage.getItem("admin_authenticated") === "true") {
+            document.getElementById("login-screen").style.display = "none";
+            document.getElementById("main-content").style.display = "block";
+        }
+
+        // 2️⃣ ENTER KEY SUPPORT (Para paspas, enter-enter na lang)
+        function handleEnter(event) {
+            if (event.key === 'Enter') {
+                verifyAdminPass();
+            }
+        }
+
+        // 3️⃣ ANG BAG-ONG VERIFIER (MOBASA DIREKTA SA DATABASE.JS)
+        async function verifyAdminPass() {
+            const userPin = document.getElementById("adminPassInput").value.trim();
+            if (!userPin) return;
+
+            // Siguroha nga ni-load ang database.js
+            if (typeof riderDatabase === 'undefined') {
+                alert("⚠️ Error: Wala nabasa ang database.js. Palihug susiha ang file.");
+                return;
+            }
+            
+            // I-proseso ang gi-type nga PIN
+            const encoder = new TextEncoder();
+            const data = encoder.encode(userPin);
+            const hashBuffer = await crypto.subtle.digest('SHA-256', data);
+            const hashArray = Array.from(new Uint8Array(hashBuffer));
+            const hashedInput = hashArray.map(b => b.toString(16).padStart(2, '0')).join('');
+            
+            // 🌟 PANGITAON SA DATABASE KUNG KINSA NI UG KUNG ADMIN BA 🌟
+            // (Mo-sugot ra siya kung ang tag-iya sa PIN kay si idNum "0001" o kung naa siyay isAdmin: true)
+            let validAdmin = riderDatabase.find(r => r.passcode === hashedInput && (r.idNum === "0001" || r.isAdmin === true));
+            
+            if (validAdmin) {
+                sessionStorage.setItem("admin_authenticated", "true");
+                document.getElementById("login-screen").style.display = "none";
+                document.getElementById("main-content").style.display = "block";
+                
+                // Mo-greet pa gyud og kinsa ang tag-iya sa Admin PIN!
+                alert(`✅ Husto ang Passcode! Welcome sa Admin Portal, Master ${validAdmin.fullname}!`);
+            } else {
+                alert("❌ Sayop nga Passcode o dili ka awtorisado nga Admin!");
+                document.getElementById("adminPassInput").value = ""; // Papason niya kung sayop
+            }
+        }
+
+        // ==========================================
+        // MGA SCRIPT PARA SA GENERATORS
+        // ==========================================
         function cypherHash(str) {
             let hash = 0;
             for (let i = 0; i < str.length; i++) {
@@ -139,10 +176,8 @@
         function getCustomHash() {
             const pass = document.getElementById("rawPasswordCustom").value;
             if(pass === "") { alert("Type PIN sa Custom Generator!"); return; }
-            
             const scrambled = cypherHash(pass);
             document.getElementById("resultCustom").innerText = scrambled;
-
             navigator.clipboard.writeText(scrambled).then(() => {
                 alert("✅ CUSTOM HASH COPIED:\n" + scrambled);
             });
@@ -151,15 +186,12 @@
         async function getShaHash() {
             const pass = document.getElementById("rawPasswordSHA").value.trim();
             if(!pass) { alert("Type PIN sa Advanced Generator!"); return; }
-            
             const encoder = new TextEncoder();
             const data = encoder.encode(pass);
             const hashBuffer = await crypto.subtle.digest('SHA-256', data);
             const hashArray = Array.from(new Uint8Array(hashBuffer));
             const hashHex = hashArray.map(b => b.toString(16).padStart(2, '0')).join('');
-            
             document.getElementById("resultSHA").innerText = hashHex;
-
             navigator.clipboard.writeText(hashHex).then(() => {
                 alert("✅ ADVANCED SHA-256 HASH COPIED:\n" + hashHex);
             });
