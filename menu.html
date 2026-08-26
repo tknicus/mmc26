@@ -113,39 +113,77 @@
     <script src="database.js"></script>
 
     <script>
+        // ==========================================
+        // ⏱️ AUTO SESSION TIMEOUT (1 MINUTE IDLE)
+        // ==========================================
+        let idleTimer;
+        const IDLE_TIME_LIMIT = 60000; // 60,000 milliseconds = 1 minuto
+
+        function resetIdleTimer() {
+            clearTimeout(idleTimer);
+            // Mo-ihap lang ang timer KUNG nakasulod na ang Admin
+            if (sessionStorage.getItem("admin_authenticated") === "true") {
+                idleTimer = setTimeout(autoLogout, IDLE_TIME_LIMIT);
+            }
+        }
+
+        function autoLogout() {
+            // Papason ang login session
+            sessionStorage.removeItem("admin_authenticated");
+            
+            // Tagoan ang menu ug ipakita balik ang login screen
+            document.getElementById("main-content").style.display = "none";
+            document.getElementById("login-screen").style.display = "flex";
+            document.getElementById("adminPassInput").value = ""; 
+            
+            alert("⏱️ Naka-standby og dugay ang Admin Portal. Na-lock kini alang sa imong seguridad. Palihug login usab.");
+        }
+
+        // Mga "Tigpaminaw" (Listeners): Mo-reset ang timer kada naay lihok sa selpon o laptop
+        window.onload = resetIdleTimer;
+        document.onmousemove = resetIdleTimer;
+        document.onkeypress = resetIdleTimer;
+        document.ontouchstart = resetIdleTimer; // Importante para sa selpon (touch screen)
+        document.onclick = resetIdleTimer;
+        document.onscroll = resetIdleTimer;
+
+
+        // ==========================================
         // 1️⃣ CHECK KUNG NAKA-LOGIN NA DAAN
+        // ==========================================
         if (sessionStorage.getItem("admin_authenticated") === "true") {
             document.getElementById("login-screen").style.display = "none";
             document.getElementById("main-content").style.display = "block";
+            resetIdleTimer(); // Sugdan ang pag-ihap kay naka-login na
         }
 
-        // 2️⃣ ENTER KEY SUPPORT (Para paspas, enter-enter na lang)
+        // ==========================================
+        // 2️⃣ ENTER KEY SUPPORT
+        // ==========================================
         function handleEnter(event) {
             if (event.key === 'Enter') {
                 verifyAdminPass();
             }
         }
 
-        // 3️⃣ ANG BAG-ONG VERIFIER (MOBASA DIREKTA SA DATABASE.JS)
+        // ==========================================
+        // 3️⃣ ANG BAG-ONG VERIFIER (MOBASA SA DATABASE.JS)
+        // ==========================================
         async function verifyAdminPass() {
             const userPin = document.getElementById("adminPassInput").value.trim();
             if (!userPin) return;
 
-            // Siguroha nga ni-load ang database.js
             if (typeof riderDatabase === 'undefined') {
                 alert("⚠️ Error: Wala nabasa ang database.js. Palihug susiha ang file.");
                 return;
             }
             
-            // I-proseso ang gi-type nga PIN
             const encoder = new TextEncoder();
             const data = encoder.encode(userPin);
             const hashBuffer = await crypto.subtle.digest('SHA-256', data);
             const hashArray = Array.from(new Uint8Array(hashBuffer));
             const hashedInput = hashArray.map(b => b.toString(16).padStart(2, '0')).join('');
             
-            // 🌟 PANGITAON SA DATABASE KUNG KINSA NI UG KUNG ADMIN BA 🌟
-            // (Mo-sugot ra siya kung ang tag-iya sa PIN kay si idNum "0001" o kung naa siyay isAdmin: true)
             let validAdmin = riderDatabase.find(r => r.passcode === hashedInput && (r.idNum === "0001" || r.isAdmin === true));
             
             if (validAdmin) {
@@ -153,11 +191,11 @@
                 document.getElementById("login-screen").style.display = "none";
                 document.getElementById("main-content").style.display = "block";
                 
-                // Mo-greet pa gyud og kinsa ang tag-iya sa Admin PIN!
+                resetIdleTimer(); // Sugdi ang pag-ihap inig ka-login!
                 alert(`✅ Husto ang Passcode! Welcome sa Admin Portal, Master ${validAdmin.fullname}!`);
             } else {
                 alert("❌ Sayop nga Passcode o dili ka awtorisado nga Admin!");
-                document.getElementById("adminPassInput").value = ""; // Papason niya kung sayop
+                document.getElementById("adminPassInput").value = ""; 
             }
         }
 
