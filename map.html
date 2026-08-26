@@ -80,14 +80,13 @@
         const map = L.map('map').setView([7.4392, 125.7956], 10);
 
         // 2. I-load ang Dark Theme Map tiles (CartoDB Dark)
-        L.tileLayer('https://{s}.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}{r}.png', {
+        L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
             maxZoom: 19,
-            attribution: '&copy; <a href="https://carto.com/">CARTO</a>'
+            attribution: '&copy; OpenStreetMap contributors'
         }).addTo(map);
 
         // 3. KUHAON ANG DATA GIKAN SA GOOGLE SHEET API
-        const scriptURL = 'https://script.google.com/macros/s/AKfycby_4MwwGkRxmWI2zND7fiQN3N9wTmkm3TCg6f5xteV0bEwAj89xOCte6gRYqUE6AsB6/exec';
-
+        const scriptURL = 'https://script.google.com/macros/s/AKfycby_4MwwGkRxmWI2zND7fiQN3N9wTmkm3TCg6f5xteV0bEwAj89xOCte6gRYqUE6AsB6/exec?action=getAllLocations';
         async function loadRidersToMap() {
             try {
                 let response = await fetch(scriptURL);
