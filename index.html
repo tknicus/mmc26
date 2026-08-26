@@ -367,15 +367,6 @@
         let isSyncing = false; // Kini ang atong "Lock"
         let compressedPhotoBase64 = ""; 
 
-        // 🔐 SIKRETONG SCRAMBLER (HASH FUNCTION)
-        function cypherHash(str) {
-            let hash = 0;
-            for (let i = 0; i < str.length; i++) {
-                hash = (hash * 31) + str.charCodeAt(i);
-                hash = hash | 0; // Convert to 32bit integer
-            }
-            return hash.toString();
-        }
 
         document.getElementById('cameraInput').addEventListener('change', function(event) {
             const file = event.target.files[0];
@@ -467,7 +458,10 @@
             }
         });
         
-        const scriptURL = 'https://script.google.com/macros/s/AKfycby_4MwwGkRxmWI2zND7fiQN3N9wTmkm3TCg6f5xteV0bEwAj89xOCte6gRYqUE6AsB6/exec';
+
+        const supabaseURL = 'https://iilfklquzyxmdergwawh.supabase.co/rest/v1/checkpoints';
+        const supabaseKey = 'sb_publishable_xO3twPzyDBLhdltnkwoS3w_xswYLyf_'; // Kuhaa didto sa API Keys sa Supabase
+        //const scriptURL = 'https://script.google.com/macros/s/AKfycby_4MwwGkRxmWI2zND7fiQN3N9wTmkm3TCg6f5xteV0bEwAj89xOCte6gRYqUE6AsB6/exec';
         const liveLocationDiv = document.getElementById('liveLocation');
         const myForm = document.getElementById('myForm');
 
@@ -494,18 +488,43 @@
 
 
         // --- 🛡️ BAG-ONG SEND FUNCTION NGA WALAY TIMER 🛡️ ---
+        //async function sendDataToServer(dataPayload) {
+        //    try {
+        //        // WALA NAY AbortController! Pabay-i nga ang browser moy magbuot kanus-a mahuman
+        //        await fetch(scriptURL, {
+        //            method: 'POST',
+        //            mode: 'no-cors',
+        //            headers: { 'Content-Type': 'text/plain;charset=utf-8' }, 
+        //            body: JSON.stringify(dataPayload)
+        //        });
+
+                // Kon makaabot kini nga linya, sigurado na gyud nga nakalusot!
+        //        return true; 
+        //    } catch (error) {
+        //        console.error("Tinuod nga naputol ang internet:", error);
+        //        return false;
+        //    }
+        //}
+
         async function sendDataToServer(dataPayload) {
             try {
-                // WALA NAY AbortController! Pabay-i nga ang browser moy magbuot kanus-a mahuman
-                await fetch(scriptURL, {
+                let response = await fetch('https://iilfklquzyxmdergwawh.supabase.co/rest/v1/checkpoints', {
                     method: 'POST',
-                    mode: 'no-cors',
-                    headers: { 'Content-Type': 'text/plain;charset=utf-8' }, 
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'apikey': 'IYONG_PUBLISHABLE_OR_ANON_KEY_DIRI',
+                        'Authorization': `Bearer IYONG_PUBLISHABLE_OR_ANON_KEY_DIRI`,
+                        'Prefer': 'return=minimal'
+                    },
                     body: JSON.stringify(dataPayload)
                 });
 
-                // Kon makaabot kini nga linya, sigurado na gyud nga nakalusot!
-                return true; 
+                if (response.ok) {
+                    return true; 
+                } else {
+                    console.error("Error sa Supabase:", await response.text());
+                    return false;
+                }
             } catch (error) {
                 console.error("Tinuod nga naputol ang internet:", error);
                 return false;
@@ -1042,27 +1061,8 @@
         }
         setInterval(updateDashboardCounters, 2000);
         updateDashboardCounters(); 
-
-
-        // I-reset ang form kung luwas na
-        if (isDataSaved) {
-            myForm.reset();
-            compressedPhotoBase64 = ""; 
-            document.getElementById('photoPreview').style.display = "none"; 
-        }
-            
-        submitBtn.textContent = "I-Submit ang Data";
-        submitBtn.disabled = false;
-        submitBtn.style.opacity = "1"; 
-
-        isSubmitting = false; // 🔓 I-UNLOCK NA KARON ARON PWEDE NA MOKAB-OT SUNOD RIDER
-
-    
-    
-    
     
     </script>
-
 
 </body>
 </html>
