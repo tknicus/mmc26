@@ -120,6 +120,17 @@
 
         // Tawgon ang function inig abli sa pahina
         loadRidersToMap();
+
+
+        // 🔄 AUTO-REFRESH MAPA MATAG 30 SEGUNDOS
+        // Dili kini makaapekto sa baterya sa rider kay ang Admin Dashboard ra ang nag-request sa data!
+        setInterval(() => {
+            console.log("Auto-updating live map data...");
+            loadRidersToMap();
+        }, 30000); // 30000 milliseconds = 30 segundos
+
+
+
     </script>
 
 </body>
