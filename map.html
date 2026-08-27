@@ -97,12 +97,12 @@
             <!-- 🔽 ROUTE SELECTOR DROPDOWN -->
             <select id="routeSelect" onchange="switchRoute()">
                 <option value="none">🗺️ Pilia ang Rota (Tanang Rota Hidden)</option>
-                <option value="route1">Ruta 1: 777 North - MaKahulogan</option>
-                <option value="route2">Ruta 2: 777 East - LoCoCaMaMa</option>
-                <option value="route3">Ruta 3: 777 West - DaDiPaPi</option>
-                <option value="route4">Ruta 4: 777 South - JAS-T'Boli</option>
-                <option value="route5">Ruta 5: Mindanao Coastal Gamimg</option>
-                <option value="route6">Ruta 6: Man of Steel</option>
+                <option value="route1">Ruta 1: 777km (North) - MaKahulogan</option>
+                <option value="route2">Ruta 2: 777km (East) - LoCoCaMaMa</option>
+                <option value="route3">Ruta 3: 777km (West) - DaDiPaPi</option>
+                <option value="route4">Ruta 4: 777km (South) - JAS-T'Boli</option>
+                <option value="route5">Ruta 5: 3333km Mindanao Coastal Gamimg</option>
+                <option value="route6">Ruta 6: 5555km Man of Steel</option>
             </select>
 
             <button class="action-btn" onclick="loadRidersToMap()">🔄 Refresh Live Riders</button>
@@ -497,8 +497,9 @@
 
                     // I-guhit ang linya nga mosunod gyud sa karsada
                     let roadPolyline = L.polyline(routeCoords, {
-                        color: '#ffcc00', // Dalag (Gold) nga linya sa dalan
-                        weight: 5,
+                        color: '#ff0000', // 🔴 Pula na ang kolor diri (pwede sab nimo isulat ang 'red')
+                        //color: '#ffcc00', // Dalag (Gold) nga linya sa dalan
+                        weight: 1,
                         opacity: 0.85
                     });
 
