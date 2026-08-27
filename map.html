@@ -97,12 +97,12 @@
             <!-- 🔽 ROUTE SELECTOR DROPDOWN -->
             <select id="routeSelect" onchange="switchRoute()">
                 <option value="none">🗺️ Pilia ang Rota (Tanang Rota Hidden)</option>
-                <option value="route1">Ruta 1: 777 North</option>
-                <option value="route1">Ruta 2: 777 East</option>
-                <option value="route1">Ruta 3: 777 West</option>
-                <option value="route1">Ruta 4: 777 Southth</option>
-                <option value="route4">Ruta 5: Mindanao Coastal Gamimg</option>
-                <option value="route5">Ruta 6: 5555 kms</option>
+                <option value="route1">Ruta 1: 777 North - MaKahulogan</option>
+                <option value="route2">Ruta 2: 777 East - LoCoCaMaMa</option>
+                <option value="route3">Ruta 3: 777 West - DaDiPaPi</option>
+                <option value="route4">Ruta 4: 777 South - JAS-T'Boli</option>
+                <option value="route5">Ruta 5: Mindanao Coastal Gamimg</option>
+                <option value="route6">Ruta 6: Man of Steel</option>
             </select>
 
             <button class="action-btn" onclick="loadRidersToMap()">🔄 Refresh Live Riders</button>
@@ -129,25 +129,331 @@
         // 2. IMONG 6 KA MGA RUTA (Ibutang dinhi ang coordinates gikan sa laptop)
         const routesData = {
             route1: [
-                [7.4392, 125.7956], // Pananglitan: Tagum
-                [8.9475, 125.5272], // Pananglitan: Agusan / Surigao area
+                [7.454081, 125.782316], // 	- Starting Grid
+                [7.917103, 125.329051], // 	- San Fernando Municipal Plaza
+                [8.089767, 125.323060], // 	- Iba Central Elementary School  25km
+                [8.283995, 125.255056], // 	- Busdi Integrated School
+                [8.383939, 125.218019], // 	- Magawa Bridge (Mandatory PO)
+                [8.451309, 125.168635], // 	- turn right to Gingoog
+                [8.670157, 125.195033], // 	- Gingoog Butuan Fork (turn left to Gingoog)
+                [8.805726, 125.106659], // 	- Kahulogan (turn left to Claveria)
+                [8.632424, 124.945975], // 	- Claveria View Deck
+                [8.620768, 124.906102], // 	- Municipal Hall of Claveria
+                [8.589373, 124.771395], // 	- Villanueva Municipal Hall
+                [9.004061, 124.850257], // 	- Balingoan Municipal Hall
+                [8.823266, 125.099125], // 	- Gahub Bridge
+                [9.006906, 125.210287], // 	- Magsaysay BUS Terminal
+                [9.086807, 125.219013], // 	- Vinapor White Beach Park
+                [8.945996, 125.479481], // 	- Bancasi Rotunda
+                [8.922128, 125.540725], // 	- turn right to San Vicente
+                [8.665098, 125.682827], // 	- Daktan Central Elementary School
+                [8.673471, 125.696420], // 	- Crossing Luna turn right
+                [8.449444, 125.785246], // 	- Talacogon Municipal Hall
+                [8.179129, 125.858863], // 	- Loreto Municipal Hall
+                [8.021330, 125.950079], // 	- Sampaguita Junction Park
+                [7.938995, 125.916287], // 	- Sta Emilia
+                [7.864261, 125.904098], // 	- LS Sarmiento Bridge  (Mandatory PO)
+                [7.810970, 125.890925], // 	- San Antonio
+                [7.765335, 125.858216], // 	- Longanapan
+                [7.694395, 125.855135], // 	- Sonlon
+                [7.653943, 125.839388], // 	- Suawon
+                [7.586662, 125.828514], // 	- New Corella Plaza
+                [7.517271, 125.831343], // 	- New Bohol Landmark
+                [7.491969, 125.825853], // 	- San Agustin Elementary School
+                [7.439382, 125.826637], // 	- Fe Misa Ayala Seniors Park
+                [7.465994, 125.805252], // 	- ELKAPITAN 's Burial Ground 
+                [7.454081, 125.782316], // 	- Ending Grid
                 // ... ibutang dinhi ang uban pang coordinates sa Ruta 1 ...
             ],
             route2: [
-                [7.1907, 125.4553], // Davao
-                [6.1164, 125.1716], // General Santos
+                [7.454081, 125.782316], // 	- Starting Grid
+                [7.362021, 125.706279], //	- Carmen Cannon
+                [7.532830, 125.623582], //	- Sto. Tomas Park
+                [7.547884, 125.752579], //	- Asuncion-San Isidro-Laak-Veruela Rd (junction)
+                [7.819471, 125.791085], //	- 711 Laak
+                [8.180409, 125.860226], //	- Loreto Municipal / Petron
+                [8.019046, 126.073821], //	- Trento Roundball/SeaOil
+                [8.152584, 126.362105], //	- Tabon Junction
+                [7.873623, 126.341447], //	- Caatijan, Boston (junction)
+                [7.830924, 126.058875], //	- Parkway Monkayo
+                [7.705539, 125.990234], //	- SMJR Montevista
+                [7.744896, 126.427453], //	- Cateel Taytayan
+                [7.293932, 126.602529], //	- Pusan Point Caraga
+                [7.209469, 126.537839], //	- WOW Manay Landmark
+                [6.950527, 126.216990], //	- Mati Baywalk
+                [7.318255, 126.128397], //	- Maragusan Landmark
+                [7.439382, 125.826637], //	- Fe Misa Ayala Seniors Park
+                [7.465994, 125.805252], //	- ELKAPITAN 's Burial Ground 
+                [7.454081, 125.782316], //	- Ending Grid
                 // ... coordinates sa Ruta 2 ...
             ],
             route3: [
+                [7.454278, 125.782432], //	DavNor Sports Complex (Starting Grid)
+                [7.040916, 125.584024], //	Davao City Coastal Road
+                [6.757975, 125.374107], //	McDo Cogon Digos
+                [7.038376, 125.025967], //	Esso Gasoline Station, Paco, Kidapawan
+                [7.191313, 124.797071], //	crash site
+                [7.237446, 124.521445], //	DASH Gasoline Station
+                [7.333487, 124.248689], //	Brgy. Sarmiento Signage
+                [7.693033, 123.898503], //	- Picong Tunnel (Mandatory Photo Op)
+                [8.003098, 124.284901], //	KM0 Warawi
+                [7.746022, 124.750232], //	i love Kalilangan
+                [7.780643, 125.010331], //	Maramag Municipal Hall
+                [7.906204, 125.093416], //	Jollibee Valencia
+                [7.917259, 125.328879], //	San Fernando Municipal Plaza
+                [7.629772, 125.468083], //	Lantawan ni Jade
+                [7.538184, 125.754036], //	w0w Assuncion
+                [7.439382, 125.826637], //	Fe Misa Ayala Seniors Park
+                [7.465994, 125.805252], //	ELKAPITAN 's Burial Ground 
+                [7.454081, 125.782316], //	DavNor Sports Complex (End Grid)
                 // ... coordinates sa Ruta 3 ...
             ],
             route4: [
+                [7.454081, 125.782316], //	- Starting Grid
+                [7.040916, 125.584024], //	- Davao City Coastal Road
+                [6.758068, 125.374013], //	- Petron/McDo Cogon Digos
+                [6.583764, 125.353571], //	- Flying V, Junction DavOc & GSC
+                [6.414119, 125.610761], //	- Malita Municipal Hall
+                [5.962200, 125.677730], //	- Joyce Paradise
+                [5.961750, 125.677780], //	- Baños Point Lighthouse
+                [5.912509, 125.644337], //	- JAS Municipal Hall
+                [5.917700, 125.261579], //	- TOUR Town Glan
+                [6.112786, 125.171721], //	- Plaza Heneral Santos
+                [6.062461, 125.104980], //	- GSC IA Welcome Arch
+                [6.213414, 124.825012], //	- T'Boli
+                [6.367918, 124.735379], //	- 711 Surallah
+                [6.635135, 124.597714], //	- Isulan Roundball
+                [6.688309, 124.678669], //	- Tacurong Roundball
+                [6.500195, 124.843540], //	- Marbel Roundball
+                [6.678305, 124.960899], //	- Columbio Municipal Hall
+                [6.786858, 125.210361], //	- Viacrucis Park Bansalan
+                [6.760277, 125.374784], //	- Shell Cogon Digos
+                [7.105479, 125.603934], //	- Petron Diversion Road Buhangin
+                [7.439382, 125.826637], //	- Fe Misa Ayala Seniors Park
+                [7.465994, 125.805252], //	- ELKAPITAN 's Burial Ground 
+                [7.454081, 125.782316], //	- Clossing Grid
                 // ... coordinates sa Ruta 4 ...
             ],
             route5: [
-                // ... coordinates sa Ruta 5 ...
+                [7.454153, 125.783199], //	-	DavNor Sports Complex
+                [7.043106, 125.592236], //	-	Davao Coastal Road
+                [6.758336, 125.374106], //	-	McDo Petron Cogon Digos
+                [6.583752, 125.353667], //	-	Flying V Otsenta
+                [6.414104, 125.610734], //	-	Malita Municipal Plaza
+                [5.962200, 125.677730], //	-	Joyce Paradise (Mandatory Photo Ops)
+                [5.961750, 125.677780], //	-	Baños Point Lighthouse
+                [5.912361, 125.644716], //	-	JAS Municipal Hall
+                [5.917779, 125.261381], //	-	TOUR Town Glan
+                [6.112778, 125.171704], //	-	Plaza Heneral Santos
+                [6.060941, 124.495366], //	-	Maitum Municipal Hall
+                [6.201760, 124.201921], //	-	Baywalk Palimbang (Mandatory Photo Ops)
+                [6.632881, 124.066264], //	-	Lebak Roundball
+                [7.202208, 124.165781], //	-	Grand Mosque of Cotabato
+                [7.693000, 123.898571], //	-	Picung Tunnel (Mandatory Photo Ops)
+                [7.839766, 123.434328], //	-	Rotunda Park Pagadian
+                [7.782186, 122.586832], //	-	Ipil Rotunda Obelisk
+                [6.908028, 122.066590], //	-	Zamboanga City Signage (Mandatory Photo Ops)
+                [6.907908, 122.067197], //	-	Boyscout of the Philippines
+                [7.149160, 121.906102], //	-	Limpana TRUSS Bridge (Mandatory Photo Ops)
+                [7.262423, 122.010534], //	-	Pangian Bridge
+                [7.292146, 122.067158], //	-	Sibuco Municipality
+                [7.706414, 122.136040], //	-	Siocon Rotonda Plaza
+                [7.784736, 122.147530], //	-	Baliguian Eadle Landmark (Mandatory Photo Ops)
+                [7.981155, 122.405122], //	-	I Love Gutalac Landmard (Mandatory Photo Ops)
+                [8.121497, 122.673597], //	-	Liloy Municipal Hall
+                [8.515856, 123.091864], //	-	Giant Chicken Statue
+                [8.583686, 123.350568], //	-	Dipolog Rotonda
+                [8.636358, 123.414675], //	-	Dapitan Park
+                [8.486836, 123.807432], //	-	I Love Oroquieta
+                [8.055804, 123.777740], //	-	Panguil Bay Bridge
+                [8.242362, 124.249512], //	-	Iligan City (711/Petron)
+                [8.622755, 124.460243], //	-	MV Beach & Pool Resort
+                [8.559750, 124.527164], //	-	El Salvador City Hall
+                [8.547543, 124.527930], //	-	Divine Mercy Statue
+                [8.506642, 124.753727], //	-	Bugo CDO Shell Gasoline Station
+                [8.956178, 124.788208], //	-	Sugbongcogon Municipal Hall
+                [8.829911, 125.098814], //	-	The Bay Gingoog
+                [9.019331, 125.180553], //	-	Magsaysay Munipal Park
+                [9.085202, 125.213286], //	-	Cervantina Elementary School
+                [9.086882, 125.218741], //	-	Vinapor Beach Park
+                [8.946491, 125.478885], //	-	Rotunda Bancasi
+                [9.119127, 125.538743], //	-	Jollibee Cabadbaran
+                [9.342503, 125.516115], //	-	Jabonga People's Park
+                [9.591765, 125.408315], //	-	Hanagdong Project
+                [9.820277, 125.438962], //	-	Looc Landmark
+                [9.823334, 125.440294], //	-	Punta Bilar Lighthouse
+                [9.788233, 125.498986], //	-	I Love Surigao
+                [9.734852, 125.564048], //	-	Nabago Elementary School
+                [9.571717, 125.732264], //	-	Claver 711
+                [9.491631, 125.883257], //	-	Noventa View Deck
+                [9.073816, 126.201001], //	-	Tandag City Baywalk Boulevard
+                [8.380646, 126.311969], //	-	Hinatuan Signage
+                [7.789203, 126.450988], //	-	Petron Cateel
+                [7.651229, 126.556137], //	-	Baganga Sunrise Boulevard
+                [7.293932, 126.602529], //	-	Pusan Point Caraga
+                [7.209469, 126.537839], //	-	WOW Manay Landmark
+                [6.945694, 126.254798], //	-	Dahican Rotunda
+                [6.950450, 126.217086], //	-	Mati Baywalk Park
+                [6.653820, 126.072068], //	-	711/SeaOil Governor Generoso
+                [6.540034, 126.100154], //	-	Centennial Tree (dedo na :-( )
+                [6.270747, 126.192732], //	-	Cape San Agustin (Mandatory Photo Op)
+                [6.882409, 126.087062], //	-	Manikling Rotonda
+                [7.077718, 125.952056], //	-	Davao Oriental Welcome Park
+                [7.364908, 125.856480], //	-	Diocesan Shrine of Our Mother of Pertual Help
+                [7.439382, 125.826637], //	-	Fe Misa Ayala Seniors Park
+                [7.465994, 125.805252], //	-	ELKAPITAN 's Burial Ground 
+                [7.454081, 125.782316], //	-	DavNor Sports Complex
+            // ... coordinates sa Ruta 5 ...
             ],
             route6: [
+                [7.454278, 125.782432], //	-	DavNor Sports Complex
+                [7.040916, 125.584024], //	-	Davao City Coastal Road
+                [6.757975, 125.374107], //	-	McDo Cogon Digos
+                [7.038376, 125.025967], //	-	Esso Gasoline Station, Paco, Kidapawan
+                [7.358184, 125.167098], //	-	White Hills View, Sitio Dao Road, Arakan
+                [7.474030, 125.243380], //	-	Philippine Eagle Monument
+                [7.540019, 125.243566], //	-	- Greek Hills
+                [7.602510, 125.148410], //	-	- OverView Nature & Culture Park
+                [7.735197, 125.095071], //	-	3J Gazz, Quezon, Bukidnon
+                [8.053204, 125.135380], //	-	Aglayan Roundball
+                [8.053858, 124.831758], //	-	- Lantaw 360 Camp & Cafe
+                [8.036833, 124.625100], //	-	- junction Tikalaan (Mandatory Photo Op) turn left
+                [7.831300, 124.828770], //	-	711 Pangantukan
+                [7.615108, 125.006242], //	-	Discovery Hotel Dangcagan
+                [7.193296, 124.796704], //	-	Buagas Machine Shop, Carmen
+                [7.191313, 124.797071], //	-	- crash site (Mandatory Photo Op) atbang sa menteryo
+                [6.880249, 124.900187], //	-	Bagontapay Roundball
+                [6.949561, 125.038997], //	-	- turn RIGHT to Magsaysay
+                [6.808242, 125.086638], //	-	Tacul Elementary School
+                [6.751019, 125.149747], //	-	- Magsaysay Municipality
+                [6.705054, 125.212863], //	-	- Matanao, turn right to Savoy
+                [6.678305, 124.960899], //	-Columbio Municipal Hall
+                [6.635307, 124.597396], //	-	Isulan Roundball
+                [6.367918, 124.735379], //	-	711 Surallah
+                [6.500383, 124.843535], //	-	Marbel Roundball
+                [6.224334, 125.075272], //	-	BK's Kitchen @ Ondeng’s Food Park
+                [6.145759, 125.133755], //	-	Bangkapayapaan Monument
+                [6.583764, 125.353571], //	-	Flying V Otsenta Junction
+                [6.414104, 125.610734], //	-	Malita Municipal Plaza
+                [5.962200, 125.677730], //	-	- Joyce Paradise
+                [5.961750, 125.677780], //	-	- Baños Point Lighthouse
+                [5.912509, 125.644337], //	-	JAS Municipal Hall
+                [5.917700, 125.261579], //	-	TOUR Town Glan
+                [5.861378, 124.996811], //	-	Maasim Town Plaza
+                [6.060887, 124.495351], //	-	Maitum Municipal Hall
+                [6.201696, 124.201763], //	-	- Baywalk Palimbang
+                [6.555053, 124.050883], //	-	- Kalamansig Municipal
+                [6.632939, 124.066297], //	-	Lebak Municipal Portal / Lebak Roundball
+                [7.202451, 124.165127], //	-	The Grand Mosque of Cotabato
+                [7.197065, 124.235096], //	-	- People's Palace Cotabato City
+                [7.380779, 124.556281], //	-	Alamada Municipal Hall
+                [7.524320, 124.584420], //	-	- Tent City
+                [7.638481, 124.725234], //	-	WOWWAO
+                [8.003098, 124.284901], //	-	KM0 Warawi
+                [7.693033, 123.898503], //	-	- Picong Tunnel (Mandatory Photo Op)
+                [7.839864, 123.434373], //	-	Pagadian Rotonda Park
+                [7.782147, 122.586790], //	-	Ipil Rotunda Obelisk
+                [6.951386, 122.074372], //	-	- Pasonanca Park
+                [6.908028, 122.066590], //	-	Zamboanga City Signage
+                [6.907928, 122.067276], //	-	- Historic BSP Monument (Mandatory Photo Ops)
+                [7.149160, 121.906102], //	-	- Limpana TRUSS Bridge (Mandatory Photo Ops)
+                [7.262423, 122.010534], //	-	- Pangian Bridge
+                [7.292642, 122.066847], //	-	Sibuco Municipal Hall
+                [7.706209, 122.136089], //	-	Siocon Municipal Hall
+                [8.121752, 122.673582], //	-	Liloy Municipal Hall
+                [8.515870, 123.091685], //	-	Manukan Town Hall
+                [8.586338, 123.344346], //	-	Dipolog City Hall
+                [8.636386, 123.414642], //	-	New Dapitan City Hall
+                [8.486813, 123.807411], //	-	I Love Oroquieta
+                [8.161330, 123.692601], //	-	- Hoyohoy View Deeck
+                [8.092450, 123.752925], //	-	Petron Tangub
+                [8.056907, 123.776702], //	-	Panguil Bay Bridge
+                [8.079720, 123.822110], //	-	- Dapit Alim Shrine
+                [8.183230, 124.195060], //	-	- Maria Christina Falls
+                [8.242362, 124.249512], //	-	Iligan City (711/Petron)
+                [8.559782, 124.527189], //	-	El Salvador City Hall
+                [8.547543, 124.527930], //	-	- Devine Mercy Statue
+                [8.500744, 124.750530], //	-	Shell CDO
+                [8.269935, 125.010205], //	-	Atugan Nature Farm
+                [7.906204, 125.093416], //	-	Valencia Jollibee
+                [7.923732, 125.328019], //	-	San Fernando Cabanglasan Junction
+                [8.047990, 125.345370], //	-	- Manggaod
+                [8.090106, 125.323030], //	-	- Iba
+                [8.239780, 125.264200], //	-	- Kulaman
+                [8.281540, 125.253820], //	-	- Busdi
+                [8.330960, 125.233910], //	-	- Bulonay
+                [8.374600, 125.217810], //	-	- Magawa
+                [8.383908, 125.218041], //	-	- Magawa Bridge (Mandatory Photo Op)
+                [8.474800, 125.176200], //	-	- Lamingan
+                [8.528250, 125.182780], //	-	- Mintapud
+                [8.670290, 125.194680], //	-	- Gingoog Butuan Fork (turn left to Gingoog) 
+                [8.698250, 125.130460], //	-	- Bal-ason
+                [8.805800, 125.106702], //	-	Kahulogan
+                [8.632568, 124.945935], //	-	Claveria View Deck
+                [8.620750, 124.906145], //	-	Municipal Hall of Claveria
+                [8.713430, 124.755040], //	-	- Balingasag Light House
+                [9.004003, 124.846691], //	-	Balingoan
+                [8.829911, 125.098814], //	-	The Bay Gingoog
+                [9.087200, 125.218410], //	-	- Vin4 (Jurassic) Blue Waters
+                [8.946042, 125.479494], //	-	Bancasi Rotunda
+                [8.922228, 125.540783], //	-	- right to Amparo
+                [8.775400, 125.567250], //	-	- Tungao Lauan Eco Park
+                [8.661091, 125.653288], //	-	Ezperanza Bridge
+                [8.673358, 125.696374], //	-	- right to Guadalupe
+                [8.448912, 125.785710], //	-	Talacogon
+                [8.278558, 125.808135], //	-	- La Paz Signage
+                [8.180950, 125.859692], //	-	- Petron Loreto
+                [8.178921, 125.858775], //	-	Loreto Municipal Hall
+                [8.018794, 126.073568], //	-	Trento Rotonda
+                [8.504829, 125.977610], //	-	Rotonda/711 San Francisco
+                [8.714450, 125.748213], //	-	Bayugan Park
+                [9.119127, 125.538743], //	-	Jollibee Cabadbaran
+                [9.342503, 125.516115], //	-	Jabonga People's Park
+                [9.591765, 125.408315], //	-	Hanagdong Project
+                [9.820277, 125.438962], //	-	Looc Landmark
+                [9.823334, 125.440294], //	-	Punta Bilar Lighthouse
+                [9.788233, 125.498986], //	-	I Love Surigao
+                [9.734852, 125.564048], //	-	Nabago Elementary School
+                [9.571717, 125.732264], //	-	Claver 711
+                [9.491631, 125.883257], //	-	Noventa View Deck
+                [9.073743, 126.200968], //	-	Tandag Boulevard
+                [8.620166, 126.077450], //	-	Lianga Signage
+                [8.513123, 126.383396], //	-	- Harip Beach
+                [8.458943, 126.355000], //	-	- Enchanted River
+                [8.380646, 126.311969], //	-	Hinatuan Signage
+                [8.210837, 126.321910], //	-	iLoveBislig
+                [8.018840, 126.073666], //	-	Cuevas
+                [7.831372, 126.059323], //	-	Monkayo
+                [7.821760, 126.183069], //	-	Mt. Diwata
+                [7.873611, 126.341524], //	-	Poblacion Boston
+                [7.651215, 126.556115], //	-	Baganga Sunrise
+                [7.293984, 126.602389], //	-	Pusan Point Caraga
+                [7.209445, 126.537860], //	-	WOW Manay Landmark
+                [6.945694, 126.254798], //	-	- Dahican Rotunda
+                [6.944460, 126.248400], //	-	- DavOr Provincial Museum
+                [6.950450, 126.217086], //	-	Mati Baywalk Park
+                [6.734480, 126.140510], //	-	- Mt. Hamiguitan World Heritage Park
+                [6.653820, 126.072068], //	-	711/SeaOil Governor Generoso
+                [6.540034, 126.100154], //	-	- Centennial Tree General Generoso
+                [6.270747, 126.192732], //	-	- Cape San Agustin (Mandatory Photo Op)
+                [6.882409, 126.087062], //	-	Manikling Rotonda
+                [7.364908, 125.856480], //	-	- Diocesan Shrine of Our Mother of Pertual Help
+                [7.509493, 125.917588], //	-	711 Mawab
+                [7.401222, 126.028583], //	-	- Bilawa Mainit Falls (Mandatory Photo Op)
+                [7.404034, 126.062532], //	-	- Tambo View Deck
+                [7.316551, 126.128385], //	-	Maragusan Landmark
+                [7.458031, 126.171680], //	-	-  Saddle Road (Mandatory Photo Op)
+                [7.596791, 125.956960], //	-	Nabunturan
+                [7.708900, 125.990440], //	-	Montevista Rotonda
+                [7.824044, 126.034040], //	-	- Monkayo (turn left to LS Sarmiento)
+                [7.842099, 125.979318], //	-	- Casoon National HighSchool
+                [7.864261, 125.904098], //	-	- LS Sarmiento Bridge (Mandatory Photo Op)
+                [7.873353, 125.847074], //	-	- Conception Elementary School
+                [7.818599, 125.791564], //	-	Laak Municipal Hall
+                [7.538184, 125.754036], //	-	w0w Assuncion
+                [7.439382, 125.826637], //	-	Fe Misa Ayala Seniors Park
+                [7.465994, 125.805252], //	-	- ELKAPITAN 's Burial Ground 
+                [7.454838, 125.782700], //	-	DavNor Sports Complex
                 // ... coordinates sa Ruta 6 ...
             ]
         };
@@ -168,7 +474,46 @@
             loadRidersToMap(selectedRoute);
         }
 
-        // 3. KUHAON ANG LIVE RIDERS GIKAN SA GOOGLE SHEET
+        // 3. FUNCTION PARA KUHAON ANG DALAN GAMIT ANG OSRM API (Mismo sa Highway moagi)
+        async function switchRoute() {
+            let selectedKey = document.getElementById('routeSelect').value;
+            routePolylineLayer.clearLayers();
+
+            if (!routesData[selectedKey] || routesData[selectedKey].length < 2) return;
+
+            let coords = routesData[selectedKey];
+            
+            // Himuon nato ang coordinate string nga kinahanglan sa OSRM API (Longitude,Latitude format)
+            let coordString = coords.map(c => `${c[1]},${c[0]}`).join(';');
+            let osrmUrl = `https://router.project-osrm.org/route/v1/driving/${coordString}?overview=full&geometries=geojson`;
+
+            try {
+                console.log("Nagkuha og road directions gikan sa OSRM...");
+                let response = await fetch(osrmUrl);
+                let data = await response.json();
+
+                if (data.routes && data.routes.length > 0) {
+                    let routeCoords = data.routes[0].geometry.coordinates.map(c => [c[1], c[0]]); // Baliktuson pabalik sa [Lat, Lon]
+
+                    // I-guhit ang linya nga mosunod gyud sa karsada
+                    let roadPolyline = L.polyline(routeCoords, {
+                        color: '#ffcc00', // Dalag (Gold) nga linya sa dalan
+                        weight: 5,
+                        opacity: 0.85
+                    });
+
+                    routePolylineLayer.addLayer(roadPolyline);
+                    map.fitBounds(roadPolyline.getBounds()); // Auto zoom sa ruta
+                }
+            } catch (error) {
+                console.error("Napakyas pagkuha sa OSRM route:", error);
+                // Fallback kung naay problema sa internet sa OSRM: Diretsohon og guhit ang straight line
+                let fallbackLine = L.polyline(coords, { color: 'red', weight: 3, dashArray: '5, 5' });
+                routePolylineLayer.addLayer(fallbackLine);
+            }
+        }
+
+        // 4. KUHAON ANG LIVE RIDERS GIKAN SA GOOGLE SHEET
         const scriptURL = 'https://script.google.com/macros/s/AKfycby_4MwwGkRxmWI2zND7fiQN3N9wTmkm3TCg6f5xteV0bEwAj89xOCte6gRYqUE6AsB6/exec?action=getAllLocations';
 
         async function loadRidersToMap() {
