@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>MasterMinds'CUP Live Map Tracker</title>
+    <title>MasterMinds'CUP Live Map & Routes</title>
     
     <!-- 🗺️ LEAFLET CSS (Map Design) 🗺️ -->
     <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
@@ -22,9 +22,14 @@
 
         header {
             background-color: #1e1e1e;
-            padding: 15px;
+            padding: 10px 15px;
             text-align: center;
             border-bottom: 4px solid #0088ff;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            flex-wrap: wrap;
+            gap: 10px;
         }
 
         h2 {
@@ -33,7 +38,14 @@
             text-transform: uppercase;
             font-style: italic;
             letter-spacing: 1px;
-            font-size: 18px;
+            font-size: 15px;
+        }
+
+        .header-controls {
+            display: flex;
+            gap: 8px;
+            align-items: center;
+            flex-wrap: wrap;
         }
 
         #map {
@@ -42,19 +54,34 @@
             background-color: #222;
         }
 
-        .back-btn {
-            background-color: #cc0000;
+        select {
+            background-color: #2a2a2a;
+            color: white;
+            border: 1px solid #0088ff;
+            padding: 8px;
+            font-weight: bold;
+            border-radius: 4px;
+            cursor: pointer;
+        }
+
+        .action-btn {
+            background-color: #0088ff;
             color: white;
             border: none;
-            padding: 12px 20px;
+            padding: 8px 12px;
             font-weight: bold;
             text-transform: uppercase;
             cursor: pointer;
-            margin: 10px auto;
-            display: block;
             border-radius: 4px;
-            width: 90%;
-            max-width: 300px;
+            font-size: 11px;
+        }
+
+        .action-btn:hover {
+            background-color: #0066cc;
+        }
+
+        .back-btn {
+            background-color: #cc0000;
         }
 
         .back-btn:hover {
@@ -65,72 +92,117 @@
 <body>
 
     <header>
-        <h2>🗺️ MasterMinds Live Map Command Center</h2>
+        <h2>🗺️ Command Center & Routes</h2>
+        <div class="header-controls">
+            <!-- 🔽 ROUTE SELECTOR DROPDOWN -->
+            <select id="routeSelect" onchange="switchRoute()">
+                <option value="none">🗺️ Pilia ang Rota (Tanang Rota Hidden)</option>
+                <option value="route1">Ruta 1: 777 North</option>
+                <option value="route1">Ruta 2: 777 East</option>
+                <option value="route1">Ruta 3: 777 West</option>
+                <option value="route1">Ruta 4: 777 Southth</option>
+                <option value="route4">Ruta 5: Mindanao Coastal Gamimg</option>
+                <option value="route5">Ruta 6: 5555 kms</option>
+            </select>
+
+            <button class="action-btn" onclick="loadRidersToMap()">🔄 Refresh Live Riders</button>
+            <button class="action-btn back-btn" onclick="window.location.href='menu.html'">🔙 Menu</button>
+        </div>
     </header>
 
-    <!-- Dinhi mogawas ang Interactive Map -->
     <div id="map"></div>
-
-    <button class="back-btn" onclick="window.location.href='menu.html'">🔙 Balik sa Menu Portal</button>
 
     <!-- 🗺️ LEAFLET JS SCRIPT 🗺️ -->
     <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
     <script>
-        // 1. I-center ang mapa sa Davao / Bukidnon area (Default view)
-        const map = L.map('map').setView([7.4392, 125.7956], 10);
+        // 1. I-center ang mapa sa Mindanao
+        const map = L.map('map').setView([7.4392, 125.7956], 8);
 
-        // 2. I-load ang Dark Theme Map tiles (CartoDB Dark)
         L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
             maxZoom: 19,
             attribution: '&copy; OpenStreetMap contributors'
         }).addTo(map);
 
-        // 3. KUHAON ANG DATA GIKAN SA GOOGLE SHEET API
+        let markerLayer = L.layerGroup().addTo(map);
+        let routePolylineLayer = L.layerGroup().addTo(map); // Layer para sa guhit sa ruta
+
+        // 2. IMONG 6 KA MGA RUTA (Ibutang dinhi ang coordinates gikan sa laptop)
+        const routesData = {
+            route1: [
+                [7.4392, 125.7956], // Pananglitan: Tagum
+                [8.9475, 125.5272], // Pananglitan: Agusan / Surigao area
+                // ... ibutang dinhi ang uban pang coordinates sa Ruta 1 ...
+            ],
+            route2: [
+                [7.1907, 125.4553], // Davao
+                [6.1164, 125.1716], // General Santos
+                // ... coordinates sa Ruta 2 ...
+            ],
+            route3: [
+                // ... coordinates sa Ruta 3 ...
+            ],
+            route4: [
+                // ... coordinates sa Ruta 4 ...
+            ],
+            route5: [
+                // ... coordinates sa Ruta 5 ...
+            ],
+            route6: [
+                // ... coordinates sa Ruta 6 ...
+            ]
+        };
+
+        // Function sa pag-ilis sa ruta inig pili sa dropdown
+        function switchRoute() {
+            let selectedRoute = document.getElementById('routeSelect').value;
+            
+            // 1. I-guhit ang polyline sa napili nga ruta
+            routePolylineLayer.clearLayers();
+            if (routesData[selectedRoute]) {
+                let polyline = L.polyline(routesData[selectedRoute], { color: '#ffcc00', weight: 4 });
+                routePolylineLayer.addLayer(polyline);
+                map.fitBounds(polyline.getBounds());
+            }
+
+            // 2. I-filter ang mga riders para makita ra kinsa ang naa sa maong ruta
+            loadRidersToMap(selectedRoute);
+        }
+
+        // 3. KUHAON ANG LIVE RIDERS GIKAN SA GOOGLE SHEET
         const scriptURL = 'https://script.google.com/macros/s/AKfycby_4MwwGkRxmWI2zND7fiQN3N9wTmkm3TCg6f5xteV0bEwAj89xOCte6gRYqUE6AsB6/exec?action=getAllLocations';
+
         async function loadRidersToMap() {
             try {
                 let response = await fetch(scriptURL);
                 let data = await response.json(); 
 
-                // I-loop ang matag record gikan sa Google Sheet
+                markerLayer.clearLayers();
+
                 data.forEach(rider => {
                     let lat = parseFloat(rider.latitude);
                     let lon = parseFloat(rider.longitude);
 
-                    // Kon husto ang lat ug lon, butangan og marker sa mapa
                     if (!isNaN(lat) && !isNaN(lon)) {
-                        let marker = L.marker([lat, lon]).addTo(map);
+                        let marker = L.marker([lat, lon]);
                         marker.bindPopup(`
                             <div style="color: black; font-family: Arial; font-size: 13px;">
                                 <b>🏍️ ID: ${rider.idNum}</b><br>
                                 👤 Pangalan: <b>${rider.name}</b><br>
                                 📍 Checkpoint: <b>${rider.checkpoint}</b><br>
                                 ⚙️ Odometer: ${rider.odometer} KM<br>
-                                📝 Notes: ${rider.notes || 'Wala'}<br>
                                 🕒 Oras: ${rider.timestamp}<br>
-                                <a href="${rider.location}" target="_blank">🗺️ Tan-awa sa Google Maps</a>
+                                <a href="${rider.location}" target="_blank">🗺️ Google Maps</a>
                             </div>
                         `);
+                        markerLayer.addLayer(marker);
                     }
                 });
             } catch (error) {
-                console.error("Wala nakuha ang data sa mapa:", error);
+                console.error("Wala nakuha ang live riders:", error);
             }
         }
 
-        // Tawgon ang function inig abli sa pahina
         loadRidersToMap();
-
-
-        // 🔄 AUTO-REFRESH MAPA MATAG 30 SEGUNDOS
-        // Dili kini makaapekto sa baterya sa rider kay ang Admin Dashboard ra ang nag-request sa data!
-        setInterval(() => {
-            console.log("Auto-updating live map data...");
-            loadRidersToMap();
-        }, 30000); // 30000 milliseconds = 30 segundos
-
-
-
     </script>
 
 </body>
