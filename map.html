@@ -546,6 +546,24 @@
                     let lon = parseFloat(rider.longitude);
 
                     if (!isNaN(lat) && !isNaN(lon)) {
+                        
+                        // 👉 DINHI NI ISULOD ANG TIME FORMATTER FUNCTION
+                        let formattedTime = "Wala";
+                        if (rider.timestamp) {
+                            let d = new Date(rider.timestamp);
+                            formattedTime = d.toLocaleString('en-PH', {
+                                timeZone: 'Asia/Manila',
+                                year: 'numeric',
+                                month: 'short',
+                                day: 'numeric',
+                                hour: '2-digit',
+                                minute: '2-digit',
+                                second: '2-digit',
+                                hour12: false
+                            });
+                        }
+                        // ==========================================
+                        
                         let marker = L.marker([lat, lon]);
                         marker.bindPopup(`
                             <div style="color: black; font-family: Arial; font-size: 13px;">
@@ -553,7 +571,8 @@
                                 👤 Pangalan: <b>${rider.name}</b><br>
                                 📍 Checkpoint: <b>${rider.checkpoint}</b><br>
                                 ⚙️ Odometer: ${rider.odometer} KM<br>
-                                🕒 Oras: ${rider.timestamp}<br>
+                                <!-- 🕒 Oras: ${rider.timestamp}<br>  -->
+                                🕒 Oras: ${formattedTime}<br> <!-- 👉 Naa na diri ang saktong variable! -->
                                 <a href="${rider.location}" target="_blank">🗺️ Google Maps</a>
                             </div>
                         `);
