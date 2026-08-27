@@ -105,6 +105,9 @@
                 <option value="route6">Ruta 6: 5555km Man of Steel</option>
             </select>
 
+            <!-- 📏 KUNG ASA MOGAWAS ANG TOTAL KILOMETERS -->
+            <div id="distanceBadge" class="distance-badge" style="display: none;">Total: 0 KM</div>
+
             <button class="action-btn" onclick="loadRidersToMap()">🔄 Refresh Live Riders</button>
             <button class="action-btn back-btn" onclick="window.location.href='menu.html'">🔙 Menu</button>
         </div>
@@ -478,8 +481,12 @@
         async function switchRoute() {
             let selectedKey = document.getElementById('routeSelect').value;
             routePolylineLayer.clearLayers();
+            let badge = document.getElementById('distanceBadge');
 
-            if (!routesData[selectedKey] || routesData[selectedKey].length < 2) return;
+            if (!routesData[selectedKey] || routesData[selectedKey].length < 2) {
+                badge.style.display = "none";
+                return;
+            }
 
             let coords = routesData[selectedKey];
             
@@ -493,7 +500,15 @@
                 let data = await response.json();
 
                 if (data.routes && data.routes.length > 0) {
+                    let routeData = data.routes[0];
                     let routeCoords = data.routes[0].geometry.coordinates.map(c => [c[1], c[0]]); // Baliktuson pabalik sa [Lat, Lon]
+
+                    // 📏 KUHAON ANG TOTAL KM UG I-ROUND OFF
+                    let totalKm = (routeData.distance / 1000).toFixed(1);
+
+                    // Ipakita ang badge sa header nga naay total KM
+                    badge.innerText = `🏁 Total: ${totalKm} KM`;
+                    badge.style.display = "block";
 
                     // I-guhit ang linya nga mosunod gyud sa karsada
                     let roadPolyline = L.polyline(routeCoords, {
@@ -509,6 +524,7 @@
                 }
             } catch (error) {
                 console.error("Napakyas pagkuha sa OSRM route:", error);
+                badge.style.display = "none";
                 // Fallback kung naay problema sa internet sa OSRM: Diretsohon og guhit ang straight line
                 let fallbackLine = L.polyline(coords, { color: 'red', weight: 3, dashArray: '5, 5' });
                 routePolylineLayer.addLayer(fallbackLine);
