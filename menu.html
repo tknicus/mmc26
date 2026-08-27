@@ -189,7 +189,7 @@
             const hashArray = Array.from(new Uint8Array(hashBuffer));
             const hashedInput = hashArray.map(b => b.toString(16).padStart(2, '0')).join('');
             
-            let validAdmin = riderDatabase.find(r => r.passcode === hashedInput && (r.idNum === "0001" || r.isAdmin === true));
+            let validAdmin = riderDatabase.find(r => r.passcode === hashedInput && (r.idNum === "0001" || r.isMarshal === true));
             
             if (validAdmin) {
                 sessionStorage.setItem("admin_authenticated", "true");
