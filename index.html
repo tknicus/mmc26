@@ -725,8 +725,8 @@
                 location: gpsData.link,
                 latitude: gpsData.lat,
                 longitude: gpsData.lon,
-                locationTime: gpsData.time 
-                level: riderLevel // 👈 GIDUGANG NA DIRIA ANG LEVEL!
+                locationTime: gpsData.time, // 👈 KINI ANG NAKULANG NGA COMMA (,)
+                level: document.getElementById('level').value // 👈 DIREKTA NANG KUHAON SA IMONG INPUT BOX
             };
 
             submitBtn.textContent = "🌐 Gisusi ang Internet...";
@@ -882,12 +882,15 @@
             if (idToSearch && typeof riderDatabase !== 'undefined') {
                 const foundRider = riderDatabase.find(r => r.idNum === idToSearch);
                 if (foundRider) {
-                    nameBox.value = foundRider.fullname;
+                    document.getElementById('name').value = foundRider.fullname;
+                    document.getElementById('level').value = foundRider.level || "Wala Gi-assign"; // 👈 DUGANG KINI
                 } else {
-                    nameBox.value = "❌ Wala sa Masterlist";
+                    document.getElementById('name').value = "❌ Wala sa Masterlist";
+                    document.getElementById('level').value = ""; // 👈 DUGANG KINI
                 }
             }
         }
+
         searchDatabase(idNumBox.value); 
 
         // --- 3. DOUBLE-TAP TO UNLOCK (GIBUTANGAN OG BABAG) ---
@@ -900,8 +903,10 @@
 
             // Kung Marshal, ipadayon ang pag-unlock...
             this.removeAttribute('readonly'); 
+            // Ilawom sa idNumBox.addEventListener('dblclick', ...)
             this.value = ""; 
             nameBox.value = ""; 
+            document.getElementById('level').value = ""; // 👈 DUGANG KINI
             this.focus(); 
             this.style.border = "3px solid #ffcc00"; 
         });
@@ -947,9 +952,11 @@
                                 const foundRider = riderDatabase.find(r => r.idNum === scannedID);
                                 if (foundRider) {
                                     document.getElementById('name').value = foundRider.fullname;
+                                    document.getElementById('level').value = foundRider.level || "Wala Gi-assign"; // 👈 DUGANG KINI
                                     localStorage.setItem('defaultRiderID', scannedID);
                                 } else {
                                     document.getElementById('name').value = "❌ Wala sa Masterlist";
+                                    document.getElementById('level').value = ""; // 👈 DUGANG KINI
                                 }
                             }
                         }).catch((err) => { console.log("Error sa pag-stop sa camera.", err); });
