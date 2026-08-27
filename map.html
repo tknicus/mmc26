@@ -478,76 +478,89 @@
         }
 
         // 3. FUNCTION PARA KUHAON ANG DALAN GAMIT ANG OSRM API (Mismo sa Highway moagi)
+        // Function sa pag-ilis sa ruta inig pili sa dropdown
         async function switchRoute() {
             let selectedKey = document.getElementById('routeSelect').value;
-            routePolylineLayer.clearLayers();
             let badge = document.getElementById('distanceBadge');
+            
+            routePolylineLayer.clearLayers();
 
             if (!routesData[selectedKey] || routesData[selectedKey].length < 2) {
                 badge.style.display = "none";
+                loadRidersToMap("none"); // 👈 Tawgon ang riders pero ipasundayag ang tanan o wala
                 return;
             }
 
             let coords = routesData[selectedKey];
-            
-            // Himuon nato ang coordinate string nga kinahanglan sa OSRM API (Longitude,Latitude format)
             let coordString = coords.map(c => `${c[1]},${c[0]}`).join(';');
             let osrmUrl = `https://router.project-osrm.org/route/v1/driving/${coordString}?overview=full&geometries=geojson`;
 
             try {
-                console.log("Nagkuha og road directions gikan sa OSRM...");
                 let response = await fetch(osrmUrl);
                 let data = await response.json();
 
                 if (data.routes && data.routes.length > 0) {
                     let routeData = data.routes[0];
-                    let routeCoords = data.routes[0].geometry.coordinates.map(c => [c[1], c[0]]); // Baliktuson pabalik sa [Lat, Lon]
+                    let routeCoords = routeData.geometry.coordinates.map(c => [c[1], c[0]]); 
 
-                    // 📏 KUHAON ANG TOTAL KM UG I-ROUND OFF
                     let totalKm = (routeData.distance / 1000).toFixed(1);
-
-                    // Ipakita ang badge sa header nga naay total KM
                     badge.innerText = `🏁 Total: ${totalKm} KM`;
                     badge.style.display = "block";
 
-                    // I-guhit ang linya nga mosunod gyud sa karsada
                     let roadPolyline = L.polyline(routeCoords, {
-                        //color: '#0088ff', // 🔵 Asul na ang kolor diri (pwede sab isulat ang 'blue')
-                        color: '#ff0000', // 🔴 Pula na ang kolor diri (pwede sab nimo isulat ang 'red')
-                        //color: '#ffcc00', // Dalag (Gold) nga linya sa dalan
+                        color: '#ff0000', 
                         weight: 2,
                         opacity: 0.85
                     });
 
                     routePolylineLayer.addLayer(roadPolyline);
-                    map.fitBounds(roadPolyline.getBounds()); // Auto zoom sa ruta
+                    map.fitBounds(roadPolyline.getBounds());
                 }
             } catch (error) {
                 console.error("Napakyas pagkuha sa OSRM route:", error);
                 badge.style.display = "none";
-                // Fallback kung naay problema sa internet sa OSRM: Diretsohon og guhit ang straight line
-                let fallbackLine = L.polyline(coords, { color: 'red', weight: 3, dashArray: '5, 5' });
-                routePolylineLayer.addLayer(fallbackLine);
             }
+
+            // 🚀 I-FILTER ANG MGA RIDERS BASE SA NAPILI NGA RUTA (KEY)
+            loadRidersToMap(selectedKey);
         }
 
         // 4. KUHAON ANG LIVE RIDERS GIKAN SA GOOGLE SHEET
         const scriptURL = 'https://script.google.com/macros/s/AKfycbzfSM7k7Acr9TURisbsvnas73utaJSQnRHFdMA2j0_6ZT95h-c8SWQwAfm8XHR7CKq7/exec?action=getAllLocations';
                            
-        async function loadRidersToMap() {
+        async function loadRidersToMap(filterRoute = "none") {
             try {
                 let response = await fetch(scriptURL);
                 let data = await response.json(); 
 
                 markerLayer.clearLayers();
 
+                // 🗺️ MAPPING TALI SA DROPDOWN ROUTE UG SA DATABASE LEVEL
+                const routeToLevelMap = {
+                    "route1": "G1", // (I-ilis lang kung unsa ang level sa uban kung naa na)
+                    "route2": "G2",
+                    "route3": "G3",
+                    "route4": "G4",
+                    "route5": "G3", // 👈 G3 = Route 5 (Mindanao Coastal Gaming)
+                    "route6": "G5"  // 👈 G5 = Route 6 (Man of Steel)
+                };
+
                 data.forEach(rider => {
                     let lat = parseFloat(rider.latitude);
                     let lon = parseFloat(rider.longitude);
 
-                    if (!isNaN(lat) && !isNaN(lon)) {
+                    // 🛑 FILTER LOGIC: Kon naay gipili nga ruta, i-match ang rider.level
+                    // (Pananglitan: kung ang gipili kay "route6", kinahanglan pareho og level ang rider)
+                    if (filterRoute && filterRoute !== "none") {
+                        let expectedLevel = routeToLevelMap[filterRoute];
                         
-                        // 👉 DINHI NI ISULOD ANG TIME FORMATTER FUNCTION
+                        // Kung ang rider.level walay labot sa expected level sa maong ruta, laktawan nato
+                        if (expectedLevel && rider.level !== expectedLevel) {
+                            return; 
+                        }
+                    }
+
+                    if (!isNaN(lat) && !isNaN(lon)) {
                         let formattedTime = "Wala";
                         if (rider.timestamp) {
                             let d = new Date(rider.timestamp);
@@ -562,7 +575,6 @@
                                 hour12: false
                             });
                         }
-                        // ==========================================
                         
                         let marker = L.marker([lat, lon]);
                         marker.bindPopup(`
@@ -570,9 +582,9 @@
                                 <b>🏍️ ID: ${rider.idNum}</b><br>
                                 👤 Pangalan: <b>${rider.name}</b><br>
                                 📍 Checkpoint: <b>${rider.checkpoint}</b><br>
+                                🛣️ Rota/Level: <b>${rider.level || 'N/A'}</b><br>
                                 ⚙️ Odometer: ${rider.odometer} KM<br>
-                                <!-- 🕒 Oras: ${rider.timestamp}<br>  -->
-                                🕒 Oras: ${formattedTime}<br> <!-- 👉 Naa na diri ang saktong variable! -->
+                                🕒 Oras: ${formattedTime}<br>
                                 <a href="${rider.location}" target="_blank">🗺️ Google Maps</a>
                             </div>
                         `);
@@ -584,7 +596,8 @@
             }
         }
 
-        loadRidersToMap();
+        loadRidersToMap(); // Initial load nga makita tanan o wala pay filter
+
     </script>
 
 </body>
