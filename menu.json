@@ -8,13 +8,11 @@
   "icons": [
     {
       "src": "menu.png",
-      //"src": "https://cdn-icons-png.flaticon.com/512/3211/3211438.png",
       "sizes": "192x192",
       "type": "image/png"
     },
     {
       "src": "menu.png",
-      //"src": "https://cdn-icons-png.flaticon.com/512/3211/3211438.png",
       "sizes": "512x512",
       "type": "image/png"
     }

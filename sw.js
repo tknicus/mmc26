@@ -7,10 +7,10 @@ const urlsToCache = [
   './menu.json',
   './menu.png',
   './mmc.png', // ⬅️ IDUGANG: Ang watermark logo para sa picture
-  'https://lh3.googleusercontent.com/d/1m1NrFKOMKh4YjoUdXD0KvxcpySM5RuwU' // Ang imong banner image
+  'https://lh3.googleusercontent.com/d/1m1NrFKOMKh4YjoUdXD0KvxcpySM5RuwU', // Ang imong banner image
   './scan.html',
   './scan.json',
-  './scan.png',  
+  './scan.png',
   'https://unpkg.com/html5-qrcode', // ⬅️ IDUGANG: Ang utok sa QR Scanner
   './report.html',
   './map.html',
