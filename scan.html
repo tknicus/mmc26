@@ -765,6 +765,11 @@
                 if (!isPracticeCheckpoint) {
                     completedCheckpoints.push(currentCheckpoint);
                     localStorage.setItem(riderHistoryKey, JSON.stringify(completedCheckpoints));
+                    
+                    // 👉 ANG IMONG GENIUS NGA IDEYA: I-save ang Start ODO sa device kung CP 00!
+                    if (currentCheckpoint === "CP 00") {
+                        localStorage.setItem('startOdo_' + checkId, data.odometer);
+                    }
                 }
 
                 myForm.reset();
@@ -1035,14 +1040,23 @@
 
         function updateRiderProgress() {
             let levelField = document.getElementById("level") ? document.getElementById("level").value.trim() : "";
-            let odoField = parseFloat(document.getElementById("odometer").value) || 0;
+            let currentOdoField = parseFloat(document.getElementById("odometer").value) || 0;
+            let currentId = document.getElementById("idNum").value; // Kuhaon ang ID sa Rider
             let card = document.getElementById("progressCard");
 
-            if (routeTotalKm[levelField] && odoField > 0) {
+            // 👈 PANGITAON SA SELPON ANG NA-SAVE NGA START ODO (Atol sa pag-submit sa CP 00)
+            let savedStartOdo = parseFloat(localStorage.getItem('startOdo_' + currentId)) || 0;
+
+            if (routeTotalKm[levelField] && currentOdoField > 0) {
                 let totalRoute = routeTotalKm[levelField];
-                let nadagan = odoField;
-                let nabilin = totalRoute - nadagan;
                 
+                // 👉 PORMULA: Current ODO - Start ODO (Gikan sa CP 00)
+                let nadagan = currentOdoField - savedStartOdo;
+                
+                // Kung wala pa siya naka-scan sa CP 00 o sayop ang ODO, i-zero lang una
+                if (savedStartOdo === 0 || nadagan < 0) nadagan = 0; 
+                
+                let nabilin = totalRoute - nadagan;
                 if (nabilin < 0) nabilin = 0; 
 
                 document.getElementById("displayLevel").innerText = levelField;
@@ -1062,7 +1076,6 @@
             document.getElementById("level").addEventListener("input", updateRiderProgress);
         }
     </script>
-
 
 </body>
 </html>
