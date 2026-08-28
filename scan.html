@@ -1,0 +1,1049 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <link rel="manifest" href="./manifest.json">
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>MasterMinds'CUP Offline Locator</title>
+
+    <!-- PWA MANIFEST UG ICON -->
+    <link rel="manifest" href="manifest.json">
+    <link rel="icon" type="image/png" href="icon.png">
+    <link rel="apple-touch-icon" href="icon.png">
+    <meta name="theme-color" content="#121212">
+
+    <!-- 📷 QR CODE SCANNER LIBRARY 📷 -->
+    <script src="https://unpkg.com/html5-qrcode" type="text/javascript"></script>
+    
+    <!-- 🎨 SUGOD SA MODERN DARK RACING THEME 🎨 -->
+    <style>
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background-color: #121212; /* Dark background */
+            color: #f5f5f5; /* Puti nga text */
+            margin: 0;
+            padding: 15px;
+            display: flex;
+            justify-content: center;
+        }
+
+        .container {
+            background-color: #1e1e1e; /* Medyo light nga dark */
+            width: 100%;
+            max-width: 450px;
+            padding: 20px;
+            border-radius: 8px;
+            box-shadow: 0px 8px 15px rgba(0, 0, 0, 0.8);
+            border-top: 5px solid #cc0000; /* Pula nga linya sa ibabaw */
+            box-sizing: border-box;
+        }
+
+        /* Logo Styling */
+        .app-logo {
+            width: 100%;
+            max-width: 250px;
+            display: block;
+            margin: 0 auto 15px auto; /* I-center ang logo */
+        }
+
+        h4 {
+            text-align: center;
+            color: #ffffff;
+            margin-top: 0;
+            text-transform: lowercase;
+            font-style: italic; /* Pang-racing nga porma */
+            letter-spacing: 1px;
+            font-size: 15px;
+        }
+
+        h2 {
+            text-align: center;
+            color: #ffffff;
+            margin-top: 0;
+            text-transform: uppercase;
+            font-style: italic; /* Pang-racing nga porma */
+            letter-spacing: 1px;
+            font-size: 20px;
+        }
+
+        /* Status & Location Indicators */
+        #statusIndicator, #liveLocation {
+            text-align: center;
+            padding: 10px;
+            margin-bottom: 15px;
+            border-radius: 5px;
+            font-weight: bold;
+            font-size: 14px;
+        }
+        
+        #liveLocation {
+            background-color: #2a2a2a;
+            border: 1px solid #444;
+            color: #ccc;
+        }
+
+        .status.online { background-color: #1b5e20; color: white; }
+        .status.offline { background-color: #cc0000; color: white; }
+
+        /* Input Boxes */
+        input[type="text"], 
+        input[type="number"],
+        textarea {
+            width: 100%;
+            padding: 12px;
+            margin-top: 5px;
+            margin-bottom: 15px;
+            border: 1px solid #444;
+            border-radius: 4px;
+            background-color: #2a2a2a; /* Dark nga kahon */
+            color: #ffffff;
+            font-size: 16px;
+            box-sizing: border-box;
+            transition: all 0.3s ease;
+            font-family: Arial, sans-serif;
+        }
+
+        input:focus, textarea:focus {
+            outline: none;
+            border-color: #cc0000; /* Mo-pula ang kilid kung i-click */
+            box-shadow: 0 0 5px rgba(204, 0, 0, 0.5);
+        }
+
+        input[readonly] {
+            background-color: #1a1a1a;
+            color: #888;
+        }
+
+        /* Buttons (Dagko para dali ma-click) */
+        button {
+            width: 100%;
+            padding: 15px;
+            font-size: 16px;
+            font-weight: bold;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            text-transform: uppercase;
+            transition: 0.2s;
+        }
+
+        /* Ang Main Submit Button (Pula) */
+        button[type="submit"] {
+            background-color: #cc0000; /* MasterMinds Red */
+            color: white;
+            box-shadow: 0 4px 6px rgba(204, 0, 0, 0.3);
+            margin-top: 5px;
+        }
+
+        button[type="submit"]:hover {
+            background-color: #990000;
+        }
+        
+        button[type="submit"]:disabled {
+            background-color: #555;
+            color: #888;
+            cursor: not-allowed;
+            box-shadow: none;
+        }
+
+        /* Ang Camera Button (Grey/Silver) */
+        .camera-btn-wrapper {
+            position: relative;
+            overflow: hidden;
+            display: inline-block;
+            width: 100%;
+            margin-bottom: 15px;
+        }
+        
+        .camera-btn {
+            background-color: #444;
+            color: white;
+        }
+
+        .camera-btn:hover { background-color: #555; }
+
+        .camera-btn-wrapper input[type=file] {
+            font-size: 100px;
+            position: absolute;
+            left: 0;
+            top: 0;
+            opacity: 0;
+            cursor: pointer;
+            height: 100%;
+            width: 100%; /* <-- IDUGANG KINI ARO MASAKOP ANG TIBUOK BUTTON */
+        }
+
+        /* Picture Preview */
+        #photoPreview {
+            max-width: 100%;
+            border: 2px dashed #cc0000; /* Pula nga border kung naay pic */
+            border-radius: 5px;
+            margin-bottom: 15px;
+            display: none; /* Tago una kung walay pic */
+        }
+
+
+        /* DESIGN PARA SA DROPDOWN ARON MASIGO UG MO-ITOM */
+        select {
+            width: 100%;
+            padding: 12px;
+            margin-top: 5px;
+            margin-bottom: 15px;
+            border: 1px solid #444;
+            border-radius: 4px;
+            background-color: #2a2a2a; /* Kini ang mopaitom niya */
+            color: #ffffff; /* Puti nga text */
+            font-size: 16px;
+            box-sizing: border-box; /* KINI GYUD ANG MOPUGOS NGA DILI SIYA MOLAPAS */
+            transition: all 0.3s ease;
+            font-family: Arial, sans-serif;
+        }
+
+        select:focus {
+            outline: none;
+            border-color: #cc0000;
+            box-shadow: 0 0 5px rgba(204, 0, 0, 0.5);
+        }
+    </style>
+    <!-- 🎨 KATAPUSAN SA THEME 🎨 -->
+</head>
+<body>
+
+    <div class="container">
+        <!-- Kini ang mopagawas sa imong Logo -->
+        <img src="mmc.png" alt="MasterMinds CUP Logo" class="app-logo">
+        <h4>" never say never "</h4>
+        <h2>Checkpoint Scanner</h2>
+
+        <!-- Internet Status & Live Location -->
+        <!-- <div id="statusIndicator" class="status online">🌐 Online - Connected</div> -->
+        <div id="liveLocation">📍 Nangita sa imong location...</div>
+
+        <!-- 📊 HEADS-UP DASHBOARD (UPGRADE 2 & 3) 📊 -->
+            <div id="dashboard" style="background: #222; border: 2px solid #444; border-radius: 8px; padding: 12px; margin-bottom: 15px; color: white; display: flex; justify-content: space-between; align-items: center; font-family: Arial, sans-serif;">
+                
+                <!-- SIGNAL STATUS -->
+                <div style="text-align: center; width: 33%;">
+                    <span style="color: #aaa; font-size: 11px; font-weight: bold; letter-spacing: 1px;">SIGNAL</span><br>
+                    <b id="signalStatus" style="font-size: 14px;">🟢 ONLINE</b>
+                </div>
+
+                <!-- BATTERY MONITOR -->
+                <div style="text-align: center; width: 33%; border-left: 1px solid #444; border-right: 1px solid #444;">
+                    <span style="color: #aaa; font-size: 11px; font-weight: bold; letter-spacing: 1px;">BATTERY</span><br>
+                    <b id="batteryStatus" style="font-size: 14px;">🔋 --%</b>
+                </div>
+
+                <!-- PENDING OFFLINE DATA -->
+                <div style="text-align: center; width: 33%;">
+                    <span style="color: #aaa; font-size: 11px; font-weight: bold; letter-spacing: 1px;">PENDING</span><br>
+                    <b id="pendingCount" style="font-size: 18px; color: #ff9900;">0</b>
+                </div>
+
+            </div>
+
+
+        <form id="myForm">
+
+            <!-- 📷 QR SCANNER UI 📷 -->
+            <button type="button" id="scanQrBtn" style="width: 100%; padding: 12px; background-color: #ff9900; color: black; font-weight: bold; font-size: 16px; border: none; border-radius: 4px; margin-bottom: 10px; cursor: pointer;">
+                📷 I-SCAN ANG RIDER ID
+            </button>
+            
+            <!-- Dinhi mogawas ang video sa camera. Naka-tago (none) ni siya daan. -->
+            <div id="reader" style="display: none; width: 100%; margin-bottom: 10px; border-radius: 8px; overflow: hidden; border: 2px solid #ff9900;"></div>
+
+
+            <input type="text" id="idNum" placeholder="Rider ID" readonly required>
+            <input type="text" id="name" placeholder="Imong Pangalan" readonly required>
+            <input type="text" id="level" placeholder="Imong Level" readonly required>
+            
+            <!-- 👇 ANG BAG-ONG CHECKPOINT DROPDOWN 👇 -->
+            <select id="checkpoint" required>
+                <option value="" disabled selected>-- PILIA ANG CHECKPOINT --</option>
+                <option value="CP 00">#00 Glorious Gate</option>
+                <option value="CP 01">#01 Mr. DIY</option>
+                <option value="CP 02">#02 Junction Paquibato - Kalagangan Rd / Calinan Rd.</option>
+                <option value="CP 03">#03 New Paquibato District Hall</option>
+                <option value="CP 04">#04 Pungco Hill</option>
+                <option value="CP 05">#05 Junction Panaga - Tapak Road / Paquibato - Kalagangan Rd</option>
+                <option value="CP 06">#06 Junction Kalagangan - Talaingod Rd</option>
+
+                <option value="CP 07">#07 💪 Junction Bukidnon - Laak Road</option>
+                <option value="CP 08">#08 💪 Sitio Bulo, Brgy Namnam, San Fernando, Bukidnon, Terracing Landscape View</option>
+                <option value="CP 09">#09 💪 Pipisan Bridge, Sitio Pipisan, Brgy. Gupitan, Kapalong</option>
+                <option value="CP 10">#10 💪 Lumondong Bridge / Falls, Sitio Lumondong, Brgy Gupitan, Kapalong</option>
+
+                <option value="CP 11">#11 👌 Uraya's Peak Adventure Park</option>
+                <option value="CP 12">#12 👌 Ridge View Mountainview</option>
+                <option value="CP 13">#13 👌 Talaingod View Deck</option>
+                <option value="CP 14">#14 👌 Florida</option>
+                <option value="CP 15">#15 👌 Sua-on</option>
+                <option value="CP 16">#16 👌 Gupitan</option>
+
+                <option value="CP 17">#17 Junction Kili-Kili, Sitio Kili-Kili, Brgy Gupitan, Kapalong</option>
+                <option value="CP 18">#18 Gatnaon Road, Sitio Butoy, Gupitan, Kapalong</option>
+                <option value="CP 19">#19 Junction Imelda, Brgy. Imelda, Laak</option>
+                <option value="CP 20">#20 Laak ta Bai</option>
+                <option value="CP 21">#21 Sampaguita Junction Park</option>
+                <option value="CP 22">#22 Sta Josefa Petron</option>
+                <option value="CP 23">#23 Crossing Brgy. Angas & Brgy. Awao</option>
+                <option value="CP 24">#24 Awao River Crossing (A)</option>
+                <option value="CP 25">#25 Awao River Crossing (B)</option>
+                <option value="CP 26">#26 Awao Ticket Booth</option>
+                <option value="CP 27">#27 Awao Falls</option>
+                <option value="CP 28">#28 Crossing Brgy. Angas & Brgy. Awao</option>
+                <option value="CP 29">#29 INC, Monkayo</option>
+                <option value="CP 30">#30 JESREL STORE, Mount Diwata</option>
+                <option value="CP 31">#31 GKK Santo Niño</option>
+                <option value="CP 32">#32 Goldie Mark Store, Purok 1-A, Mount Diwata</option>
+                <option value="CP 33">#33 Libunao Store</option>
+                <option value="CP 34">#34 Tru-Cut, Diwalwal</option>
+                <option value="CP 35">#35 Petron</option>
+                <option value="CP 36">#36 Aliwagwag Falls Ecopark</option>
+                <option value="CP 37">#37 Manurigao Highlands 5650ft above sea level</option>
+                <option value="CP 38">#38 Shadol's Coffee Paste</option>
+                <option value="CP 39">#39 Maragusan Rotunda</option>
+
+                <option value="CP 40">#40 👌 Lake Leonard Eco Tourism Park</option>
+                <option value="CP 41">#41 👌 Bilawa Falls</option>
+                <option value="CP 42">#42 👌 711 Mawab</option>
+
+                <option value="CP 43">#43 💪 Araibo, Pantukan, Davao de Oro</option>
+                <option value="CP 44">#44 💪 Special Village, Las Arenas, Pantukan</option>
+                <option value="CP 45">#45 💪 Motor Parts, Brgy. Tagugpo, Pantukan</option>
+                <option value="CP 46">#46 💪 Napnapan</option>
+                <option value="CP 47">#47 💪 Jolibee Pantukan</option>
+
+                <option value="CP FL">#48 ELKAPITAN's Headstone</option>
+                <option value="CP xx">#xx Stand By Me</option>
+            </select>
+            <!-- 👆 KAHAPONAN SA DROPDOWN 👆 -->
+            
+            <input type="number" id="odometer" placeholder="Odometer (ODO)" required>
+            <textarea id="notes" placeholder="Mensahe o Notes o REMARKS" rows="3" required></textarea>
+
+            <!-- Astig nga Camera Button -->
+            <div class="camera-btn-wrapper">
+                <button type="button" class="camera-btn">📸 Pindota aron mag-Picture</button>
+                <input type="file" id="cameraInput" accept="image/*" capture="environment">
+            </div>
+            
+            <img id="photoPreview" alt="Ebidensya">
+            <canvas id="photoCanvas" style="display:none;"></canvas>
+
+            <button type="submit">I-Submit ang Data</button>
+        </form>
+
+        <!-- 🏷️ APP VERSION & STATUS FOOTER -->
+        <!-- 👇 KINI ANG IDUGANG NIMO NGA FOOTER/COPYRIGHT TEXT 👇 -->
+        <div style="text-align: center; margin-top: 25px; padding-bottom: 20px; font-size: 12px; color: #aaa; border-top: 1px solid #333; padding-top: 15px;">
+            <p style="margin: 0; font-weight: bold; color: #ffcc00;">&copy; 2026 MasterMinds'CUP. All Rights Reserved.</p>
+            <p style="margin: 5px 0 0 0;">Build Version: <span id="appVersionText" style="color: #00ff00; font-family: monospace;">v2.6-technicus</span></p>
+            <p style="margin: 3px 0 0 0; font-size: 10px; color: #666;">Status: Active & Secure 🛡️</p>
+        </div>
+        <!-- 👆 KAHAPONAN SA FOOTER 👆 -->
+
+    </div> <!-- Katapusan sa container -->
+
+    <!-- 🎵 INVISIBLE RADIO PARA SA SUBMIT MUSIC 🎵 -->
+    <audio id="submitMusic" src="never_say_never.mp3" loop></audio>
+
+    <!-- IMONG ORIGINAL NGA JAVASCRIPT (WALA GITHUBTAN) -->
+
+
+
+
+<script src="database.js"></script>
+    <script>
+        // 🌟 BAG-ONG SHA-256 HASH ENGINE
+        async function sha256Hash(str) {
+            const encoder = new TextEncoder();
+            const data = encoder.encode(str);
+            const hashBuffer = await crypto.subtle.digest('SHA-256', data);
+            const hashArray = Array.from(new Uint8Array(hashBuffer));
+            return hashArray.map(b => b.toString(16).padStart(2, '0')).join('');
+        }
+        
+        let isSyncing = false; // Kini ang atong "Lock"
+        let compressedPhotoBase64 = ""; 
+
+
+        document.getElementById('cameraInput').addEventListener('change', function(event) {
+            const file = event.target.files[0];
+            if (file) {
+                const reader = new FileReader();
+                reader.onload = function(e) {
+                    const img = new Image();
+                    img.onload = function() {
+                        const canvas = document.getElementById('photoCanvas');
+                        const ctx = canvas.getContext("2d");
+
+                        const MAX_WIDTH = 600;
+                        const scaleSize = MAX_WIDTH / img.width;
+                        canvas.width = MAX_WIDTH;
+                        canvas.height = img.height * scaleSize;
+
+                        // 1. Drawing sa picture
+                        ctx.drawImage(img, 0, 0, canvas.width, canvas.height);
+
+                        // 2. Drawing sa Logo (Left Bottom)
+                        const logoImg = new Image();
+                        logoImg.src = 'mmc.png';
+                        logoImg.onload = function() {
+                            const logoWidth = canvas.width * 0.28; // I-set kini sa 0.28 (28%)
+                            const logoHeight = (logoImg.height / logoImg.width) * logoWidth;
+                            
+                            // Drawing sa Logo (Left Bottom)
+                            ctx.drawImage(logoImg, 10, canvas.height - logoHeight - 10, logoWidth, logoHeight);
+
+                        // --- 🛠️ HELPER FUNCTION PARA SA DMS (Degrees, Minutes, Seconds) 🛠️ ---
+                        function convertToDMS(decimal, isLat) {
+                            if (decimal === "N/A") return "N/A";
+                            const val = parseFloat(decimal);
+                            const absVal = Math.abs(val);
+                            const d = Math.floor(absVal);
+                            const m = Math.floor((absVal - d) * 60);
+                            const s = ((absVal - d - m / 60) * 3600).toFixed(0);
+                            const dir = isLat ? (val >= 0 ? "N" : "S") : (val >= 0 ? "E" : "W");
+                            return `${d}° ${m}' ${s}" ${dir}`;
+                        }
+                        
+                        // 3. ✨ Drawing sa Text (ID+Name, Military Time, ug DMS GPS) ✨
+                        ctx.fillStyle = "white";
+                        ctx.strokeStyle = "black"; 
+                        ctx.lineWidth = 3;
+                        ctx.font = "bold 16px Arial"; 
+                        ctx.textAlign = "right";
+
+                        const riderID = document.getElementById('idNum').value || "WALA I-SCAN";
+                        const riderName = document.getElementById('name').value || "Wala Kaila";
+                        
+                        // --- 🪖 MILITARY TIME FORMAT ---
+                        const now = new Date();
+                        const year = now.getFullYear();
+                        const month = String(now.getMonth() + 1).padStart(2, '0');
+                        const day = String(now.getDate()).padStart(2, '0');
+                        const hours = String(now.getHours()).padStart(2, '0');
+                        const minutes = String(now.getMinutes()).padStart(2, '0');
+                        const seconds = String(now.getSeconds()).padStart(2, '0');
+                        
+                        const militaryDateTime = `${year}-${month}-${day} ${hours}:${minutes}:${seconds}`;
+
+                        // --- 🌍 DMS GPS FORMAT ---
+                        const dmsLat = convertToDMS(globalLat, true);
+                        const dmsLon = convertToDMS(globalLon, false);
+
+                        const textA = `ID: ${riderID} (${riderName})`;
+                        ctx.strokeText(textA, canvas.width - 10, canvas.height - 55);
+                        ctx.fillText(textA, canvas.width - 10, canvas.height - 55);
+
+                        const textB = `Date/Time: ${militaryDateTime}`;
+                        ctx.strokeText(textB, canvas.width - 10, canvas.height - 35);
+                        ctx.fillText(textB, canvas.width - 10, canvas.height - 35);
+
+                        const textC = `${dmsLat}, ${dmsLon}`;
+                        ctx.strokeText(textC, canvas.width - 10, canvas.height - 15);
+                        ctx.fillText(textC, canvas.width - 10, canvas.height - 15);
+
+                        // 4. E-convert sa Text (Base64)
+                        compressedPhotoBase64 = canvas.toDataURL("image/jpeg", 0.5);
+                        const photoPreview = document.getElementById('photoPreview');
+                        photoPreview.src = compressedPhotoBase64;
+                        photoPreview.style.display = "block";
+                        };
+                    };
+                    img.src = e.target.result;
+                };
+                reader.readAsDataURL(file);
+            }
+        });
+                           
+        const scriptURL = 'https://script.google.com/macros/s/AKfycbxTau-qcMyRPmu753acuF4c6Pgm8jy3llrLSAzrzlS-0z-k_xmQoE_9-sl2yIXeMjJF/exec';
+        const liveLocationDiv = document.getElementById('liveLocation');
+        const myForm = document.getElementById('myForm');
+
+        let globalLat = "N/A";
+        let globalLon = "N/A";
+
+        function showLiveLocationOnLoad() {
+            if (navigator.geolocation) {
+                navigator.geolocation.watchPosition(
+                    (position) => {
+                        globalLat = position.coords.latitude.toFixed(6);
+                        globalLon = position.coords.longitude.toFixed(6);
+                        liveLocationDiv.innerHTML = `📍 <b>Lat:</b> ${globalLat} &nbsp;|&nbsp; <b>Lon:</b> ${globalLon}`;
+                    },
+                    (error) => {
+                        liveLocationDiv.innerHTML = "⚠️ Palihug i-allow ang Location / GPS.";
+                    },
+                    { enableHighAccuracy: true, maximumAge: 0 }
+                );
+            } else {
+                liveLocationDiv.innerHTML = "❌ GPS wala gisuportahan sa imong device.";
+            }
+        }
+
+
+        // --- 🛡️ BAG-ONG SEND FUNCTION NGA WALAY TIMER 🛡️ ---
+        async function sendDataToServer(dataPayload) {
+            try {
+                // WALA NAY AbortController! Pabay-i nga ang browser moy magbuot kanus-a mahuman
+                await fetch(scriptURL, {
+                    method: 'POST',
+                    mode: 'no-cors',
+                    headers: { 'Content-Type': 'text/plain;charset=utf-8' }, 
+                    body: JSON.stringify(dataPayload)
+                });
+
+                // Kon makaabot kini nga linya, sigurado na gyud nga nakalusot!
+                return true; 
+            } catch (error) {
+                console.error("Tinuod nga naputol ang internet:", error);
+                return false;
+            }
+        }
+
+
+        // ==========================================
+        // 🔄 SMART SYNC OFFLINE DATA (NAA NAY LOCK) 🔄
+        // ==========================================
+        async function syncOfflineData() {
+            if (isSyncing) return; 
+            
+            let offlineData = JSON.parse(localStorage.getItem('offlineData')) || [];
+            if (offlineData.length === 0) return; 
+
+            isSyncing = true; 
+
+            const submitBtn = document.getElementById('myForm').querySelector('button[type="submit"]');
+            if(submitBtn) { submitBtn.textContent = "🔄 Nag-Sync sa Data..."; submitBtn.disabled = true; }
+
+            let failedData = []; 
+
+            for (let i = 0; i < offlineData.length; i++) {
+                let singleRecord = offlineData[i];
+                try {
+                    let success = await sendDataToServer(singleRecord); 
+                    if (!success) {
+                        failedData.push(singleRecord);
+                    }
+                } catch (error) {
+                    failedData.push(singleRecord);
+                }
+            }
+
+            if (failedData.length > 0) {
+                localStorage.setItem('offlineData', JSON.stringify(failedData));
+            } else {
+                localStorage.removeItem('offlineData');
+                alert("✅ Naka-Sync na ang tanang Offline Data padulong sa Database!");
+            }
+
+            if(submitBtn) { submitBtn.textContent = "I-Submit ang Data"; submitBtn.disabled = false; }
+            isSyncing = false; 
+        }
+
+        function getLocation() {
+            return new Promise((resolve) => {
+                if (!navigator.geolocation) {
+                    resolve({ link: "No GPS", lat: "N/A", lon: "N/A", time: "N/A" });
+                } else {
+                    navigator.geolocation.getCurrentPosition(
+                        (position) => {
+                            const lat = position.coords.latitude;
+                            const lon = position.coords.longitude;
+                            const locTime = new Date(position.timestamp).toLocaleString(); 
+                            resolve({
+                                link: `https://www.google.com/maps?q=${lat},${lon}`,
+                                lat: lat,
+                                lon: lon,
+                                time: locTime
+                            });
+                        },
+                        (error) => {
+                            resolve({ link: "Error/Gibalibaran", lat: "N/A", lon: "N/A", time: "N/A" });
+                        },
+                        { timeout: 10000, enableHighAccuracy: true, maximumAge: 0 }
+                    );
+                }
+            });
+        }
+
+
+        // 🚀 1. STABILITY TESTER FUNCTION (Isulod kini sa taas o tupad ani)
+        async function checkInternetStability() {
+            if (!navigator.onLine) return false;
+            const startTime = new Date().getTime();
+            try {
+                await fetch('https://www.google.com/favicon.ico?' + startTime, {
+                    mode: 'no-cors',
+                    cache: 'no-store'
+                });
+                const endTime = new Date().getTime();
+                const duration = endTime - startTime; 
+
+                // Kung ubos sa 2 ka segundo ang pagtubag, STABLE!
+                return duration < 2000;
+            } catch (error) {
+                return false;
+            }
+        }
+
+
+        
+
+        let isSubmitting = false; // I-butang ni sa pinakataas sa imong script o sulod sa submit
+
+        myForm.addEventListener('submit', async function(e) {
+            e.preventDefault();
+
+            const submitBtn = myForm.querySelector('button[type="submit"]');
+
+            // KUNG GASIGURO NA OG PROCESS, AYAW NA PAG-ABLI
+            if (isSubmitting || submitBtn.disabled) return;
+            isSubmitting = true;
+
+            submitBtn.textContent = "📍 Gipadala ang Data...";
+            submitBtn.disabled = true; 
+            submitBtn.style.opacity = "0.5"; 
+
+            const bgMusic = document.getElementById('submitMusic');
+            bgMusic.play();
+
+            const checkId = document.getElementById('idNum').value;
+            const checkName = document.getElementById('name').value;
+            const currentCheckpoint = document.getElementById('checkpoint').value;
+
+            if (checkId === "" || checkName === "" || checkName.includes("❌")) {
+                bgMusic.pause(); bgMusic.currentTime = 0; 
+                alert("🛑 DILI MA-SAVE! Blangko ang Rider ID. Palihug i-scan ang saktong QR Code.");
+                submitBtn.textContent = "I-Submit ang Data";
+                submitBtn.disabled = false;
+                submitBtn.style.opacity = "1";
+                isSubmitting = false;
+                return;
+            }
+
+            // =========================================================
+            // 🏆 AUTOMATIC TOUR COMPLETION & DYNAMIC ROUTE EXTRACTOR
+            // =========================================================
+            // Kuhaon dayon sa app ang TANANG opisyal nga checkpoints direkta sa HTML <select> 
+            // (Awtomatikong gi-apil ang CP 00 hangtod CP 46, ug CP FL, gawas ang CP xx ug blangko)
+            const checkpointSelect = document.getElementById('checkpoint');
+            const officialRoute = Array.from(checkpointSelect.options)
+                .map(opt => opt.value)
+                .filter(val => val !== "" && !val.toLowerCase().includes("xx"));
+
+            let riderHistoryKey = 'history_' + checkId;
+            let completedCheckpoints = JSON.parse(localStorage.getItem(riderHistoryKey)) || [];
+
+            // Susihon kung nahuman na ba niya ang TANANG opisyal nga checkpoints sa rota
+            let isTourCompleted = officialRoute.every(cp => completedCheckpoints.includes(cp));
+
+            if (isTourCompleted) {
+                bgMusic.pause(); bgMusic.currentTime = 0;
+                alert(`🏆 CONGRATULATIONS, MASTER ${checkId}!\n\nNahuman na nimo ang tibuok rota sa MasterMinds ONTOUR! Kompleto na nimo ang tanang Checkpoints gikan sa sugod hangtod sa katapusan.\n\nGusto ba mo-apil sa sunod nga rota o laing ONTOUR adventure? Kontaka dayon ang Admin / Organizer para sa imong pag-register! 🏍️🔥`);
+                
+                submitBtn.textContent = "I-Submit ang Data";
+                submitBtn.disabled = false;
+                submitBtn.style.opacity = "1";
+                isSubmitting = false;
+                return; // Babagan na ang pag-submit kay human na ang tibuok tour!
+            }
+            // =========================================================
+
+            let isPracticeCheckpoint = currentCheckpoint.toLowerCase().includes("xx");
+
+            if (!isPracticeCheckpoint) {
+                let submissionCount = completedCheckpoints.filter(cp => cp === currentCheckpoint).length;
+
+                if (submissionCount >= 3) {
+                    if (isMarshalMode) {
+                        let allowExtra = confirm(`⚠️ GOD-MODE MARSHAL OVERRIDE!\nNaabot na sa 3 ka beses nag-submit si Rider ${checkId} sa ${currentCheckpoint}.\nGusto ba nimo i-allow ang ika-4 nga pag-submit?`);
+                        if (!allowExtra) {
+                            bgMusic.pause(); bgMusic.currentTime = 0;
+                            submitBtn.textContent = "I-Submit ang Data";
+                            submitBtn.disabled = false;
+                            submitBtn.style.opacity = "1";
+                            isSubmitting = false;
+                            return;
+                        }
+                    } else {
+                        bgMusic.pause(); bgMusic.currentTime = 0;
+                        alert(`🛑 LIMIT REACHED! Master ${checkId}, nakatulo na ka nag-submit sa ${currentCheckpoint}!\n\nNaabot na nimo ang maximum limit (3/3). Palihug pangitaa ang Marshal.`);
+                        submitBtn.textContent = "I-Submit ang Data";
+                        submitBtn.disabled = false;
+                        submitBtn.style.opacity = "1";
+                        isSubmitting = false;
+                        return; 
+                    }
+                } else if (submissionCount > 0) {
+                    let attemptNum = submissionCount + 1;
+                    let proceedAgain = confirm(`⚠️ PAHINUMDOM: Kini ang imong ika-${attemptNum} nga pag-submit sa ${currentCheckpoint}.\n\nSiguradoha nga sakto na ang Odometer. Gusto ba nimo ipadayon?`);
+                    if (!proceedAgain) {
+                        bgMusic.pause(); bgMusic.currentTime = 0;
+                        submitBtn.textContent = "I-Submit ang Data";
+                        submitBtn.disabled = false;
+                        submitBtn.style.opacity = "1";
+                        isSubmitting = false;
+                        return;
+                    }
+                }
+            }
+
+            const gpsData = await getLocation();
+
+            if (gpsData.lat === "N/A" || gpsData.link === "No GPS" || gpsData.link === "Error/Gibalibaran") {
+                bgMusic.pause(); bgMusic.currentTime = 0; 
+                alert("🛑 DILI MA-SAVE! Palihug i-on ang Location / GPS.");
+                submitBtn.textContent = "I-Submit ang Data";
+                submitBtn.disabled = false;
+                submitBtn.style.opacity = "1";
+                isSubmitting = false;
+                return; 
+            }
+
+            if (compressedPhotoBase64 === "") {
+                bgMusic.pause(); bgMusic.currentTime = 0; 
+                alert("📸 DILI MA-SAVE! Palihug pagkuha og Ebidensya/Picture una ka mo-submit.");
+                submitBtn.textContent = "I-Submit ang Data";
+                submitBtn.disabled = false;
+                submitBtn.style.opacity = "1";
+                isSubmitting = false;
+                return; 
+            }
+
+            const data = {
+                idNum: checkId,
+                name: checkName,
+                checkpoint: currentCheckpoint, 
+                odometer: document.getElementById('odometer').value, 
+                notes: document.getElementById('notes').value,
+                photo: compressedPhotoBase64, 
+                timestamp: new Date().toLocaleString(), 
+                location: gpsData.link,
+                latitude: gpsData.lat,
+                longitude: gpsData.lon,
+                locationTime: gpsData.time, // 👈 KINI ANG NAKULANG NGA COMMA (,)
+                level: document.getElementById('level').value // 👈 DIREKTA NANG KUHAON SA IMONG INPUT BOX
+            };
+
+            submitBtn.textContent = "🌐 Gisusi ang Internet...";
+            let isStable = await checkInternetStability();
+            let isDataSaved = false;
+
+            if (isStable) {
+                submitBtn.textContent = "📍 Gipadala sa Server...";
+                let success = await sendDataToServer(data);
+                
+                if (success) {
+                    bgMusic.pause(); bgMusic.currentTime = 0; 
+                    alert("✅ Success! Check imong Google Sheet, nisulod na!");
+                    isDataSaved = true; 
+                } else {
+                    bgMusic.pause(); bgMusic.currentTime = 0; 
+                    alert("⚠️ Na-putol ang signal! Gi-save sa Offline Data.");
+                    saveToOfflineStorage(data);
+                    isDataSaved = true; 
+                }
+            } else {
+                bgMusic.pause(); bgMusic.currentTime = 0; 
+                saveToOfflineStorage(data);
+                alert("⚠️ Hinay ang internet! Gi-save sa Offline Data sa device.");
+                isDataSaved = true;
+            }
+
+            if (isDataSaved) {
+                if (!isPracticeCheckpoint) {
+                    completedCheckpoints.push(currentCheckpoint);
+                    localStorage.setItem(riderHistoryKey, JSON.stringify(completedCheckpoints));
+                }
+
+                myForm.reset();
+                compressedPhotoBase64 = ""; 
+                document.getElementById('photoPreview').style.display = "none"; 
+            }
+            
+            submitBtn.textContent = "I-Submit ang Data";
+            submitBtn.disabled = false;
+            submitBtn.style.opacity = "1"; 
+            isSubmitting = false; 
+        });
+
+        // 📌 HELPER FUNCTION PARA SA OFFLINE SAVING
+        function saveToOfflineStorage(recordData) {
+            let savedData = JSON.parse(localStorage.getItem('offlineData')) || [];
+            savedData.push(recordData);
+            localStorage.setItem('offlineData', JSON.stringify(savedData));
+            updateDashboardCounters();
+        }
+
+
+
+
+        // ==========================================
+        // 🕵️‍♂️ SIKRETONG PULTAHAN: MARSHAL MODE 🕵️‍♂️
+        // ==========================================
+        
+        let isMarshalMode = localStorage.getItem('marshalMode') === 'true';
+        const scanQrBtn = document.getElementById('scanQrBtn');
+        
+        if (!isMarshalMode) {
+            if (scanQrBtn) scanQrBtn.style.display = "none";
+        }
+
+        let tapCount = 0;
+        let tapTimeout;
+        const secretButton = document.getElementById('signalStatus'); 
+
+        secretButton.addEventListener('click', async function() {
+            tapCount++;
+            
+            clearTimeout(tapTimeout);
+            tapTimeout = setTimeout(() => { tapCount = 0; }, 1500);
+
+            if (tapCount === 3) {
+                tapCount = 0; 
+                
+                if (!isMarshalMode) {
+                    let passcode = prompt("🕵️‍♂️ MARSHAL MODE: Pagsulod og Passcode:");
+                    
+                    // Kung pisliton ang "Cancel", undangon dayon ang proseso
+                    if (passcode === null) return;
+                    
+                    // 🛡️ ANG BAG-ONG ADVANCED SECURITY CHECKER (SHA-256) 🛡️
+                    if (typeof riderDatabase !== 'undefined') {
+                        
+                        // I-agi sa SHA-256 scrambler ang gi-type sa Marshal! (Bantayi ang 'await')
+                        let hashedInput = await sha256Hash(passcode); 
+                        
+                        // Pangitaon niya kinsa ang nag-iya aning password UG kung Marshal ba siya
+                        let validMarshal = riderDatabase.find(r => r.passcode === hashedInput && r.isMarshal === true);      
+                        
+                        if (validMarshal) {
+                            isMarshalMode = true;
+                            localStorage.setItem('marshalMode', 'true'); 
+                            if (scanQrBtn) scanQrBtn.style.display = "block"; 
+                            
+                            // Nindot kay mo-greet pa gyud ang app kinsa nga marshal ang ni-log in!
+                            alert(`🔓 MARSHAL MODE ON! Welcome, Master ${validMarshal.fullname}! Pwede na nimo gamiton ang Scanner.`);
+                        } else {
+                            alert("❌ Sayop nga Passcode o dili ka awtorisado! Rider mode lang ka.");
+                        }
+                    } else {
+                        alert("⚠️ Error: Wala nabasa ang database.js");
+                    }
+                } else {
+                    let confirmLock = confirm("🔒 Gusto nimo i-lock ug ibalik sa Rider Mode?");
+                    if (confirmLock) {
+                        isMarshalMode = false;
+                        localStorage.setItem('marshalMode', 'false');
+                        if (scanQrBtn) scanQrBtn.style.display = "none"; 
+                        alert("🔒 Naka-RIDER MODE na ang app.");
+                    }
+                }
+            }
+
+        });
+
+
+
+
+
+        showLiveLocationOnLoad(); 
+
+        if ('serviceWorker' in navigator) {
+            window.addEventListener('load', function() {
+                navigator.serviceWorker.register('./sw.js')
+                .then(function(registration) { console.log('Service Worker naka-register!'); })
+                .catch(function(error) { console.log('Error sa Service Worker:', error); });
+            });
+        }
+
+        // ==========================================
+        // 🏍️ RIDER ID & NAME LOGIC (ALL-IN-ONE) 🏍️
+        // ==========================================
+        const idNumBox = document.getElementById('idNum');
+        const nameBox = document.getElementById('name');
+
+        const urlParams = new URLSearchParams(window.location.search);
+        let paramID = urlParams.get('theIDno');
+        let savedID = localStorage.getItem('defaultRiderID');
+
+        if (paramID) {
+            idNumBox.value = paramID;
+            localStorage.setItem('defaultRiderID', paramID); 
+        } else if (savedID) {
+            idNumBox.value = savedID; 
+        }
+
+        function searchDatabase(idToSearch) {
+            if (idToSearch && typeof riderDatabase !== 'undefined') {
+                const foundRider = riderDatabase.find(r => r.idNum === idToSearch);
+                if (foundRider) {
+                    document.getElementById('name').value = foundRider.fullname;
+                    document.getElementById('level').value = foundRider.level || "Wala Gi-assign"; // 👈 DUGANG KINI
+                } else {
+                    document.getElementById('name').value = "❌ Wala sa Masterlist";
+                    document.getElementById('level').value = ""; // 👈 DUGANG KINI
+                }
+            }
+        }
+
+        searchDatabase(idNumBox.value); 
+
+        // --- 3. DOUBLE-TAP TO UNLOCK (GIBUTANGAN OG BABAG) ---
+        idNumBox.addEventListener('dblclick', function() {
+            // 🛑 ANG BABAG: Kung Rider mode, ayaw pasudla!
+            if (!isMarshalMode) {
+                alert("⚠️ RIDER MODE: Dili ka pwede mag-usab sa ID. Pangitaa ang Marshal!");
+                return; // Mo-undang dayon ang code dinhi!
+            }
+
+            // Kung Marshal, ipadayon ang pag-unlock...
+            this.removeAttribute('readonly'); 
+            // Ilawom sa idNumBox.addEventListener('dblclick', ...)
+            this.value = ""; 
+            nameBox.value = ""; 
+            document.getElementById('level').value = ""; // 👈 DUGANG KINI
+            this.focus(); 
+            this.style.border = "3px solid #ffcc00"; 
+        });
+
+        idNumBox.addEventListener('input', function() {
+            this.value = this.value.replace(/[^0-9]/g, ''); 
+            if (this.value.length === 4) {
+                this.setAttribute('readonly', true); 
+                this.style.border = "1px solid #444"; 
+                this.blur(); 
+                searchDatabase(this.value); 
+                localStorage.setItem('defaultRiderID', this.value); 
+            }
+        });
+
+        // --- 📷 QR CODE SCANNER LOGIC 📷 ---
+        const scanBtn = document.getElementById('scanQrBtn');
+        const scannerDiv = document.getElementById('reader');
+        let html5QrCode; 
+
+        scanBtn.addEventListener('click', function() {
+            if (scannerDiv.style.display === "none") {
+                scannerDiv.style.display = "block";
+                scanBtn.textContent = "🛑 I-CANCEL ANG PAG-SCAN";
+                scanBtn.style.backgroundColor = "#cc0000"; 
+                scanBtn.style.color = "white";
+
+                html5QrCode = new Html5Qrcode("reader");
+                html5QrCode.start(
+                    { facingMode: "environment" }, 
+                    { fps: 10, qrbox: { width: 250, height: 250 } },
+                    (decodedText, decodedResult) => {
+                        html5QrCode.stop().then((ignore) => {
+                            scannerDiv.style.display = "none";
+                            scanBtn.textContent = "📷 I-SCAN ANG RIDER ID";
+                            scanBtn.style.backgroundColor = "#ff9900"; 
+                            scanBtn.style.color = "black";
+                            
+                            const scannedID = decodedText;
+                            document.getElementById('idNum').value = scannedID;
+                            
+                            if (typeof riderDatabase !== 'undefined') {
+                                const foundRider = riderDatabase.find(r => r.idNum === scannedID);
+                                if (foundRider) {
+                                    document.getElementById('name').value = foundRider.fullname;
+                                    document.getElementById('level').value = foundRider.level || "Wala Gi-assign"; // 👈 DUGANG KINI
+                                    localStorage.setItem('defaultRiderID', scannedID);
+                                } else {
+                                    document.getElementById('name').value = "❌ Wala sa Masterlist";
+                                    document.getElementById('level').value = ""; // 👈 DUGANG KINI
+                                }
+                            }
+                        }).catch((err) => { console.log("Error sa pag-stop sa camera.", err); });
+                    },
+                    (errorMessage) => {}
+                ).catch((err) => { alert("⚠️ Wala ma-access ang Camera."); });
+            } else {
+                if (html5QrCode) {
+                    html5QrCode.stop().then(() => {
+                        scannerDiv.style.display = "none";
+                        scanBtn.textContent = "📷 I-SCAN ANG RIDER ID";
+                        scanBtn.style.backgroundColor = "#ff9900";
+                        scanBtn.style.color = "black";
+                    });
+                }
+            }
+        });
+
+        // ==========================================
+        // 🚀 DASHBOARD LOGIC (SIGNAL, BATTERY, PENDING) 🚀
+        // ==========================================
+        async function checkRealInternet() {
+            const sigStatus = document.getElementById('signalStatus');
+            if (!navigator.onLine) {
+                sigStatus.innerHTML = "🔴 OFFLINE";
+                sigStatus.style.color = "#ff3333"; 
+                return;
+            }
+
+            try {
+                await fetch('https://www.google.com/favicon.ico?' + new Date().getTime(), {
+                    mode: 'no-cors',  
+                    cache: 'no-store' 
+                });
+                sigStatus.innerHTML = "🟢 ONLINE";
+                sigStatus.style.color = "#00ff00"; 
+
+                let offlineData = JSON.parse(localStorage.getItem('offlineData')) || [];
+                if (offlineData.length > 0) {
+                    syncOfflineData(); 
+                }
+            } catch (error) {
+                sigStatus.innerHTML = "⚠️ NO INTERNET";
+                sigStatus.style.color = "#ff9900"; 
+            }
+        }
+
+        window.addEventListener('online', checkRealInternet);
+        window.addEventListener('offline', checkRealInternet);
+        setInterval(checkRealInternet, 5000);
+        checkRealInternet(); 
+
+        if ('getBattery' in navigator) {
+            navigator.getBattery().then(function(battery) {
+                function updateBatteryInfo() {
+                    const level = Math.round(battery.level * 100);
+                    const batStatus = document.getElementById('batteryStatus');
+                    const icon = battery.charging ? "⚡" : "🔋";
+                    batStatus.innerHTML = `${icon} ${level}%`;
+                    if (level <= 15 && !battery.charging) {
+                        batStatus.style.color = "#ff3333"; 
+                    } else {
+                        batStatus.style.color = "white";
+                    }
+                }
+                updateBatteryInfo();
+                battery.addEventListener('levelchange', updateBatteryInfo);
+                battery.addEventListener('chargingchange', updateBatteryInfo);
+            });
+        } else {
+            document.getElementById('batteryStatus').innerHTML = "🔋 N/A";
+        }
+
+        function updateDashboardCounters() {
+            let offlineData = JSON.parse(localStorage.getItem('offlineData')) || [];
+            const pCount = document.getElementById('pendingCount');
+            pCount.innerText = offlineData.length;
+            if (offlineData.length > 0) {
+                pCount.style.color = "#ff9900"; 
+            } else {
+                pCount.style.color = "white"; 
+            }
+        }
+        setInterval(updateDashboardCounters, 2000);
+        updateDashboardCounters(); 
+    
+    </script>
+
+</body>
+</html>
