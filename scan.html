@@ -729,7 +729,7 @@
         }
 
         // ==========================================
-        // 🎯 CHECK & CROSS MARKER (MOBILE FRIENDLY) 🎯
+        // 🎯 SURE-FIRE CHECKPOINT MARKER SYSTEM 🎯
         // ==========================================
         function updateCheckpointCheckmarks(riderId) {
             const checkpointSelect = document.getElementById('checkpoint');
@@ -738,20 +738,25 @@
             let riderHistoryKey = 'history_' + riderId;
             let completedCheckpoints = JSON.parse(localStorage.getItem(riderHistoryKey)) || [];
 
+            console.log("Rider ID:", riderId);
+            console.log("Completed Checkpoints gikan sa LocalStorage:", completedCheckpoints);
+
             for (let i = 0; i < checkpointSelect.options.length; i++) {
                 let opt = checkpointSelect.options[i];
-                let val = opt.value;
+                let val = opt.value; // Ex: "CP 00"
                 
-                if (!val) continue;
+                if (!val) continue; // Laktawan ang default option (-- PILIA --)
 
-                // Limpyohan ang karaan nga marka aron dili modoble
-                let cleanText = opt.text.replace(/^[✓❌✔\s]+/, "").trim();
-                
-                // Kon nahuman na: ✓, Kon wala pa: ❌
+                // Kuhaon ang limpyo nga teksto nga walay mga karaan nga marka
+                let rawText = opt.text.replace(/^[✓❌✔\s]+/, "").trim();
+                // Kuhaon pud kung naa bay "CP XX - " sa unahan para limpyo
+                let cleanText = rawText.replace(/^\[\s*(HUMAN NA|WA PA)\s*\]\s*/, "").trim();
+
+                // Susihon kon naa ba sa completedCheckpoints ang value (Ex: "CP 00")
                 if (completedCheckpoints.includes(val)) {
-                    opt.text = "✓ " + cleanText; 
+                    opt.text = "✓ " + cleanText;
                 } else {
-                    opt.text = "❌ " + cleanText; 
+                    opt.text = "❌ " + cleanText;
                 }
             }
         }
