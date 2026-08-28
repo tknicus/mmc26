@@ -1,0 +1,20 @@
+{
+  "name": "MasterMinds'CUP Offline Locator",
+  "short_name": "mmc Scan",
+  "start_url": "./scan.html",
+  "display": "standalone",
+  "background_color": "#121212",
+  "theme_color": "#121212",
+  "icons": [
+    {
+      "src": "scan.png",
+      "sizes": "192x192",
+      "type": "image/png"
+    },
+    {
+      "src": "scan.png",
+      "sizes": "512x512",
+      "type": "image/png"
+    }
+  ]
+}
