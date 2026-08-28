@@ -342,6 +342,12 @@
             </select>
             <!-- 👆 KAHAPONAN SA DROPDOWN 👆 -->
             
+            <!-- 📋 CHECKPOINT HISTORY CHECKLIST BOX -->
+            <div id="checkpointChecklist" style="background: #1a1a1a; border: 1px solid #444; border-radius: 6px; padding: 10px; margin-bottom: 15px; font-size: 13px; color: #ccc;">
+                <div style="font-weight: bold; color: #ff9900; margin-bottom: 5px; font-size: 11px; text-transform: uppercase;">📋 Status sa mga Checkpoint:</div>
+                <div id="checklistItems" style="line-height: 1.5; color: #aaa;">Wala pay na-submit nga Checkpoint.</div>
+            </div>
+
             <input type="number" id="odometer" placeholder="Odometer (ODO)" required>
             <textarea id="notes" placeholder="Mensahe o Notes o REMARKS" rows="3" required></textarea>
 
@@ -695,28 +701,84 @@
         }
 
         // ==========================================
-        // 🎯 CHECK & CROSS MARKER SYSTEM 🎯
+        // 🎯 STABLE CHECKPOINT STATUS LIST 🎯
         // ==========================================
         function updateCheckpointCheckmarks(riderId) {
-            const checkpointSelect = document.getElementById('checkpoint');
-            if (!checkpointSelect || !riderId) return;
+            const checklistDiv = document.getElementById('checklistItems');
+            if (!checklistDiv || !riderId) return;
 
             let riderHistoryKey = 'history_' + riderId;
             let completedCheckpoints = JSON.parse(localStorage.getItem(riderHistoryKey)) || [];
 
-            for (let i = 0; i < checkpointSelect.options.length; i++) {
-                let opt = checkpointSelect.options[i];
-                let val = opt.value;
-                
-                if (!val) continue;
+            // Ang listahan sa tanang opisyal nga checkpoints
+            const allCheckpoints = [
+                { val: "CP 00", name: "CP 00: Glorious Gate" },
+                { val: "CP 01", name: "CP 01: Mr. DIY" },
+                { val: "CP 02", name: "CP 02: Junction Paquibato" },
+                { val: "CP 03", name: "CP 03: New Paquibato Dist. Hall" },
+                { val: "CP 04", name: "CP 04: Pungco Hill" },
+                { val: "CP 05", name: "CP 05: Junction Panaga" },
+                { val: "CP 06", name: "CP 06: Junction Kalagangan" },
+                { val: "CP 07", name: "CP 07: Junction Bukidnon-Laak" },
+                { val: "CP 08", name: "CP 08: Sitio Bulo" },
+                { val: "CP 09", name: "CP 09: Pipisan Bridge" },
+                { val: "CP 10", name: "CP 10: Lumondong Bridge" },
+                { val: "CP 11", name: "CP 11: Uraya's Peak" },
+                { val: "CP 12", name: "CP 12: Ridge View" },
+                { val: "CP 13", name: "CP 13: Talaingod View Deck" },
+                { val: "CP 14", name: "CP 14: Florida" },
+                { val: "CP 15", name: "CP 15: Sua-on" },
+                { val: "CP 16", name: "CP 16: Gupitan" },
+                { val: "CP 17", name: "CP 17: Junction Kili-Kili" },
+                { val: "CP 18", name: "CP 18: Gatnaon Road" },
+                { val: "CP 19", name: "CP 19: Junction Imelda" },
+                { val: "CP 20", name: "CP 20: Laak ta Bai" },
+                { val: "CP 21", name: "CP 21: Sampaguita Park" },
+                { val: "CP 22", name: "CP 22: Sta Josefa Petron" },
+                { val: "CP 23", name: "CP 23: Crossing Angas-Awao" },
+                { val: "CP 24", name: "CP 24: Awao River (A)" },
+                { val: "CP 25", name: "CP 25: Awao River (B)" },
+                { val: "CP 26", name: "CP 26: Awao Ticket Booth" },
+                { val: "CP 27", name: "CP 27: Awao Falls" },
+                { val: "CP 28", name: "CP 28: Crossing Angas-Awao" },
+                { val: "CP 29", name: "CP 29: INC Monkayo" },
+                { val: "CP 30", name: "CP 30: Mount Diwata" },
+                { val: "CP 31", name: "CP 31: GKK Santo Niño" },
+                { val: "CP 32", name: "CP 32: Goldie Mark Store" },
+                { val: "CP 33", name: "CP 33: Libunao Store" },
+                { val: "CP 34", name: "CP 34: Tru-Cut Diwalwal" },
+                { val: "CP 35", name: "CP 35: Petron" },
+                { val: "CP 36", name: "CP 36: Aliwagwag Falls" },
+                { val: "CP 37", name: "CP 37: Manurigao Highlands" },
+                { val: "CP 38", name: "CP 38: Shadol's Coffee" },
+                { val: "CP 39", name: "CP 39: Maragusan Rotunda" },
+                { val: "CP 40", name: "CP 40: Lake Leonard" },
+                { val: "CP 41", name: "CP 41: Bilawa Falls" },
+                { val: "CP 42", name: "CP 42: 711 Mawab" },
+                { val: "CP 43", name: "CP 43: Araibo Pantukan" },
+                { val: "CP 44", name: "CP 44: Special Village" },
+                { val: "CP 45", name: "CP 45: Motor Parts Tagugpo" },
+                { val: "CP 46", name: "CP 46: Napnapan" },
+                { val: "CP 47", name: "CP 47: Jollibee Pantukan" },
+                { val: "CP FL", name: "CP FL: Elkapitan's Headstone" }
+            ];
 
-                let cleanText = opt.text.replace(/^[✓❌✔\s]+/, "").trim();
-                
-                if (completedCheckpoints.includes(val)) {
-                    opt.text = "✓ " + cleanText; 
+            let htmlOutput = "";
+            let countCompleted = 0;
+
+            allCheckpoints.forEach(cp => {
+                if (completedCheckpoints.includes(cp.val)) {
+                    htmlOutput += `<span style="color: #00ff00; margin-right: 8px; display: inline-block;">✓ ${cp.val}</span>`;
+                    countCompleted++;
                 } else {
-                    opt.text = "❌ " + cleanText; 
+                    htmlOutput += `<span style="color: #555; margin-right: 8px; display: inline-block;">✗ ${cp.val}</span>`;
                 }
+            });
+
+            if (countCompleted === 0) {
+                checklistItems.innerHTML = "<span style='color: #888;'>Wala pa nay nahuman nga Checkpoint.</span>";
+            } else {
+                checklistItems.innerHTML = htmlOutput;
             }
         }
 
