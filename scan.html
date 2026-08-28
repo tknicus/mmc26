@@ -382,6 +382,20 @@
 
 <script src="database.js"></script>
     <script>
+        // 👉 AUTO-LOAD CHECKMARKS INIG-ABLI O INIG-REFRESH SA PAHINA
+        window.addEventListener('DOMContentLoaded', function() {
+            setTimeout(function() {
+                let currentId = document.getElementById('idNum') ? document.getElementById('idNum').value.trim() : "";
+                if (!currentId) {
+                    currentId = localStorage.getItem('defaultRiderID');
+                }
+                if (currentId) {
+                    updateCheckpointCheckmarks(currentId);
+                }
+            }, 200);
+        });
+
+
         // 🌟 SHA-256 HASH ENGINE
         async function sha256Hash(str) {
             const encoder = new TextEncoder();
@@ -668,6 +682,7 @@
                     if(document.getElementById('photoPreview')) document.getElementById('photoPreview').style.display = "none"; 
                     if(document.getElementById('progressCard')) document.getElementById('progressCard').style.display = "none";
                     
+                    // 👉 Tawgon dayon kini aron mo-update ang checklist box human sa submit
                     updateCheckpointCheckmarks(checkId);
                 }
                 resetSubmitBtn(submitBtn);
