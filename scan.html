@@ -376,12 +376,7 @@
 
 <script src="database.js"></script>
     <script>
-        // 👉 I-load dayon ang checkmarks inig abli sa app kung naay nakasalbar nga ID
-        if (savedID) {
-            updateCheckpointCheckmarks(savedID);
-        }
-        
-        // 🌟 BAG-ONG SHA-256 HASH ENGINE
+        // 🌟 SHA-256 HASH ENGINE
         async function sha256Hash(str) {
             const encoder = new TextEncoder();
             const data = encoder.encode(str);
@@ -604,46 +599,6 @@
                     return;
                 }
 
-                const checkpointSelect = document.getElementById('checkpoint');
-                let officialRoute = [];
-                if (checkpointSelect) {
-                    officialRoute = Array.from(checkpointSelect.options).map(opt => opt.value).filter(val => val !== "" && !val.toLowerCase().includes("xx"));
-                }
-                
-                let riderHistoryKey = 'history_' + checkId;
-                let completedCheckpoints = JSON.parse(localStorage.getItem(riderHistoryKey)) || [];
-                let isTourCompleted = officialRoute.length > 0 && officialRoute.every(cp => completedCheckpoints.includes(cp));
-
-                if (isTourCompleted) {
-                    if (bgMusic) { bgMusic.pause(); bgMusic.currentTime = 0; }
-                    alert(`🏆 CONGRATULATIONS, MASTER ${checkId}!\n\nNahuman na nimo ang tibuok rota! Kompleto na nimo ang tanang Checkpoints!`);
-                    resetSubmitBtn(submitBtn);
-                    return; 
-                }
-
-                let isPracticeCheckpoint = currentCheckpoint.toLowerCase().includes("xx");
-
-                if (!isPracticeCheckpoint) {
-                    let submissionCount = completedCheckpoints.filter(cp => cp === currentCheckpoint).length;
-                    if (submissionCount >= 3) {
-                        if (isMarshalMode) {
-                            if (!confirm(`⚠️ GOD-MODE OVERRIDE!\nI-allow ang ika-4 nga pag-submit?`)) {
-                                if (bgMusic) { bgMusic.pause(); bgMusic.currentTime = 0; }
-                                resetSubmitBtn(submitBtn); return;
-                            }
-                        } else {
-                            if (bgMusic) { bgMusic.pause(); bgMusic.currentTime = 0; }
-                            alert(`🛑 LIMIT REACHED! Maximum limit (3/3) na ang ${currentCheckpoint}. Pangitaa ang Marshal.`);
-                            resetSubmitBtn(submitBtn); return; 
-                        }
-                    } else if (submissionCount > 0) {
-                        if (!confirm(`⚠️ PAHINUMDOM: Ika-${submissionCount + 1} nga pag-submit ni sa ${currentCheckpoint}.\nGusto ipadayon?`)) {
-                            if (bgMusic) { bgMusic.pause(); bgMusic.currentTime = 0; }
-                            resetSubmitBtn(submitBtn); return;
-                        }
-                    }
-                }
-
                 const gpsData = await getLocation();
                 if (gpsData.lat === "N/A" || gpsData.link === "No GPS" || gpsData.link === "Error/Gibalibaran") {
                     if (bgMusic) { bgMusic.pause(); bgMusic.currentTime = 0; }
@@ -696,26 +651,26 @@
                 }
 
                 if (isDataSaved) {
-                    if (!isPracticeCheckpoint) {
+                    let riderHistoryKey = 'history_' + checkId;
+                    let completedCheckpoints = JSON.parse(localStorage.getItem(riderHistoryKey)) || [];
+                    
+                    if (!completedCheckpoints.includes(currentCheckpoint)) {
                         completedCheckpoints.push(currentCheckpoint);
                         localStorage.setItem(riderHistoryKey, JSON.stringify(completedCheckpoints));
-                        
-                        if (currentCheckpoint === "CP 00") {
-                            localStorage.setItem('startOdo_' + checkId, data.odometer);
-                        }
+                    }
+                    
+                    if (currentCheckpoint === "CP 00") {
+                        localStorage.setItem('startOdo_' + checkId, data.odometer);
                     }
 
-                    // 👉 ILISI KINI: I-reset lang nato ang Odometer, Notes, ug Picture. Ayaw hilabti ang ID ug Level!
-                    document.getElementById('odometer').value = "";
-                    document.getElementById('notes').value = "";
-                    document.getElementById('checkpoint').selectedIndex = 0;
+                    // Hapsay nga pag-reset sa porma apil na update sa checkmarks
+                    myForm.reset();
+                    document.getElementById('idNum').value = checkId; // Ibalik ang ID aron dili mawala
+                    searchDatabase(checkId); // Ibalik ang pangalan ug level
                     
                     compressedPhotoBase64 = ""; 
                     if(document.getElementById('photoPreview')) document.getElementById('photoPreview').style.display = "none"; 
                     if(document.getElementById('progressCard')) document.getElementById('progressCard').style.display = "none";
-                    
-                    // 👉 I-refresh dayon ang checkmarks gamit ang kasamtangang ID
-                    updateCheckpointCheckmarks(checkId);
                 }
                 resetSubmitBtn(submitBtn);
             });
@@ -738,7 +693,7 @@
         }
 
         // ==========================================
-        // 🎯 SURE-FIRE CHECKPOINT MARKER SYSTEM 🎯
+        // 🎯 CHECK & CROSS MARKER SYSTEM 🎯
         // ==========================================
         function updateCheckpointCheckmarks(riderId) {
             const checkpointSelect = document.getElementById('checkpoint');
@@ -747,25 +702,18 @@
             let riderHistoryKey = 'history_' + riderId;
             let completedCheckpoints = JSON.parse(localStorage.getItem(riderHistoryKey)) || [];
 
-            console.log("Rider ID:", riderId);
-            console.log("Completed Checkpoints gikan sa LocalStorage:", completedCheckpoints);
-
             for (let i = 0; i < checkpointSelect.options.length; i++) {
                 let opt = checkpointSelect.options[i];
-                let val = opt.value; // Ex: "CP 00"
+                let val = opt.value;
                 
-                if (!val) continue; // Laktawan ang default option (-- PILIA --)
+                if (!val) continue;
 
-                // Kuhaon ang limpyo nga teksto nga walay mga karaan nga marka
-                let rawText = opt.text.replace(/^[✓❌✔\s]+/, "").trim();
-                // Kuhaon pud kung naa bay "CP XX - " sa unahan para limpyo
-                let cleanText = rawText.replace(/^\[\s*(HUMAN NA|WA PA)\s*\]\s*/, "").trim();
-
-                // Susihon kon naa ba sa completedCheckpoints ang value (Ex: "CP 00")
+                let cleanText = opt.text.replace(/^[✓❌✔\s]+/, "").trim();
+                
                 if (completedCheckpoints.includes(val)) {
-                    opt.text = "✓ " + cleanText;
+                    opt.text = "✓ " + cleanText; 
                 } else {
-                    opt.text = "❌ " + cleanText;
+                    opt.text = "❌ " + cleanText; 
                 }
             }
         }
@@ -834,12 +782,6 @@
             }
         }
 
-        // 👉 I-load dayon ang checkmarks ug database kung naay ID nga nakabutang
-        if (idNumBox && idNumBox.value) {
-            searchDatabase(idNumBox.value);
-            updateCheckpointCheckmarks(idNumBox.value);
-        }
-
         function searchDatabase(idToSearch) {
             if (idToSearch && typeof riderDatabase !== 'undefined') {
                 const foundRider = riderDatabase.find(r => r.idNum === idToSearch);
@@ -848,7 +790,7 @@
                     let lvl = document.getElementById('level');
                     if(lvl) lvl.value = foundRider.level || "Wala Gi-assign"; 
                     updateRiderProgress();
-                    updateCheckpointCheckmarks(idToSearch); // 👈 I-update ang mga checkmarks sa dropdown
+                    updateCheckpointCheckmarks(idToSearch);
                 } else {
                     if(nameBox) nameBox.value = "❌ Wala sa Masterlist";
                     let lvl = document.getElementById('level');
@@ -858,7 +800,9 @@
             }
         }
 
-        if (idNumBox) searchDatabase(idNumBox.value); 
+        if (idNumBox && idNumBox.value) { 
+            searchDatabase(idNumBox.value); 
+        }
 
         if (idNumBox) {
             idNumBox.addEventListener('dblclick', function() {
@@ -877,7 +821,8 @@
                 if (this.value.length === 4) {
                     this.setAttribute('readonly', true); 
                     this.style.border = "1px solid #444"; 
-                    this.blur(); searchDatabase(this.value); 
+                    this.blur(); 
+                    searchDatabase(this.value); 
                     localStorage.setItem('defaultRiderID', this.value); 
                 }
             });
@@ -885,6 +830,7 @@
 
         const scannerDiv = document.getElementById('reader');
         let html5QrCode; 
+        const scanQrBtn = document.getElementById('scanQrBtn');
 
         if (scanQrBtn) {
             scanQrBtn.addEventListener('click', function() {
@@ -911,7 +857,7 @@
                                         if (lvl) lvl.value = foundRider.level || "Wala Gi-assign"; 
                                         localStorage.setItem('defaultRiderID', decodedText);
                                         updateRiderProgress(); 
-                                        updateCheckpointCheckmarks(decodedText); // 👈 I-update ang checkmarks
+                                        updateCheckpointCheckmarks(decodedText);
                                     } else {
                                         if (nameBox) nameBox.value = "❌ Wala sa Masterlist";
                                         let lvl = document.getElementById('level');
@@ -956,7 +902,6 @@
         setInterval(checkRealInternet, 5000);
         checkRealInternet(); 
 
-        // 🔋 BATTERY MONITOR LOGIC 🔋
         if ('getBattery' in navigator) {
             navigator.getBattery().then(function(battery) {
                 function updateBatteryInfo() {
@@ -965,11 +910,7 @@
                     if (batStatus) {
                         const icon = battery.charging ? "⚡" : "🔋";
                         batStatus.innerHTML = `${icon} ${level}%`;
-                        if (level <= 15 && !battery.charging) {
-                            batStatus.style.color = "#ff3333"; 
-                        } else {
-                            batStatus.style.color = "white";
-                        }
+                        batStatus.style.color = (level <= 15 && !battery.charging) ? "#ff3333" : "white";
                     }
                 }
                 updateBatteryInfo();
@@ -1049,17 +990,6 @@
         if (levelInput) {
             levelInput.addEventListener("change", updateRiderProgress);
             levelInput.addEventListener("input", updateRiderProgress);
-        }
-
-        // 👉 ARAW-ARAWON PAG-UPDATE ANG CHECKMARKS MATAG CLICK SA DROPDOWN
-        const checkpointDropdown = document.getElementById('checkpoint');
-        if (checkpointDropdown && idNumBox) {
-            checkpointDropdown.addEventListener('mousedown', function() {
-                let currentId = idNumBox.value.trim();
-                if (currentId) {
-                    updateCheckpointCheckmarks(currentId);
-                }
-            });
         }
     </script>
     
