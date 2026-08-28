@@ -663,14 +663,16 @@
                         localStorage.setItem('startOdo_' + checkId, data.odometer);
                     }
 
-                    // Hapsay nga pag-reset sa porma apil na update sa checkmarks
-                    myForm.reset();
-                    document.getElementById('idNum').value = checkId; // Ibalik ang ID aron dili mawala
-                    searchDatabase(checkId); // Ibalik ang pangalan ug level
+                    // Reset lang sa ubos nga porma apil na update sa checkmarks
+                    document.getElementById('odometer').value = "";
+                    document.getElementById('notes').value = "";
+                    document.getElementById('checkpoint').selectedIndex = 0;
                     
                     compressedPhotoBase64 = ""; 
                     if(document.getElementById('photoPreview')) document.getElementById('photoPreview').style.display = "none"; 
                     if(document.getElementById('progressCard')) document.getElementById('progressCard').style.display = "none";
+                    
+                    updateCheckpointCheckmarks(checkId);
                 }
                 resetSubmitBtn(submitBtn);
             });
@@ -767,20 +769,14 @@
             });
         }
 
+        // ==========================================
+        // 🏍️ RIDER ID & PARAMETER LOADER 🏍️
+        // ==========================================
         const idNumBox = document.getElementById('idNum');
         const nameBox = document.getElementById('name');
         const urlParams = new URLSearchParams(window.location.search);
         let paramID = urlParams.get('theIDno');
         let savedID = localStorage.getItem('defaultRiderID');
-
-        if (idNumBox) {
-            if (paramID) { 
-                idNumBox.value = paramID; 
-                localStorage.setItem('defaultRiderID', paramID); 
-            } else if (savedID) { 
-                idNumBox.value = savedID; 
-            }
-        }
 
         function searchDatabase(idToSearch) {
             if (idToSearch && typeof riderDatabase !== 'undefined') {
@@ -800,8 +796,14 @@
             }
         }
 
-        if (idNumBox && idNumBox.value) { 
-            searchDatabase(idNumBox.value); 
+        // Kuhaon ang ID gikan sa URL parameter o sa LocalStorage
+        if (paramID) { 
+            if(idNumBox) idNumBox.value = paramID; 
+            localStorage.setItem('defaultRiderID', paramID); 
+            searchDatabase(paramID);
+        } else if (savedID) { 
+            if(idNumBox) idNumBox.value = savedID; 
+            searchDatabase(savedID);
         }
 
         if (idNumBox) {
@@ -830,7 +832,6 @@
 
         const scannerDiv = document.getElementById('reader');
         let html5QrCode; 
-        const scanQrBtn = document.getElementById('scanQrBtn');
 
         if (scanQrBtn) {
             scanQrBtn.addEventListener('click', function() {
