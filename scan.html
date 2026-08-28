@@ -831,10 +831,13 @@
                 localStorage.setItem('defaultRiderID', paramID); 
             } else if (savedID) { 
                 idNumBox.value = savedID; 
-                // 👉 BAG-O: I-load dayon ang checkmarks ug database kung naa nay saved ID!
-                searchDatabase(savedID);
-                updateCheckpointCheckmarks(savedID);
             }
+        }
+
+        // 👉 I-load dayon ang checkmarks ug database kung naay ID nga nakabutang
+        if (idNumBox && idNumBox.value) {
+            searchDatabase(idNumBox.value);
+            updateCheckpointCheckmarks(idNumBox.value);
         }
 
         function searchDatabase(idToSearch) {
