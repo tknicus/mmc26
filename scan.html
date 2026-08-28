@@ -817,8 +817,15 @@
         let savedID = localStorage.getItem('defaultRiderID');
 
         if (idNumBox) {
-            if (paramID) { idNumBox.value = paramID; localStorage.setItem('defaultRiderID', paramID); } 
-            else if (savedID) { idNumBox.value = savedID; }
+            if (paramID) { 
+                idNumBox.value = paramID; 
+                localStorage.setItem('defaultRiderID', paramID); 
+            } else if (savedID) { 
+                idNumBox.value = savedID; 
+                // 👉 BAG-O: I-load dayon ang checkmarks ug database kung naa nay saved ID!
+                searchDatabase(savedID);
+                updateCheckpointCheckmarks(savedID);
+            }
         }
 
         function searchDatabase(idToSearch) {
@@ -1030,6 +1037,17 @@
         if (levelInput) {
             levelInput.addEventListener("change", updateRiderProgress);
             levelInput.addEventListener("input", updateRiderProgress);
+        }
+
+        // 👉 ARAW-ARAWON PAG-UPDATE ANG CHECKMARKS MATAG CLICK SA DROPDOWN
+        const checkpointDropdown = document.getElementById('checkpoint');
+        if (checkpointDropdown && idNumBox) {
+            checkpointDropdown.addEventListener('mousedown', function() {
+                let currentId = idNumBox.value.trim();
+                if (currentId) {
+                    updateCheckpointCheckmarks(currentId);
+                }
+            });
         }
     </script>
     
