@@ -809,7 +809,7 @@
         }
 
         // ==========================================
-        // 🏍️ RIDER ID, EDITABLE DBLCLICK & PARAMETERS 🏍️
+        // 🏍️ RIDER ID & CHECKLIST INITIALIZER 🏍️
         // ==========================================
         const idNumBox = document.getElementById('idNum');
         const nameBox = document.getElementById('name');
@@ -825,7 +825,6 @@
                     let lvl = document.getElementById('level');
                     if(lvl) lvl.value = foundRider.level || "Wala Gi-assign"; 
                     updateRiderProgress();
-                    updateCheckpointCheckmarks(idToSearch);
                 } else {
                     if(nameBox) nameBox.value = "❌ Wala sa Masterlist";
                     let lvl = document.getElementById('level');
@@ -833,6 +832,26 @@
                     updateRiderProgress();
                 }
             }
+        }
+
+        // 1. I-load dayon ang ID ug ang Checkmarks (Wala naghulat sa database)
+        let activeRiderId = "";
+        if (paramID) { 
+            activeRiderId = paramID;
+            if(idNumBox) idNumBox.value = paramID; 
+            localStorage.setItem('defaultRiderID', paramID); 
+        } else if (savedID) { 
+            activeRiderId = savedID;
+            if(idNumBox) idNumBox.value = savedID; 
+        }
+
+        // Kon naay ID, tawgon dayon ang checkmarks ug database search
+        if (activeRiderId) {
+            updateCheckpointCheckmarks(activeRiderId);
+            // Hatagan og gamay nga pahuway para masigurong nabasa na ang database.js
+            setTimeout(() => {
+                searchDatabase(activeRiderId);
+            }, 200);
         }
 
         if (paramID) { 
