@@ -958,57 +958,94 @@
         
 
 
+        const scanQrBtn = document.getElementById('scanQrBtn');
         const scannerDiv = document.getElementById('reader');
         let html5QrCode; 
 
         if (scanQrBtn) {
             scanQrBtn.addEventListener('click', function() {
-                if (scannerDiv && scannerDiv.style.display === "none") {
+                if (!scannerDiv) return;
+
+                if (scannerDiv.style.display === "none" || scannerDiv.style.display === "") {
                     scannerDiv.style.display = "block";
                     scanQrBtn.textContent = "🛑 I-CANCEL ANG PAG-SCAN";
                     scanQrBtn.style.backgroundColor = "#cc0000"; 
                     scanQrBtn.style.color = "white";
 
-                    html5QrCode = new Html5Qrcode("reader");
-                    html5QrCode.start(
-                        { facingMode: "environment" }, { fps: 10, qrbox: { width: 250, height: 250 } },
-                        (decodedText, decodedResult) => {
-                            html5QrCode.stop().then((ignore) => {
-                                scannerDiv.style.display = "none";
-                                scanQrBtn.textContent = "📷 I-SCAN ANG RIDER ID";
-                                scanQrBtn.style.backgroundColor = "#ff9900"; scanQrBtn.style.color = "black";
-                                if (idNumBox) idNumBox.value = decodedText;
-                                if (typeof riderDatabase !== 'undefined') {
-                                    const foundRider = riderDatabase.find(r => r.idNum === decodedText);
-                                    if (foundRider) {
-                                        if (nameBox) nameBox.value = foundRider.fullname;
-                                        let lvl = document.getElementById('level');
-                                        if (lvl) lvl.value = foundRider.level || "Wala Gi-assign"; 
-                                        localStorage.setItem('defaultRiderID', decodedText);
-                                        updateRiderProgress(); 
-                                        updateCheckpointCheckmarks(decodedText);
-                                    } else {
-                                        if (nameBox) nameBox.value = "❌ Wala sa Masterlist";
-                                        let lvl = document.getElementById('level');
-                                        if (lvl) lvl.value = ""; 
-                                        updateRiderProgress();
+                    try {
+                        html5QrCode = new Html5Qrcode("reader");
+                        html5QrCode.start(
+                            { facingMode: "environment" }, 
+                            { fps: 10, qrbox: { width: 250, height: 250 } },
+                            (decodedText, decodedResult) => {
+                                html5QrCode.stop().then((ignore) => {
+                                    scannerDiv.style.display = "none";
+                                    scanQrBtn.textContent = "📷 I-SCAN ANG RIDER ID";
+                                    scanQrBtn.style.backgroundColor = "#ff9900"; 
+                                    scanQrBtn.style.color = "black";
+                                    
+                                    const idNumBox = document.getElementById('idNum');
+                                    const nameBox = document.getElementById('name');
+
+                                    if (idNumBox) idNumBox.value = decodedText;
+                                    
+                                    if (typeof riderDatabase !== 'undefined') {
+                                        const foundRider = riderDatabase.find(r => r.idNum === decodedText);
+                                        if (foundRider) {
+                                            if (nameBox) nameBox.value = foundRider.fullname;
+                                            let lvl = document.getElementById('level');
+                                            if (lvl) lvl.value = foundRider.level || "Wala Gi-assign"; 
+                                            localStorage.setItem('defaultRiderID', decodedText);
+                                            updateRiderProgress(); 
+                                            updateCheckpointCheckmarks(decodedText);
+                                        } else {
+                                            if (nameBox) nameBox.value = "❌ Wala sa Masterlist";
+                                            let lvl = document.getElementById('level');
+                                            if (lvl) lvl.value = ""; 
+                                            updateRiderProgress();
+                                        }
                                     }
-                                }
-                            }).catch((err) => { console.log(err); });
-                        },
-                        (errorMessage) => {}
-                    ).catch((err) => { alert("⚠️ Wala ma-access ang Camera."); });
+                                }).catch((err) => { console.log("Error sa pag-stop:", err); });
+                            },
+                            (errorMessage) => {}
+                        ).catch((err) => { 
+                            alert("⚠️ Wala ma-access ang Camera.");
+                            scannerDiv.style.display = "none";
+                            scanQrBtn.textContent = "📷 I-SCAN ANG RIDER ID";
+                            scanQrBtn.style.backgroundColor = "#ff9900"; 
+                            scanQrBtn.style.color = "black";
+                        });
+                    } catch (e) {
+                        alert("⚠️ Error sa pag-initialize sa Scanner.");
+                        scannerDiv.style.display = "none";
+                        scanQrBtn.textContent = "📷 I-SCAN ANG RIDER ID";
+                        scanQrBtn.style.backgroundColor = "#ff9900"; 
+                        scanQrBtn.style.color = "black";
+                    }
                 } else {
-                    if (html5QrCode && scannerDiv) {
+                    if (html5QrCode) {
                         html5QrCode.stop().then(() => {
                             scannerDiv.style.display = "none";
                             scanQrBtn.textContent = "📷 I-SCAN ANG RIDER ID";
-                            scanQrBtn.style.backgroundColor = "#ff9900"; scanQrBtn.style.color = "black";
+                            scanQrBtn.style.backgroundColor = "#ff9900"; 
+                            scanQrBtn.style.color = "black";
+                        }).catch((err) => {
+                            scannerDiv.style.display = "none";
+                            scanQrBtn.textContent = "📷 I-SCAN ANG RIDER ID";
+                            scanQrBtn.style.backgroundColor = "#ff9900"; 
+                            scanQrBtn.style.color = "black";
                         });
+                    } else {
+                        scannerDiv.style.display = "none";
+                        scanQrBtn.textContent = "📷 I-SCAN ANG RIDER ID";
+                        scanQrBtn.style.backgroundColor = "#ff9900"; 
+                        scanQrBtn.style.color = "black";
                     }
                 }
             });
         }
+
+
 
         async function checkRealInternet() {
             const sigStatus = document.getElementById('signalStatus');
