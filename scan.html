@@ -241,25 +241,7 @@
 
             </div>
 
-
-    <!-- 📊 RIDER PROGRESS LIVE CARD -->
-    <div id="progressCard" style="background: #1a1a1a; border: 1px solid #333; border-radius: 8px; padding: 12px; margin-bottom: 15px; text-align: center; display: none;">
-        <div style="font-size: 11px; color: #ffcc00; font-weight: bold; text-transform: uppercase; margin-bottom: 6px;">
-            📍 Rota Progress: <span id="Level" style="color: #fff;">--</span>
-        </div>
-        <div style="display: flex; justify-content: space-around; font-size: 13px;">
-            <div>
-                <span style="color: #aaa; font-size: 10px; display: block;">NADAGAN</span>
-                <span id="txtNadagan" style="color: #00ff00; font-weight: bold; font-size: 15px;">0 KM</span>
-            </div>
-            <div style="border-left: 1px solid #444; padding-left: 15px;">
-                <span style="color: #aaa; font-size: 10px; display: block;">NABILIN SA ROTA</span>
-                <span id="txtNabilin" style="color: #00d2ff; font-weight: bold; font-size: 15px;">-- KM</span>
-            </div>
-        </div>
-    </div>
-
-
+           
 
         <form id="myForm">
 
@@ -276,6 +258,28 @@
             <input type="text" id="name" placeholder="Imong Pangalan" readonly required>
             <input type="text" id="level" placeholder="Imong Level" readonly required>
             
+
+
+            <!-- 📊 RIDER PROGRESS LIVE CARD (GI-ISINGIT DINHI) -->
+            <div id="progressCard" style="background: #1a1a1a; border: 1px solid #333; border-radius: 8px; padding: 12px; margin-bottom: 15px; text-align: center; display: none;">
+                <div style="font-size: 11px; color: #ffcc00; font-weight: bold; text-transform: uppercase; margin-bottom: 6px;">
+                    📍 Rota Progress: <span id="displayLevel" style="color: #fff;">--</span>
+                </div>
+                <div style="display: flex; justify-content: space-around; font-size: 13px;">
+                    <div>
+                        <span style="color: #aaa; font-size: 10px; display: block;">NADAGAN</span>
+                        <span id="txtNadagan" style="color: #00ff00; font-weight: bold; font-size: 15px;">0 KM</span>
+                    </div>
+                    <div style="border-left: 1px solid #444; padding-left: 15px;">
+                        <span style="color: #aaa; font-size: 10px; display: block;">NABILIN SA ROTA</span>
+                        <span id="txtNabilin" style="color: #00d2ff; font-weight: bold; font-size: 15px;">-- KM</span>
+                    </div>
+                </div>
+            </div>
+
+
+
+
             <!-- 👇 ANG BAG-ONG CHECKPOINT DROPDOWN 👇 -->
             <select id="checkpoint" required>
                 <option value="" disabled selected>-- PILIA ANG CHECKPOINT --</option>
@@ -476,7 +480,7 @@
                 reader.readAsDataURL(file);
             }
         });
-                           
+                            
         const scriptURL = 'https://script.google.com/macros/s/AKfycbxTau-qcMyRPmu753acuF4c6Pgm8jy3llrLSAzrzlS-0z-k_xmQoE_9-sl2yIXeMjJF/exec';
         const liveLocationDiv = document.getElementById('liveLocation');
         const myForm = document.getElementById('myForm');
@@ -506,15 +510,12 @@
         // --- 🛡️ BAG-ONG SEND FUNCTION NGA WALAY TIMER 🛡️ ---
         async function sendDataToServer(dataPayload) {
             try {
-                // WALA NAY AbortController! Pabay-i nga ang browser moy magbuot kanus-a mahuman
                 await fetch(scriptURL, {
                     method: 'POST',
                     mode: 'no-cors',
                     headers: { 'Content-Type': 'text/plain;charset=utf-8' }, 
                     body: JSON.stringify(dataPayload)
                 });
-
-                // Kon makaabot kini nga linya, sigurado na gyud nga nakalusot!
                 return true; 
             } catch (error) {
                 console.error("Tinuod nga naputol ang internet:", error);
@@ -589,7 +590,7 @@
         }
 
 
-        // 🚀 1. STABILITY TESTER FUNCTION (Isulod kini sa taas o tupad ani)
+        // 🚀 1. STABILITY TESTER FUNCTION
         async function checkInternetStability() {
             if (!navigator.onLine) return false;
             const startTime = new Date().getTime();
@@ -600,8 +601,6 @@
                 });
                 const endTime = new Date().getTime();
                 const duration = endTime - startTime; 
-
-                // Kung ubos sa 2 ka segundo ang pagtubag, STABLE!
                 return duration < 2000;
             } catch (error) {
                 return false;
@@ -609,16 +608,13 @@
         }
 
 
-        
-
-        let isSubmitting = false; // I-butang ni sa pinakataas sa imong script o sulod sa submit
+        let isSubmitting = false; 
 
         myForm.addEventListener('submit', async function(e) {
             e.preventDefault();
 
             const submitBtn = myForm.querySelector('button[type="submit"]');
 
-            // KUNG GASIGURO NA OG PROCESS, AYAW NA PAG-ABLI
             if (isSubmitting || submitBtn.disabled) return;
             isSubmitting = true;
 
@@ -643,11 +639,6 @@
                 return;
             }
 
-            // =========================================================
-            // 🏆 AUTOMATIC TOUR COMPLETION & DYNAMIC ROUTE EXTRACTOR
-            // =========================================================
-            // Kuhaon dayon sa app ang TANANG opisyal nga checkpoints direkta sa HTML <select> 
-            // (Awtomatikong gi-apil ang CP 00 hangtod CP 46, ug CP FL, gawas ang CP xx ug blangko)
             const checkpointSelect = document.getElementById('checkpoint');
             const officialRoute = Array.from(checkpointSelect.options)
                 .map(opt => opt.value)
@@ -656,7 +647,6 @@
             let riderHistoryKey = 'history_' + checkId;
             let completedCheckpoints = JSON.parse(localStorage.getItem(riderHistoryKey)) || [];
 
-            // Susihon kung nahuman na ba niya ang TANANG opisyal nga checkpoints sa rota
             let isTourCompleted = officialRoute.every(cp => completedCheckpoints.includes(cp));
 
             if (isTourCompleted) {
@@ -667,9 +657,8 @@
                 submitBtn.disabled = false;
                 submitBtn.style.opacity = "1";
                 isSubmitting = false;
-                return; // Babagan na ang pag-submit kay human na ang tibuok tour!
+                return; 
             }
-            // =========================================================
 
             let isPracticeCheckpoint = currentCheckpoint.toLowerCase().includes("xx");
 
@@ -743,8 +732,8 @@
                 location: gpsData.link,
                 latitude: gpsData.lat,
                 longitude: gpsData.lon,
-                locationTime: gpsData.time, // 👈 KINI ANG NAKULANG NGA COMMA (,)
-                level: document.getElementById('level').value // 👈 DIREKTA NANG KUHAON SA IMONG INPUT BOX
+                locationTime: gpsData.time, 
+                level: document.getElementById('level').value 
             };
 
             submitBtn.textContent = "🌐 Gisusi ang Internet...";
@@ -781,6 +770,7 @@
                 myForm.reset();
                 compressedPhotoBase64 = ""; 
                 document.getElementById('photoPreview').style.display = "none"; 
+                document.getElementById('progressCard').style.display = "none"; // I-tago ang progress card human og submit
             }
             
             submitBtn.textContent = "I-Submit ang Data";
@@ -789,7 +779,6 @@
             isSubmitting = false; 
         });
 
-        // 📌 HELPER FUNCTION PARA SA OFFLINE SAVING
         function saveToOfflineStorage(recordData) {
             let savedData = JSON.parse(localStorage.getItem('offlineData')) || [];
             savedData.push(recordData);
@@ -797,13 +786,6 @@
             updateDashboardCounters();
         }
 
-
-
-
-        // ==========================================
-        // 🕵️‍♂️ SIKRETONG PULTAHAN: MARSHAL MODE 🕵️‍♂️
-        // ==========================================
-        
         let isMarshalMode = localStorage.getItem('marshalMode') === 'true';
         const scanQrBtn = document.getElementById('scanQrBtn');
         
@@ -817,7 +799,6 @@
 
         secretButton.addEventListener('click', async function() {
             tapCount++;
-            
             clearTimeout(tapTimeout);
             tapTimeout = setTimeout(() => { tapCount = 0; }, 1500);
 
@@ -826,25 +807,16 @@
                 
                 if (!isMarshalMode) {
                     let passcode = prompt("🕵️‍♂️ MARSHAL MODE: Pagsulod og Passcode:");
-                    
-                    // Kung pisliton ang "Cancel", undangon dayon ang proseso
                     if (passcode === null) return;
                     
-                    // 🛡️ ANG BAG-ONG ADVANCED SECURITY CHECKER (SHA-256) 🛡️
                     if (typeof riderDatabase !== 'undefined') {
-                        
-                        // I-agi sa SHA-256 scrambler ang gi-type sa Marshal! (Bantayi ang 'await')
                         let hashedInput = await sha256Hash(passcode); 
-                        
-                        // Pangitaon niya kinsa ang nag-iya aning password UG kung Marshal ba siya
                         let validMarshal = riderDatabase.find(r => r.passcode === hashedInput && r.isMarshal === true);      
                         
                         if (validMarshal) {
                             isMarshalMode = true;
                             localStorage.setItem('marshalMode', 'true'); 
                             if (scanQrBtn) scanQrBtn.style.display = "block"; 
-                            
-                            // Nindot kay mo-greet pa gyud ang app kinsa nga marshal ang ni-log in!
                             alert(`🔓 MARSHAL MODE ON! Welcome, Master ${validMarshal.fullname}! Pwede na nimo gamiton ang Scanner.`);
                         } else {
                             alert("❌ Sayop nga Passcode o dili ka awtorisado! Rider mode lang ka.");
@@ -862,12 +834,7 @@
                     }
                 }
             }
-
         });
-
-
-
-
 
         showLiveLocationOnLoad(); 
 
@@ -879,9 +846,6 @@
             });
         }
 
-        // ==========================================
-        // 🏍️ RIDER ID & NAME LOGIC (ALL-IN-ONE) 🏍️
-        // ==========================================
         const idNumBox = document.getElementById('idNum');
         const nameBox = document.getElementById('name');
 
@@ -901,30 +865,29 @@
                 const foundRider = riderDatabase.find(r => r.idNum === idToSearch);
                 if (foundRider) {
                     document.getElementById('name').value = foundRider.fullname;
-                    document.getElementById('level').value = foundRider.level || "Wala Gi-assign"; // 👈 DUGANG KINI
+                    document.getElementById('level').value = foundRider.level || "Wala Gi-assign"; 
+                    updateRiderProgress(); // 👈 Gi-apil na nato pag-tawag dinhi
                 } else {
                     document.getElementById('name').value = "❌ Wala sa Masterlist";
-                    document.getElementById('level').value = ""; // 👈 DUGANG KINI
+                    document.getElementById('level').value = ""; 
+                    updateRiderProgress();
                 }
             }
         }
 
         searchDatabase(idNumBox.value); 
 
-        // --- 3. DOUBLE-TAP TO UNLOCK (GIBUTANGAN OG BABAG) ---
         idNumBox.addEventListener('dblclick', function() {
-            // 🛑 ANG BABAG: Kung Rider mode, ayaw pasudla!
             if (!isMarshalMode) {
                 alert("⚠️ RIDER MODE: Dili ka pwede mag-usab sa ID. Pangitaa ang Marshal!");
-                return; // Mo-undang dayon ang code dinhi!
+                return; 
             }
 
-            // Kung Marshal, ipadayon ang pag-unlock...
             this.removeAttribute('readonly'); 
-            // Ilawom sa idNumBox.addEventListener('dblclick', ...)
             this.value = ""; 
             nameBox.value = ""; 
-            document.getElementById('level').value = ""; // 👈 DUGANG KINI
+            document.getElementById('level').value = ""; 
+            updateRiderProgress();
             this.focus(); 
             this.style.border = "3px solid #ffcc00"; 
         });
@@ -940,7 +903,6 @@
             }
         });
 
-        // --- 📷 QR CODE SCANNER LOGIC 📷 ---
         const scanBtn = document.getElementById('scanQrBtn');
         const scannerDiv = document.getElementById('reader');
         let html5QrCode; 
@@ -970,11 +932,13 @@
                                 const foundRider = riderDatabase.find(r => r.idNum === scannedID);
                                 if (foundRider) {
                                     document.getElementById('name').value = foundRider.fullname;
-                                    document.getElementById('level').value = foundRider.level || "Wala Gi-assign"; // 👈 DUGANG KINI
+                                    document.getElementById('level').value = foundRider.level || "Wala Gi-assign"; 
                                     localStorage.setItem('defaultRiderID', scannedID);
+                                    updateRiderProgress(); // 👈 Gi-apil na pud pag-tawag dinhi
                                 } else {
                                     document.getElementById('name').value = "❌ Wala sa Masterlist";
-                                    document.getElementById('level').value = ""; // 👈 DUGANG KINI
+                                    document.getElementById('level').value = ""; 
+                                    updateRiderProgress();
                                 }
                             }
                         }).catch((err) => { console.log("Error sa pag-stop sa camera.", err); });
@@ -993,9 +957,6 @@
             }
         });
 
-        // ==========================================
-        // 🚀 DASHBOARD LOGIC (SIGNAL, BATTERY, PENDING) 🚀
-        // ==========================================
         async function checkRealInternet() {
             const sigStatus = document.getElementById('signalStatus');
             if (!navigator.onLine) {
@@ -1061,45 +1022,47 @@
         setInterval(updateDashboardCounters, 2000);
         updateDashboardCounters(); 
     
+        // ==========================================
+        // 📊 RIDER PROGRESS LIVE CALCULATOR SYSTEM
+        // ==========================================
+        const routeTotalKm = {
+            "G1": 777,
+            "G2": 777,
+            "G3": 3333, // Mindanao Coastal Gaming
+            "G4": 777,
+            "G5": 5555  // Man of Steel
+        };
+
+        function updateRiderProgress() {
+            let levelField = document.getElementById("level") ? document.getElementById("level").value.trim() : "";
+            let odoField = parseFloat(document.getElementById("odometer").value) || 0;
+            let card = document.getElementById("progressCard");
+
+            if (routeTotalKm[levelField] && odoField > 0) {
+                let totalRoute = routeTotalKm[levelField];
+                let nadagan = odoField;
+                let nabilin = totalRoute - nadagan;
+                
+                if (nabilin < 0) nabilin = 0; 
+
+                document.getElementById("displayLevel").innerText = levelField;
+                document.getElementById("txtNadagan").innerText = nadagan.toLocaleString() + " KM";
+                document.getElementById("txtNabilin").innerText = nabilin.toLocaleString() + " KM";
+                card.style.display = "block"; 
+            } else {
+                card.style.display = "none"; 
+            }
+        }
+
+        // Tigpaminaw sa pag-type sa Odometer
+        document.getElementById("odometer").addEventListener("input", updateRiderProgress);
+        
+        if(document.getElementById("level")) {
+            document.getElementById("level").addEventListener("change", updateRiderProgress);
+            document.getElementById("level").addEventListener("input", updateRiderProgress);
+        }
     </script>
 
-<script>
-    // Total KM sa matag Level / Rota base sa atong mapa
-    const routeTotalKm = {
-        "G1": 777,
-        "G2": 777,
-        "G3": 3333, // Mindanao Coastal Gaming
-        "G4": 777,
-        "G5": 5555  // Man of Steel
-    };
-
-    function updateRiderProgress() {
-        // Kuhaon ang level ug ang gi-type nga odometer value
-        let levelField = document.getElementById("levelInput") ? document.getElementById("levelInput").value.trim() : "";
-        let odoField = parseFloat(document.getElementById("odometerInput").value) || 0;
-        let card = document.getElementById("progressCard");
-
-        if (routeTotalKm[levelField] && odoField > 0) {
-            let totalRoute = routeTotalKm[levelField];
-            let nadagan = odoField;
-            let nabilin = totalRoute - nadagan;
-            if (nabilin < 0) nabilin = 0; // Para dili mag-negative kon molapas sa total km
-
-            document.getElementById("displayLevel").innerText = levelField;
-            document.getElementById("txtNadagan").innerText = nadagan.toLocaleString() + " KM";
-            document.getElementById("txtNabilin").innerText = nabilin.toLocaleString() + " KM";
-            card.style.display = "block"; // Ipakita ang card
-        } else {
-            card.style.display = "none"; // Tagoan kung kulang pa ang data
-        }
-    }
-
-    // Siguroha nga mo-trigger ni kada mag-type sa Odometer o mausab ang Level
-    document.getElementById("odometer").addEventListener("input", updateRiderProgress);
-    if(document.getElementById("level")) {
-        document.getElementById("level").addEventListener("change", updateRiderProgress);
-    }
-</script>
 
 </body>
 </html>
