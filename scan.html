@@ -729,10 +729,7 @@
         }
 
         // ==========================================
-        // 🎯 SMART CHECKPOINT CHECKMARK MARKER 🎯
-        // ==========================================
-        // ==========================================
-        // 🎯 SMART CHECKBOX CHECKMARK MARKER 🎯
+        // 🎯 CHECK & CROSS MARKER (MOBILE FRIENDLY) 🎯
         // ==========================================
         function updateCheckpointCheckmarks(riderId) {
             const checkpointSelect = document.getElementById('checkpoint');
@@ -745,17 +742,16 @@
                 let opt = checkpointSelect.options[i];
                 let val = opt.value;
                 
-                // Kung kini ang pinakaunahan nga option ("-- PILIA ANG CHECKPOINT --"), ayaw hilabti
                 if (!val) continue;
 
-                // Tangtangon ang karaan nga mga simbolo aron dili mag-overlap o madoble
-                let cleanText = opt.text.replace(/^[☑☐✔✅\s]+/, "").trim();
+                // Limpyohan ang karaan nga marka aron dili modoble
+                let cleanText = opt.text.replace(/^[✓❌✔\s]+/, "").trim();
                 
-                // Kon nahuman na, butangi og checked box (☑), kung wala pa, bakante (☐)
+                // Kon nahuman na: ✓, Kon wala pa: ❌
                 if (completedCheckpoints.includes(val)) {
-                    opt.text = "☑ " + cleanText; 
+                    opt.text = "✓ " + cleanText; 
                 } else {
-                    opt.text = "☐ " + cleanText; 
+                    opt.text = "❌ " + cleanText; 
                 }
             }
         }
