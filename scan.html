@@ -376,6 +376,11 @@
 
 <script src="database.js"></script>
     <script>
+        // 👉 I-load dayon ang checkmarks inig abli sa app kung naay nakasalbar nga ID
+        if (savedID) {
+            updateCheckpointCheckmarks(savedID);
+        }
+        
         // 🌟 BAG-ONG SHA-256 HASH ENGINE
         async function sha256Hash(str) {
             const encoder = new TextEncoder();
@@ -695,17 +700,21 @@
                         completedCheckpoints.push(currentCheckpoint);
                         localStorage.setItem(riderHistoryKey, JSON.stringify(completedCheckpoints));
                         
-                        // 👉 I-save ang Start ODO sa device kung CP 00
                         if (currentCheckpoint === "CP 00") {
                             localStorage.setItem('startOdo_' + checkId, data.odometer);
                         }
                     }
-                    myForm.reset();
+
+                    // 👉 ILISI KINI: I-reset lang nato ang Odometer, Notes, ug Picture. Ayaw hilabti ang ID ug Level!
+                    document.getElementById('odometer').value = "";
+                    document.getElementById('notes').value = "";
+                    document.getElementById('checkpoint').selectedIndex = 0;
+                    
                     compressedPhotoBase64 = ""; 
                     if(document.getElementById('photoPreview')) document.getElementById('photoPreview').style.display = "none"; 
                     if(document.getElementById('progressCard')) document.getElementById('progressCard').style.display = "none";
                     
-                    // Update checkmarks sa dropdown human og submit
+                    // 👉 I-refresh dayon ang checkmarks gamit ang kasamtangang ID
                     updateCheckpointCheckmarks(checkId);
                 }
                 resetSubmitBtn(submitBtn);
