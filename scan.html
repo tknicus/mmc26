@@ -7,7 +7,6 @@
     <title>MasterMinds'CUP Offline Locator</title>
 
     <!-- PWA MANIFEST UG ICON -->
-    <link rel="manifest" href="scan.json">
     <link rel="icon" type="image/png" href="scan.png">
     <link rel="apple-touch-icon" href="scan.png">
     <meta name="theme-color" content="#121212">
@@ -241,6 +240,25 @@
                 </div>
 
             </div>
+
+
+    <!-- 📊 RIDER PROGRESS LIVE CARD -->
+    <div id="progressCard" style="background: #1a1a1a; border: 1px solid #333; border-radius: 8px; padding: 12px; margin-bottom: 15px; text-align: center; display: none;">
+        <div style="font-size: 11px; color: #ffcc00; font-weight: bold; text-transform: uppercase; margin-bottom: 6px;">
+            📍 Rota Progress: <span id="displayLevel" style="color: #fff;">--</span>
+        </div>
+        <div style="display: flex; justify-content: space-around; font-size: 13px;">
+            <div>
+                <span style="color: #aaa; font-size: 10px; display: block;">NADAGAN</span>
+                <span id="txtNadagan" style="color: #00ff00; font-weight: bold; font-size: 15px;">0 KM</span>
+            </div>
+            <div style="border-left: 1px solid #444; padding-left: 15px;">
+                <span style="color: #aaa; font-size: 10px; display: block;">NABILIN SA ROTA</span>
+                <span id="txtNabilin" style="color: #00d2ff; font-weight: bold; font-size: 15px;">-- KM</span>
+            </div>
+        </div>
+    </div>
+
 
 
         <form id="myForm">
@@ -1044,6 +1062,44 @@
         updateDashboardCounters(); 
     
     </script>
+
+<script>
+    // Total KM sa matag Level / Rota base sa atong mapa
+    const routeTotalKm = {
+        "G1": 777,
+        "G2": 777,
+        "G3": 3333, // Mindanao Coastal Gaming
+        "G4": 777,
+        "G5": 5555  // Man of Steel
+    };
+
+    function updateRiderProgress() {
+        // Kuhaon ang level ug ang gi-type nga odometer value
+        let levelField = document.getElementById("levelInput") ? document.getElementById("levelInput").value.trim() : "";
+        let odoField = parseFloat(document.getElementById("odometerInput").value) || 0;
+        let card = document.getElementById("progressCard");
+
+        if (routeTotalKm[levelField] && odoField > 0) {
+            let totalRoute = routeTotalKm[levelField];
+            let nadagan = odoField;
+            let nabilin = totalRoute - nadagan;
+            if (nabilin < 0) nabilin = 0; // Para dili mag-negative kon molapas sa total km
+
+            document.getElementById("displayLevel").innerText = levelField;
+            document.getElementById("txtNadagan").innerText = nadagan.toLocaleString() + " KM";
+            document.getElementById("txtNabilin").innerText = nabilin.toLocaleString() + " KM";
+            card.style.display = "block"; // Ipakita ang card
+        } else {
+            card.style.display = "none"; // Tagoan kung kulang pa ang data
+        }
+    }
+
+    // Siguroha nga mo-trigger ni kada mag-type sa Odometer o mausab ang Level
+    document.getElementById("odometerInput").addEventListener("input", updateRiderProgress);
+    if(document.getElementById("levelInput")) {
+        document.getElementById("levelInput").addEventListener("change", updateRiderProgress);
+    }
+</script>
 
 </body>
 </html>
