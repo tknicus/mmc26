@@ -382,6 +382,33 @@
 
 <script src="database.js"></script>
     <script>
+        // 🔋 BULLETPROOF BATTERY MONITOR 🔋
+        async function checkBatteryLevel() {
+            const batStatus = document.getElementById('batteryStatus');
+            if (!batStatus) return;
+
+            if ('getBattery' in navigator) {
+                try {
+                    const battery = await navigator.getBattery();
+                    function update() {
+                        const level = Math.round(battery.level * 100);
+                        const icon = battery.charging ? "⚡" : "🔋";
+                        batStatus.innerHTML = `${icon} ${level}%`;
+                        batStatus.style.color = (level <= 15 && !battery.charging) ? "#ff3333" : "white";
+                    }
+                    update();
+                    battery.addEventListener('levelchange', update);
+                    battery.addEventListener('chargingchange', update);
+                } catch (e) {
+                    batStatus.innerHTML = "🔋 100%";
+                }
+            } else {
+                batStatus.innerHTML = "🔋 N/A";
+            }
+        }
+        checkBatteryLevel();
+        
+        
         // 🌟 SHA-256 HASH ENGINE
         async function sha256Hash(str) {
             const encoder = new TextEncoder();
@@ -891,28 +918,30 @@
             }
         }
 
-        // Kuhaon ang ID gikan sa URL parameter o sa LocalStorage
         if (paramID) { 
             if(idNumBox) idNumBox.value = paramID; 
             localStorage.setItem('defaultRiderID', paramID); 
             searchDatabase(paramID);
-            updateCheckpointCheckmarks(paramID); // 👈 I-dugang kini
         } else if (savedID) { 
             if(idNumBox) idNumBox.value = savedID; 
             searchDatabase(savedID);
-            updateCheckpointCheckmarks(savedID); // 👈 I-dugang kini kon wala pa
         }
 
+        // 👉 DIRI ANG DOUBLE-TAP NGA NAWALA: Ibalik kini aron maka-edit ang Marshal
         if (idNumBox) {
             idNumBox.addEventListener('dblclick', function() {
-                if (!isMarshalMode) { alert("⚠️ RIDER MODE: Dili ka pwede mag-usab sa ID. Pangitaa ang Marshal!"); return; }
+                if (!isMarshalMode) { 
+                    alert("⚠️ RIDER MODE: Dili ka pwede mag-usab sa ID. Pangitaa ang Marshal!"); 
+                    return; 
+                }
                 this.removeAttribute('readonly'); 
                 this.value = ""; 
                 if(nameBox) nameBox.value = ""; 
                 let lvl = document.getElementById('level');
                 if(lvl) lvl.value = ""; 
                 updateRiderProgress();
-                this.focus(); this.style.border = "3px solid #ffcc00"; 
+                this.focus(); 
+                this.style.border = "3px solid #ffcc00"; 
             });
 
             idNumBox.addEventListener('input', function() {
@@ -926,6 +955,8 @@
                 }
             });
         }
+        
+
 
         const scannerDiv = document.getElementById('reader');
         let html5QrCode; 
