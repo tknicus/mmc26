@@ -863,9 +863,11 @@
             if(idNumBox) idNumBox.value = paramID; 
             localStorage.setItem('defaultRiderID', paramID); 
             searchDatabase(paramID);
+            updateCheckpointCheckmarks(paramID); // 👈 I-dugang kini
         } else if (savedID) { 
             if(idNumBox) idNumBox.value = savedID; 
             searchDatabase(savedID);
+            updateCheckpointCheckmarks(savedID); // 👈 I-dugang kini kon wala pa
         }
 
         if (idNumBox) {
@@ -1054,6 +1056,14 @@
             levelInput.addEventListener("change", updateRiderProgress);
             levelInput.addEventListener("input", updateRiderProgress);
         }
+
+        // 👉 AWTOMATIKONG PATAWAGON INIG-ABLI SA APP
+        window.addEventListener('DOMContentLoaded', function() {
+            let activeId = document.getElementById('idNum') ? document.getElementById('idNum').value.trim() : "";
+            if (activeId) {
+                updateCheckpointCheckmarks(activeId);
+            }
+        });
     </script>
     
 
