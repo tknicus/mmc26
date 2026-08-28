@@ -375,7 +375,7 @@
 
 
 <script src="database.js"></script>
- <script>
+    <script>
         // 🌟 BAG-ONG SHA-256 HASH ENGINE
         async function sha256Hash(str) {
             const encoder = new TextEncoder();
@@ -704,6 +704,9 @@
                     compressedPhotoBase64 = ""; 
                     if(document.getElementById('photoPreview')) document.getElementById('photoPreview').style.display = "none"; 
                     if(document.getElementById('progressCard')) document.getElementById('progressCard').style.display = "none";
+                    
+                    // Update checkmarks sa dropdown human og submit
+                    updateCheckpointCheckmarks(checkId);
                 }
                 resetSubmitBtn(submitBtn);
             });
@@ -723,6 +726,38 @@
             savedData.push(recordData);
             localStorage.setItem('offlineData', JSON.stringify(savedData));
             updateDashboardCounters();
+        }
+
+        // ==========================================
+        // 🎯 SMART CHECKPOINT CHECKMARK MARKER 🎯
+        // ==========================================
+        // ==========================================
+        // 🎯 SMART CHECKBOX CHECKMARK MARKER 🎯
+        // ==========================================
+        function updateCheckpointCheckmarks(riderId) {
+            const checkpointSelect = document.getElementById('checkpoint');
+            if (!checkpointSelect || !riderId) return;
+
+            let riderHistoryKey = 'history_' + riderId;
+            let completedCheckpoints = JSON.parse(localStorage.getItem(riderHistoryKey)) || [];
+
+            for (let i = 0; i < checkpointSelect.options.length; i++) {
+                let opt = checkpointSelect.options[i];
+                let val = opt.value;
+                
+                // Kung kini ang pinakaunahan nga option ("-- PILIA ANG CHECKPOINT --"), ayaw hilabti
+                if (!val) continue;
+
+                // Tangtangon ang karaan nga mga simbolo aron dili mag-overlap o madoble
+                let cleanText = opt.text.replace(/^[☑☐✔✅\s]+/, "").trim();
+                
+                // Kon nahuman na, butangi og checked box (☑), kung wala pa, bakante (☐)
+                if (completedCheckpoints.includes(val)) {
+                    opt.text = "☑ " + cleanText; 
+                } else {
+                    opt.text = "☐ " + cleanText; 
+                }
+            }
         }
 
         let isMarshalMode = localStorage.getItem('marshalMode') === 'true';
@@ -793,6 +828,7 @@
                     let lvl = document.getElementById('level');
                     if(lvl) lvl.value = foundRider.level || "Wala Gi-assign"; 
                     updateRiderProgress();
+                    updateCheckpointCheckmarks(idToSearch); // 👈 I-update ang mga checkmarks sa dropdown
                 } else {
                     if(nameBox) nameBox.value = "❌ Wala sa Masterlist";
                     let lvl = document.getElementById('level');
@@ -855,6 +891,7 @@
                                         if (lvl) lvl.value = foundRider.level || "Wala Gi-assign"; 
                                         localStorage.setItem('defaultRiderID', decodedText);
                                         updateRiderProgress(); 
+                                        updateCheckpointCheckmarks(decodedText); // 👈 I-update ang checkmarks
                                     } else {
                                         if (nameBox) nameBox.value = "❌ Wala sa Masterlist";
                                         let lvl = document.getElementById('level');
