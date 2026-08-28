@@ -382,20 +382,6 @@
 
 <script src="database.js"></script>
     <script>
-        // 👉 AUTO-LOAD CHECKMARKS INIG-ABLI O INIG-REFRESH SA PAHINA
-        window.addEventListener('DOMContentLoaded', function() {
-            setTimeout(function() {
-                let currentId = document.getElementById('idNum') ? document.getElementById('idNum').value.trim() : "";
-                if (!currentId) {
-                    currentId = localStorage.getItem('defaultRiderID');
-                }
-                if (currentId) {
-                    updateCheckpointCheckmarks(currentId);
-                }
-            }, 200);
-        });
-
-
         // 🌟 SHA-256 HASH ENGINE
         async function sha256Hash(str) {
             const encoder = new TextEncoder();
@@ -682,7 +668,6 @@
                     if(document.getElementById('photoPreview')) document.getElementById('photoPreview').style.display = "none"; 
                     if(document.getElementById('progressCard')) document.getElementById('progressCard').style.display = "none";
                     
-                    // 👉 Tawgon dayon kini aron mo-update ang checklist box human sa submit
                     updateCheckpointCheckmarks(checkId);
                 }
                 resetSubmitBtn(submitBtn);
@@ -859,7 +844,6 @@
             searchDatabase(savedID);
         }
 
-        // 👉 DIRI ANG DOUBLE-TAP NGA MAKA-EDIT ANG MARSHAL
         if (idNumBox) {
             idNumBox.addEventListener('dblclick', function() {
                 if (!isMarshalMode) { 
@@ -890,10 +874,10 @@
         }
 
         // ==========================================
-        // 📷 QR CODE SCANNER SYSTEM 📷
+        // 📷 SOLID QR CODE SCANNER SYSTEM 📷
         // ==========================================
         const scannerDiv = document.getElementById('reader');
-        let html5QrCode; 
+        let html5QrCode = null; 
 
         if (scanQrBtn) {
             scanQrBtn.addEventListener('click', function() {
@@ -908,12 +892,14 @@
                     try {
                         html5QrCode = new Html5Qrcode("reader");
                         html5QrCode.start(
-                            { facingMode: "environment" }, { fps: 10, qrbox: { width: 250, height: 250 } },
+                            { facingMode: "environment" }, 
+                            { fps: 10, qrbox: { width: 250, height: 250 } },
                             (decodedText, decodedResult) => {
                                 html5QrCode.stop().then(() => {
                                     scannerDiv.style.display = "none";
                                     scanQrBtn.textContent = "📷 I-SCAN ANG RIDER ID";
-                                    scanQrBtn.style.backgroundColor = "#ff9900"; scanQrBtn.style.color = "black";
+                                    scanQrBtn.style.backgroundColor = "#ff9900"; 
+                                    scanQrBtn.style.color = "black";
                                     if (idNumBox) idNumBox.value = decodedText;
                                     searchDatabase(decodedText);
                                     localStorage.setItem('defaultRiderID', decodedText);
@@ -921,21 +907,39 @@
                                 }).catch((err) => { console.log(err); });
                             },
                             (errorMessage) => {}
-                        ).catch((err) => { alert("⚠️ Wala ma-access ang Camera."); });
+                        ).catch((err) => { 
+                            alert("⚠️ Wala ma-access ang Camera."); 
+                            scannerDiv.style.display = "none";
+                            scanQrBtn.textContent = "📷 I-SCAN ANG RIDER ID";
+                            scanQrBtn.style.backgroundColor = "#ff9900"; 
+                            scanQrBtn.style.color = "black";
+                        });
                     } catch(e) {
                         alert("⚠️ Error sa pag-bukas sa camera.");
+                        scannerDiv.style.display = "none";
+                        scanQrBtn.textContent = "📷 I-SCAN ANG RIDER ID";
+                        scanQrBtn.style.backgroundColor = "#ff9900"; 
+                        scanQrBtn.style.color = "black";
                     }
                 } else {
                     if (html5QrCode) {
                         html5QrCode.stop().then(() => {
                             scannerDiv.style.display = "none";
                             scanQrBtn.textContent = "📷 I-SCAN ANG RIDER ID";
-                            scanQrBtn.style.backgroundColor = "#ff9900"; scanQrBtn.style.color = "black";
-                        }).catch(() => {});
+                            scanQrBtn.style.backgroundColor = "#ff9900"; 
+                            scanQrBtn.style.color = "black";
+                            html5QrCode = null;
+                        }).catch(() => {
+                            scannerDiv.style.display = "none";
+                            scanQrBtn.textContent = "📷 I-SCAN ANG RIDER ID";
+                            scanQrBtn.style.backgroundColor = "#ff9900"; 
+                            scanQrBtn.style.color = "black";
+                        });
                     } else {
                         scannerDiv.style.display = "none";
                         scanQrBtn.textContent = "📷 I-SCAN ANG RIDER ID";
-                        scanQrBtn.style.backgroundColor = "#ff9900"; scanQrBtn.style.color = "black";
+                        scanQrBtn.style.backgroundColor = "#ff9900"; 
+                        scanQrBtn.style.color = "black";
                     }
                 }
             });
@@ -969,7 +973,7 @@
             const batStatus = document.getElementById('batteryStatus');
             if (!batStatus) return;
 
-            batStatus.innerHTML = "🔋 100%"; // Instant default
+            batStatus.innerHTML = "🔋 100%"; // Instant default aron walay --%
 
             if ('getBattery' in navigator) {
                 navigator.getBattery().then(function(battery) {
@@ -1047,11 +1051,25 @@
             levelInput.addEventListener("input", updateRiderProgress);
         }
 
-        // Initial checkmarks load on start
-        setTimeout(() => {
-            updateCheckpointCheckmarks();
-        }, 300);
+        // ==========================================
+        // 🚀 AUTO-LOAD CHECKMARKS ON START / REOPEN
+        // ==========================================
+        window.addEventListener('DOMContentLoaded', function() {
+            setTimeout(() => {
+                let currentId = idNumBox ? idNumBox.value.trim() : "";
+                if (!currentId) {
+                    currentId = localStorage.getItem('defaultRiderID');
+                }
+                if (currentId) {
+                    updateCheckpointCheckmarks(currentId);
+                } else {
+                    updateCheckpointCheckmarks();
+                }
+            }, 300);
+        });
     </script>
+
+
     
 
 </body>
