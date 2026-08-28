@@ -393,7 +393,37 @@
         
         let isSyncing = false; 
         let compressedPhotoBase64 = ""; 
+        let globalLat = "N/A";
+        let globalLon = "N/A";
 
+        // ==========================================
+        // 🔋 1. BULLETPROOF BATTERY MONITOR (Gipa-una aron di ma-block)
+        // ==========================================
+        function initBatteryMonitor() {
+            const batStatus = document.getElementById('batteryStatus');
+            if (!batStatus) return;
+            
+            batStatus.innerHTML = "🔋 100%"; // Default Fallback
+
+            if (navigator.getBattery) {
+                navigator.getBattery().then(function(battery) {
+                    const updateBatteryInfo = () => {
+                        const level = Math.round(battery.level * 100);
+                        const icon = battery.charging ? "⚡" : "🔋";
+                        batStatus.innerHTML = `${icon} ${level}%`;
+                        batStatus.style.color = (level <= 15 && !battery.charging) ? "#ff3333" : "white";
+                    };
+                    updateBatteryInfo();
+                    battery.addEventListener('levelchange', updateBatteryInfo);
+                    battery.addEventListener('chargingchange', updateBatteryInfo);
+                }).catch(() => { console.log("Battery API blocked by browser."); });
+            }
+        }
+        initBatteryMonitor(); // Tawgon dayon!
+
+        // ==========================================
+        // 📸 2. CAMERA WATERMARK ENGINE
+        // ==========================================
         const cameraInput = document.getElementById('cameraInput');
         if (cameraInput) {
             cameraInput.addEventListener('change', function(event) {
@@ -476,12 +506,12 @@
             });
         }
                             
+        // ==========================================
+        // 🌍 3. GPS & INTERNET LOCATION SYSTEM
+        // ==========================================
         const scriptURL = 'https://script.google.com/macros/s/AKfycbxTau-qcMyRPmu753acuF4c6Pgm8jy3llrLSAzrzlS-0z-k_xmQoE_9-sl2yIXeMjJF/exec';
         const liveLocationDiv = document.getElementById('liveLocation');
         const myForm = document.getElementById('myForm');
-
-        let globalLat = "N/A";
-        let globalLon = "N/A";
 
         function showLiveLocationOnLoad() {
             if (navigator.geolocation && liveLocationDiv) {
@@ -491,28 +521,63 @@
                         globalLon = position.coords.longitude.toFixed(6);
                         liveLocationDiv.innerHTML = `📍 <b>Lat:</b> ${globalLat} &nbsp;|&nbsp; <b>Lon:</b> ${globalLon}`;
                     },
-                    (error) => {
-                        liveLocationDiv.innerHTML = "⚠️ Palihug i-allow ang Location / GPS.";
-                    },
+                    (error) => { liveLocationDiv.innerHTML = "⚠️ Palihug i-allow ang Location / GPS."; },
                     { enableHighAccuracy: true, maximumAge: 0 }
                 );
-            } else if (liveLocationDiv) {
-                liveLocationDiv.innerHTML = "❌ GPS wala gisuportahan sa imong device.";
-            }
+            } else if (liveLocationDiv) { liveLocationDiv.innerHTML = "❌ GPS wala gisuportahan sa imong device."; }
+        }
+        showLiveLocationOnLoad();
+
+        function getLocation() {
+            return new Promise((resolve) => {
+                if (!navigator.geolocation) { resolve({ link: "No GPS", lat: "N/A", lon: "N/A", time: "N/A" }); } 
+                else {
+                    navigator.geolocation.getCurrentPosition(
+                        (position) => {
+                            resolve({
+                                link: `https://www.google.com/maps?q=${position.coords.latitude},${position.coords.longitude}`,
+                                lat: position.coords.latitude, lon: position.coords.longitude,
+                                time: new Date(position.timestamp).toLocaleString()
+                            });
+                        },
+                        (error) => { resolve({ link: "Error/Gibalibaran", lat: "N/A", lon: "N/A", time: "N/A" }); },
+                        { timeout: 10000, enableHighAccuracy: true, maximumAge: 0 }
+                    );
+                }
+            });
         }
 
+        async function checkInternetStability() {
+            if (!navigator.onLine) return false;
+            try {
+                await fetch('https://www.google.com/favicon.ico?' + new Date().getTime(), { mode: 'no-cors', cache: 'no-store' });
+                return true;
+            } catch (error) { return false; }
+        }
+
+        async function checkRealInternet() {
+            const sigStatus = document.getElementById('signalStatus');
+            let isOnline = await checkInternetStability();
+            if (isOnline) {
+                if (sigStatus) { sigStatus.innerHTML = "🟢 ONLINE"; sigStatus.style.color = "#00ff00"; }
+                let offlineData = JSON.parse(localStorage.getItem('offlineData')) || [];
+                if (offlineData.length > 0) syncOfflineData(); 
+            } else {
+                if (sigStatus) { sigStatus.innerHTML = "🔴 OFFLINE"; sigStatus.style.color = "#ff3333"; }
+            }
+        }
+        window.addEventListener('online', checkRealInternet);
+        window.addEventListener('offline', checkRealInternet);
+        setInterval(checkRealInternet, 5000);
+
+        // ==========================================
+        // 🔄 4. DATA SYNCING & FORM SUBMISSION
+        // ==========================================
         async function sendDataToServer(dataPayload) {
             try {
-                await fetch(scriptURL, {
-                    method: 'POST',
-                    mode: 'no-cors',
-                    headers: { 'Content-Type': 'text/plain;charset=utf-8' }, 
-                    body: JSON.stringify(dataPayload)
-                });
+                await fetch(scriptURL, { method: 'POST', mode: 'no-cors', headers: { 'Content-Type': 'text/plain;charset=utf-8' }, body: JSON.stringify(dataPayload) });
                 return true; 
-            } catch (error) {
-                return false;
-            }
+            } catch (error) { return false; }
         }
 
         async function syncOfflineData() {
@@ -529,55 +594,37 @@
                 let singleRecord = offlineData[i];
                 try {
                     let success = await sendDataToServer(singleRecord); 
-                    if (!success) { failedData.push(singleRecord); }
-                } catch (error) {
-                    failedData.push(singleRecord);
-                }
+                    if (!success) failedData.push(singleRecord);
+                } catch (error) { failedData.push(singleRecord); }
             }
-
-            if (failedData.length > 0) {
-                localStorage.setItem('offlineData', JSON.stringify(failedData));
-            } else {
+            if (failedData.length > 0) { localStorage.setItem('offlineData', JSON.stringify(failedData)); } 
+            else {
                 localStorage.removeItem('offlineData');
                 alert("✅ Naka-Sync na ang tanang Offline Data padulong sa Database!");
             }
-
             if(submitBtn) { submitBtn.textContent = "I-Submit ang Data"; submitBtn.disabled = false; }
             isSyncing = false; 
+            updateDashboardCounters();
         }
 
-        function getLocation() {
-            return new Promise((resolve) => {
-                if (!navigator.geolocation) {
-                    resolve({ link: "No GPS", lat: "N/A", lon: "N/A", time: "N/A" });
-                } else {
-                    navigator.geolocation.getCurrentPosition(
-                        (position) => {
-                            resolve({
-                                link: `https://www.google.com/maps?q=${position.coords.latitude},${position.coords.longitude}`,
-                                lat: position.coords.latitude,
-                                lon: position.coords.longitude,
-                                time: new Date(position.timestamp).toLocaleString()
-                            });
-                        },
-                        (error) => { resolve({ link: "Error/Gibalibaran", lat: "N/A", lon: "N/A", time: "N/A" }); },
-                        { timeout: 10000, enableHighAccuracy: true, maximumAge: 0 }
-                    );
-                }
-            });
+        function saveToOfflineStorage(recordData) {
+            let savedData = JSON.parse(localStorage.getItem('offlineData')) || [];
+            savedData.push(recordData);
+            localStorage.setItem('offlineData', JSON.stringify(savedData));
+            updateDashboardCounters();
         }
 
-        async function checkInternetStability() {
-            if (!navigator.onLine) return false;
-            const startTime = new Date().getTime();
-            try {
-                await fetch('https://www.google.com/favicon.ico?' + startTime, { mode: 'no-cors', cache: 'no-store' });
-                return (new Date().getTime() - startTime) < 2000;
-            } catch (error) { return false; }
+        function updateDashboardCounters() {
+            let offlineData = JSON.parse(localStorage.getItem('offlineData')) || [];
+            const pCount = document.getElementById('pendingCount');
+            if (pCount) {
+                pCount.innerText = offlineData.length;
+                pCount.style.color = offlineData.length > 0 ? "#ff9900" : "white"; 
+            }
         }
+        setInterval(updateDashboardCounters, 2000);
 
         let isSubmitting = false; 
-
         if (myForm) {
             myForm.addEventListener('submit', async function(e) {
                 e.preventDefault();
@@ -585,11 +632,7 @@
                 if (isSubmitting || (submitBtn && submitBtn.disabled)) return;
                 isSubmitting = true;
 
-                if (submitBtn) {
-                    submitBtn.textContent = "📍 Gipadala ang Data...";
-                    submitBtn.disabled = true; 
-                    submitBtn.style.opacity = "0.5"; 
-                }
+                if (submitBtn) { submitBtn.textContent = "📍 Gipadala ang Data..."; submitBtn.disabled = true; submitBtn.style.opacity = "0.5"; }
 
                 const bgMusic = document.getElementById('submitMusic');
                 if (bgMusic) bgMusic.play();
@@ -601,21 +644,23 @@
                 if (checkId === "" || checkName === "" || checkName.includes("❌")) {
                     if (bgMusic) { bgMusic.pause(); bgMusic.currentTime = 0; }
                     alert("🛑 DILI MA-SAVE! Blangko ang Rider ID.");
-                    resetSubmitBtn(submitBtn);
-                    return;
+                    if(submitBtn) { submitBtn.textContent = "I-Submit ang Data"; submitBtn.disabled = false; submitBtn.style.opacity = "1"; }
+                    isSubmitting = false; return;
                 }
 
                 const gpsData = await getLocation();
                 if (gpsData.lat === "N/A" || gpsData.link === "No GPS" || gpsData.link === "Error/Gibalibaran") {
                     if (bgMusic) { bgMusic.pause(); bgMusic.currentTime = 0; }
                     alert("🛑 DILI MA-SAVE! Palihug i-on ang Location / GPS.");
-                    resetSubmitBtn(submitBtn); return; 
+                    if(submitBtn) { submitBtn.textContent = "I-Submit ang Data"; submitBtn.disabled = false; submitBtn.style.opacity = "1"; }
+                    isSubmitting = false; return; 
                 }
 
                 if (compressedPhotoBase64 === "") {
                     if (bgMusic) { bgMusic.pause(); bgMusic.currentTime = 0; }
                     alert("📸 DILI MA-SAVE! Palihug pagkuha og Ebidensya/Picture.");
-                    resetSubmitBtn(submitBtn); return; 
+                    if(submitBtn) { submitBtn.textContent = "I-Submit ang Data"; submitBtn.disabled = false; submitBtn.style.opacity = "1"; }
+                    isSubmitting = false; return; 
                 }
 
                 const data = {
@@ -668,36 +713,23 @@
                     if(document.getElementById('photoPreview')) document.getElementById('photoPreview').style.display = "none"; 
                     if(document.getElementById('progressCard')) document.getElementById('progressCard').style.display = "none";
                     
-                    updateCheckpointCheckmarks(checkId);
+                    updateCheckpointCheckmarks(checkId); // I-update dayon ang checklist
                 }
-                resetSubmitBtn(submitBtn);
+                if(submitBtn) { submitBtn.textContent = "I-Submit ang Data"; submitBtn.disabled = false; submitBtn.style.opacity = "1"; }
+                isSubmitting = false; 
             });
         }
 
-        function resetSubmitBtn(btn) {
-            if(btn) { btn.textContent = "I-Submit ang Data"; btn.disabled = false; btn.style.opacity = "1"; }
-            isSubmitting = false; 
-        }
-
-        function saveToOfflineStorage(recordData) {
-            let savedData = JSON.parse(localStorage.getItem('offlineData')) || [];
-            savedData.push(recordData);
-            localStorage.setItem('offlineData', JSON.stringify(savedData));
-            updateDashboardCounters();
-        }
-
         // ==========================================
-        // 🎯 STABLE CHECKPOINT CHECKLIST SYSTEM 🎯
+        // 🎯 5. CHECKPOINT CHECKLIST SYSTEM
         // ==========================================
         function updateCheckpointCheckmarks(riderId) {
             const checklistDiv = document.getElementById('checklistItems');
             if (!checklistDiv) return;
-
             if (!riderId) {
                 const idBox = document.getElementById('idNum');
                 riderId = idBox ? idBox.value.trim() : "";
             }
-
             if (!riderId) {
                 checklistDiv.innerHTML = "<span style='color: #888;'>Paghulat og Rider ID...</span>";
                 return;
@@ -714,36 +746,19 @@
             });
 
             const allCheckpoints = [
-                { val: "CP 00", name: "CP 00: Glorious Gate" }, { val: "CP 01", name: "CP 01: Mr. DIY" },
-                { val: "CP 02", name: "CP 02: Junction Paquibato" }, { val: "CP 03", name: "CP 03: New Paquibato Dist. Hall" },
-                { val: "CP 04", name: "CP 04: Pungco Hill" }, { val: "CP 05", name: "CP 05: Junction Panaga" },
-                { val: "CP 06", name: "CP 06: Junction Kalagangan" }, { val: "CP 07", name: "CP 07: Junction Bukidnon-Laak" },
-                { val: "CP 08", name: "CP 08: Sitio Bulo" }, { val: "CP 09", name: "CP 09: Pipisan Bridge" },
-                { val: "CP 10", name: "CP 10: Lumondong Bridge" }, { val: "CP 11", name: "CP 11: Uraya's Peak" },
-                { val: "CP 12", name: "CP 12: Ridge View" }, { val: "CP 13", name: "CP 13: Talaingod View Deck" },
-                { val: "CP 14", name: "CP 14: Florida" }, { val: "CP 15", name: "CP 15: Sua-on" },
-                { val: "CP 16", name: "CP 16: Gupitan" }, { val: "CP 17", name: "CP 17: Junction Kili-Kili" },
-                { val: "CP 18", name: "CP 18: Gatnaon Road" }, { val: "CP 19", name: "CP 19: Junction Imelda" },
-                { val: "CP 20", name: "CP 20: Laak ta Bai" }, { val: "CP 21", name: "CP 21: Sampaguita Park" },
-                { val: "CP 22", name: "CP 22: Sta Josefa Petron" }, { val: "CP 23", name: "CP 23: Crossing Angas-Awao" },
-                { val: "CP 24", name: "CP 24: Awao River (A)" }, { val: "CP 25", name: "CP 25: Awao River (B)" },
-                { val: "CP 26", name: "CP 26: Awao Ticket Booth" }, { val: "CP 27", name: "CP 27: Awao Falls" },
-                { val: "CP 28", name: "CP 28: Crossing Angas-Awao" }, { val: "CP 29", name: "CP 29: INC Monkayo" },
-                { val: "CP 30", name: "CP 30: Mount Diwata" }, { val: "CP 31", name: "CP 31: GKK Santo Niño" },
-                { val: "CP 32", name: "CP 32: Goldie Mark Store" }, { val: "CP 33", name: "CP 33: Libunao Store" },
-                { val: "CP 34", name: "CP 34: Tru-Cut Diwalwal" }, { val: "CP 35", name: "CP 35: Petron" },
-                { val: "CP 36", name: "CP 36: Aliwagwag Falls" }, { val: "CP 37", name: "CP 37: Manurigao Highlands" },
-                { val: "CP 38", name: "CP 38: Shadol's Coffee" }, { val: "CP 39", name: "CP 39: Maragusan Rotunda" },
-                { val: "CP 40", name: "CP 40: Lake Leonard" }, { val: "CP 41", name: "CP 41: Bilawa Falls" },
-                { val: "CP 42", name: "CP 42: 711 Mawab" }, { val: "CP 43", name: "CP 43: Araibo Pantukan" },
-                { val: "CP 44", name: "CP 44: Special Village" }, { val: "CP 45", name: "CP 45: Motor Parts Tagugpo" },
-                { val: "CP 46", name: "CP 46: Napnapan" }, { val: "CP 47", name: "CP 47: Jollibee Pantukan" },
-                { val: "CP FL", name: "CP FL: Elkapitan's Headstone" }
+                { val: "CP 00"}, { val: "CP 01"}, { val: "CP 02"}, { val: "CP 03"}, { val: "CP 04"}, { val: "CP 05"},
+                { val: "CP 06"}, { val: "CP 07"}, { val: "CP 08"}, { val: "CP 09"}, { val: "CP 10"}, { val: "CP 11"},
+                { val: "CP 12"}, { val: "CP 13"}, { val: "CP 14"}, { val: "CP 15"}, { val: "CP 16"}, { val: "CP 17"},
+                { val: "CP 18"}, { val: "CP 19"}, { val: "CP 20"}, { val: "CP 21"}, { val: "CP 22"}, { val: "CP 23"},
+                { val: "CP 24"}, { val: "CP 25"}, { val: "CP 26"}, { val: "CP 27"}, { val: "CP 28"}, { val: "CP 29"},
+                { val: "CP 30"}, { val: "CP 31"}, { val: "CP 32"}, { val: "CP 33"}, { val: "CP 34"}, { val: "CP 35"},
+                { val: "CP 36"}, { val: "CP 37"}, { val: "CP 38"}, { val: "CP 39"}, { val: "CP 40"}, { val: "CP 41"},
+                { val: "CP 42"}, { val: "CP 43"}, { val: "CP 44"}, { val: "CP 45"}, { val: "CP 46"}, { val: "CP 47"},
+                { val: "CP FL"}
             ];
 
             let htmlOutput = "";
             let countCompleted = 0;
-
             allCheckpoints.forEach(cp => {
                 if (completedCheckpoints.includes(cp.val)) {
                     htmlOutput += `<span style="color: #00ff00; margin-right: 8px; display: inline-block; font-weight: bold;">✓ ${cp.val}</span>`;
@@ -752,281 +767,11 @@
                     htmlOutput += `<span style="color: #555; margin-right: 8px; display: inline-block;">✗ ${cp.val}</span>`;
                 }
             });
-
             checklistDiv.innerHTML = countCompleted === 0 ? "<span style='color: #888;'>Wala pa nay nahuman nga Checkpoint.</span>" : htmlOutput;
         }
 
         // ==========================================
-        // 🕵️‍♂️ MARSHAL MODE & SECRET TAP SYSTEM 🕵️‍♂️
-        // ==========================================
-        let isMarshalMode = localStorage.getItem('marshalMode') === 'true';
-        const scanQrBtn = document.getElementById('scanQrBtn');
-        if (!isMarshalMode && scanQrBtn) scanQrBtn.style.display = "none";
-
-        let tapCount = 0;
-        let tapTimeout;
-        const secretButton = document.getElementById('signalStatus'); 
-
-        if (secretButton) {
-            secretButton.addEventListener('click', async function() {
-                tapCount++;
-                clearTimeout(tapTimeout);
-                tapTimeout = setTimeout(() => { tapCount = 0; }, 1500);
-
-                if (tapCount === 3) {
-                    tapCount = 0; 
-                    if (!isMarshalMode) {
-                        let passcode = prompt("🕵️‍♂️ MARSHAL MODE: Pagsulod og Passcode:");
-                        if (passcode === null) return;
-                        if (typeof riderDatabase !== 'undefined') {
-                            let hashedInput = await sha256Hash(passcode); 
-                            let validMarshal = riderDatabase.find(r => r.passcode === hashedInput && r.isMarshal === true);      
-                            if (validMarshal) {
-                                isMarshalMode = true;
-                                localStorage.setItem('marshalMode', 'true'); 
-                                if (scanQrBtn) scanQrBtn.style.display = "block"; 
-                                alert(`🔓 MARSHAL MODE ON! Welcome, Master ${validMarshal.fullname}!`);
-                            } else { alert("❌ Sayop nga Passcode!"); }
-                        } else { alert("⚠️ Error: Wala nabasa ang database."); }
-                    } else {
-                        if (confirm("🔒 Gusto nimo i-lock ug ibalik sa Rider Mode?")) {
-                            isMarshalMode = false;
-                            localStorage.setItem('marshalMode', 'false');
-                            if (scanQrBtn) scanQrBtn.style.display = "none"; 
-                            alert("🔒 Naka-RIDER MODE na ang app.");
-                        }
-                    }
-                }
-            });
-        }
-
-        showLiveLocationOnLoad(); 
-
-        if ('serviceWorker' in navigator) {
-            window.addEventListener('load', function() {
-                navigator.serviceWorker.register('./sw.js').catch(function(error) { console.log('Error sa SW:', error); });
-            });
-        }
-
-        // ==========================================
-        // 🏍️ RIDER ID & CHECKLIST INITIALIZER 🏍️
-        // ==========================================
-        const idNumBox = document.getElementById('idNum');
-        const nameBox = document.getElementById('name');
-        const urlParams = new URLSearchParams(window.location.search);
-        let paramID = urlParams.get('theIDno');
-        let savedID = localStorage.getItem('defaultRiderID');
-
-        function searchDatabase(idToSearch) {
-            if (idToSearch && typeof riderDatabase !== 'undefined') {
-                const foundRider = riderDatabase.find(r => r.idNum === idToSearch);
-                if (foundRider) {
-                    if(nameBox) nameBox.value = foundRider.fullname;
-                    let lvl = document.getElementById('level');
-                    if(lvl) lvl.value = foundRider.level || "Wala Gi-assign"; 
-                    updateRiderProgress();
-                } else {
-                    if(nameBox) nameBox.value = "❌ Wala sa Masterlist";
-                    let lvl = document.getElementById('level');
-                    if(lvl) lvl.value = ""; 
-                    updateRiderProgress();
-                }
-            }
-        }
-
-        // 1. I-load dayon ang ID ug ang Checkmarks (Wala naghulat sa database)
-        let activeRiderId = "";
-        if (paramID) { 
-            activeRiderId = paramID;
-            if(idNumBox) idNumBox.value = paramID; 
-            localStorage.setItem('defaultRiderID', paramID); 
-        } else if (savedID) { 
-            activeRiderId = savedID;
-            if(idNumBox) idNumBox.value = savedID; 
-        }
-
-        // Kon naay ID, tawgon dayon ang checkmarks ug database search
-        if (activeRiderId) {
-            updateCheckpointCheckmarks(activeRiderId);
-            // Hatagan og gamay nga pahuway para masigurong nabasa na ang database.js
-            setTimeout(() => {
-                searchDatabase(activeRiderId);
-            }, 200);
-        }
-
-        if (paramID) { 
-            if(idNumBox) idNumBox.value = paramID; 
-            localStorage.setItem('defaultRiderID', paramID); 
-            searchDatabase(paramID);
-        } else if (savedID) { 
-            if(idNumBox) idNumBox.value = savedID; 
-            searchDatabase(savedID);
-        }
-
-        if (idNumBox) {
-            idNumBox.addEventListener('dblclick', function() {
-                if (!isMarshalMode) { 
-                    alert("⚠️ RIDER MODE: Dili ka pwede mag-usab sa ID. Pangitaa ang Marshal!"); 
-                    return; 
-                }
-                this.removeAttribute('readonly'); 
-                this.value = ""; 
-                if(nameBox) nameBox.value = ""; 
-                let lvl = document.getElementById('level');
-                if(lvl) lvl.value = ""; 
-                updateRiderProgress();
-                this.focus(); 
-                this.style.border = "3px solid #ffcc00"; 
-            });
-
-            idNumBox.addEventListener('input', function() {
-                this.value = this.value.replace(/[^0-9]/g, ''); 
-                updateCheckpointCheckmarks(this.value.trim());
-                if (this.value.length === 4) {
-                    this.setAttribute('readonly', true); 
-                    this.style.border = "1px solid #444"; 
-                    this.blur(); 
-                    searchDatabase(this.value); 
-                    localStorage.setItem('defaultRiderID', this.value); 
-                }
-            });
-        }
-
-        // ==========================================
-        // 📷 SOLID QR CODE SCANNER SYSTEM 📷
-        // ==========================================
-        const scannerDiv = document.getElementById('reader');
-        let html5QrCode = null; 
-
-        if (scanQrBtn) {
-            scanQrBtn.addEventListener('click', function() {
-                if (!scannerDiv) return;
-
-                if (scannerDiv.style.display === "none" || scannerDiv.style.display === "") {
-                    scannerDiv.style.display = "block";
-                    scanQrBtn.textContent = "🛑 I-CANCEL ANG PAG-SCAN";
-                    scanQrBtn.style.backgroundColor = "#cc0000"; 
-                    scanQrBtn.style.color = "white";
-
-                    try {
-                        html5QrCode = new Html5Qrcode("reader");
-                        html5QrCode.start(
-                            { facingMode: "environment" }, 
-                            { fps: 10, qrbox: { width: 250, height: 250 } },
-                            (decodedText, decodedResult) => {
-                                html5QrCode.stop().then(() => {
-                                    scannerDiv.style.display = "none";
-                                    scanQrBtn.textContent = "📷 I-SCAN ANG RIDER ID";
-                                    scanQrBtn.style.backgroundColor = "#ff9900"; 
-                                    scanQrBtn.style.color = "black";
-                                    if (idNumBox) idNumBox.value = decodedText;
-                                    searchDatabase(decodedText);
-                                    localStorage.setItem('defaultRiderID', decodedText);
-                                    updateCheckpointCheckmarks(decodedText);
-                                }).catch((err) => { console.log(err); });
-                            },
-                            (errorMessage) => {}
-                        ).catch((err) => { 
-                            alert("⚠️ Wala ma-access ang Camera."); 
-                            scannerDiv.style.display = "none";
-                            scanQrBtn.textContent = "📷 I-SCAN ANG RIDER ID";
-                            scanQrBtn.style.backgroundColor = "#ff9900"; 
-                            scanQrBtn.style.color = "black";
-                        });
-                    } catch(e) {
-                        alert("⚠️ Error sa pag-bukas sa camera.");
-                        scannerDiv.style.display = "none";
-                        scanQrBtn.textContent = "📷 I-SCAN ANG RIDER ID";
-                        scanQrBtn.style.backgroundColor = "#ff9900"; 
-                        scanQrBtn.style.color = "black";
-                    }
-                } else {
-                    if (html5QrCode) {
-                        html5QrCode.stop().then(() => {
-                            scannerDiv.style.display = "none";
-                            scanQrBtn.textContent = "📷 I-SCAN ANG RIDER ID";
-                            scanQrBtn.style.backgroundColor = "#ff9900"; 
-                            scanQrBtn.style.color = "black";
-                            html5QrCode = null;
-                        }).catch(() => {
-                            scannerDiv.style.display = "none";
-                            scanQrBtn.textContent = "📷 I-SCAN ANG RIDER ID";
-                            scanQrBtn.style.backgroundColor = "#ff9900"; 
-                            scanQrBtn.style.color = "black";
-                        });
-                    } else {
-                        scannerDiv.style.display = "none";
-                        scanQrBtn.textContent = "📷 I-SCAN ANG RIDER ID";
-                        scanQrBtn.style.backgroundColor = "#ff9900"; 
-                        scanQrBtn.style.color = "black";
-                    }
-                }
-            });
-        }
-
-        async function checkRealInternet() {
-            const sigStatus = document.getElementById('signalStatus');
-            if (!navigator.onLine) {
-                if (sigStatus) { sigStatus.innerHTML = "🔴 OFFLINE"; sigStatus.style.color = "#ff3333"; }
-                return;
-            }
-            try {
-                await fetch('https://www.google.com/favicon.ico?' + new Date().getTime(), { mode: 'no-cors', cache: 'no-store' });
-                if (sigStatus) { sigStatus.innerHTML = "🟢 ONLINE"; sigStatus.style.color = "#00ff00"; }
-                let offlineData = JSON.parse(localStorage.getItem('offlineData')) || [];
-                if (offlineData.length > 0) syncOfflineData(); 
-            } catch (error) {
-                if (sigStatus) { sigStatus.innerHTML = "⚠️ NO INTERNET"; sigStatus.style.color = "#ff9900"; }
-            }
-        }
-
-        window.addEventListener('online', checkRealInternet);
-        window.addEventListener('offline', checkRealInternet);
-        setInterval(checkRealInternet, 5000);
-        checkRealInternet(); 
-
-        // ==========================================
-        // 🔋 BULLETPROOF BATTERY MONITOR 🔋
-        // ==========================================
-        function initBatteryMonitor() {
-            const batStatus = document.getElementById('batteryStatus');
-            if (!batStatus) return;
-
-            batStatus.innerHTML = "🔋 100%"; // Instant default aron walay --%
-
-            if ('getBattery' in navigator) {
-                navigator.getBattery().then(function(battery) {
-                    function updateBatteryInfo() {
-                        const level = Math.round(battery.level * 100);
-                        const icon = battery.charging ? "⚡" : "🔋";
-                        batStatus.innerHTML = `${icon} ${level}%`;
-                        batStatus.style.color = (level <= 15 && !battery.charging) ? "#ff3333" : "white";
-                    }
-                    updateBatteryInfo();
-                    battery.addEventListener('levelchange', updateBatteryInfo);
-                    battery.addEventListener('chargingchange', updateBatteryInfo);
-                }).catch(() => {
-                    batStatus.innerHTML = "🔋 100%";
-                });
-            } else {
-                batStatus.innerHTML = "🔋 100%";
-            }
-        }
-        initBatteryMonitor();
-
-        function updateDashboardCounters() {
-            let offlineData = JSON.parse(localStorage.getItem('offlineData')) || [];
-            const pCount = document.getElementById('pendingCount');
-            if (pCount) {
-                pCount.innerText = offlineData.length;
-                pCount.style.color = offlineData.length > 0 ? "#ff9900" : "white"; 
-            }
-        }
-        setInterval(updateDashboardCounters, 2000);
-        updateDashboardCounters(); 
-    
-        // ==========================================
-        // 📊 RIDER PROGRESS LIVE CALCULATOR SYSTEM
+        // 📊 6. RIDER PROGRESS LIVE CALCULATOR 
         // ==========================================
         const routeTotalKm = { "G1": 777, "G2": 777, "G3": 3333, "G4": 777, "G5": 5555 };
 
@@ -1060,10 +805,8 @@
                 card.style.display = "none"; 
             }
         }
-
         let odometerInput = document.getElementById("odometer");
         if (odometerInput) odometerInput.addEventListener("input", updateRiderProgress);
-        
         let levelInput = document.getElementById("level");
         if (levelInput) {
             levelInput.addEventListener("change", updateRiderProgress);
@@ -1071,21 +814,170 @@
         }
 
         // ==========================================
-        // 🚀 AUTO-LOAD CHECKMARKS ON START / REOPEN
+        // 🕵️‍♂️ 7. MARSHAL MODE & DATABASE LOADER
+        // ==========================================
+        let isMarshalMode = localStorage.getItem('marshalMode') === 'true';
+        const scanQrBtn = document.getElementById('scanQrBtn');
+        if (!isMarshalMode && scanQrBtn) scanQrBtn.style.display = "none";
+
+        let tapCount = 0;
+        let tapTimeout;
+        const secretButton = document.getElementById('signalStatus'); 
+        if (secretButton) {
+            secretButton.addEventListener('click', async function() {
+                tapCount++;
+                clearTimeout(tapTimeout);
+                tapTimeout = setTimeout(() => { tapCount = 0; }, 1500);
+                if (tapCount === 3) {
+                    tapCount = 0; 
+                    if (!isMarshalMode) {
+                        let passcode = prompt("🕵️‍♂️ MARSHAL MODE: Pagsulod og Passcode:");
+                        if (passcode === null) return;
+                        if (typeof riderDatabase !== 'undefined') {
+                            let hashedInput = await sha256Hash(passcode); 
+                            let validMarshal = riderDatabase.find(r => r.passcode === hashedInput && r.isMarshal === true);      
+                            if (validMarshal) {
+                                isMarshalMode = true;
+                                localStorage.setItem('marshalMode', 'true'); 
+                                if (scanQrBtn) scanQrBtn.style.display = "block"; 
+                                alert(`🔓 MARSHAL MODE ON! Welcome, Master ${validMarshal.fullname}!`);
+                            } else { alert("❌ Sayop nga Passcode!"); }
+                        } else { alert("⚠️ Error: Wala nabasa ang database."); }
+                    } else {
+                        if (confirm("🔒 Gusto nimo i-lock ug ibalik sa Rider Mode?")) {
+                            isMarshalMode = false;
+                            localStorage.setItem('marshalMode', 'false');
+                            if (scanQrBtn) scanQrBtn.style.display = "none"; 
+                            alert("🔒 Naka-RIDER MODE na ang app.");
+                        }
+                    }
+                }
+            });
+        }
+
+        function searchDatabase(idToSearch) {
+            const nameBox = document.getElementById('name');
+            const lvlBox = document.getElementById('level');
+            if (idToSearch && typeof riderDatabase !== 'undefined') {
+                const foundRider = riderDatabase.find(r => r.idNum === idToSearch);
+                if (foundRider) {
+                    if(nameBox) nameBox.value = foundRider.fullname;
+                    if(lvlBox) lvlBox.value = foundRider.level || "Wala Gi-assign"; 
+                } else {
+                    if(nameBox) nameBox.value = "❌ Wala sa Masterlist";
+                    if(lvlBox) lvlBox.value = ""; 
+                }
+            }
+            updateRiderProgress();
+        }
+
+        const idNumBox = document.getElementById('idNum');
+        if (idNumBox) {
+            idNumBox.addEventListener('dblclick', function() {
+                if (!isMarshalMode) { 
+                    alert("⚠️ RIDER MODE: Dili ka pwede mag-usab sa ID. Pangitaa ang Marshal!"); 
+                    return; 
+                }
+                this.removeAttribute('readonly'); 
+                this.value = ""; 
+                document.getElementById('name').value = ""; 
+                document.getElementById('level').value = ""; 
+                updateRiderProgress();
+                this.focus(); 
+                this.style.border = "3px solid #ffcc00"; 
+            });
+
+            idNumBox.addEventListener('input', function() {
+                this.value = this.value.replace(/[^0-9]/g, ''); 
+                updateCheckpointCheckmarks(this.value.trim());
+                if (this.value.length === 4) {
+                    this.setAttribute('readonly', true); 
+                    this.style.border = "1px solid #444"; 
+                    this.blur(); 
+                    searchDatabase(this.value); 
+                    localStorage.setItem('defaultRiderID', this.value); 
+                }
+            });
+        }
+
+        // ==========================================
+        // 📷 8. SOLID QR CODE SCANNER (CRASH-PROOF)
+        // ==========================================
+        const scannerDiv = document.getElementById('reader');
+        let globalQrScanner = null; 
+
+        if (scanQrBtn && scannerDiv) {
+            scanQrBtn.addEventListener('click', async function() {
+                if (scannerDiv.style.display === "block") {
+                    // STOP SCANNING
+                    if (globalQrScanner) {
+                        try { await globalQrScanner.stop(); globalQrScanner.clear(); } catch(e) {}
+                        globalQrScanner = null;
+                    }
+                    scannerDiv.style.display = "none";
+                    scanQrBtn.textContent = "📷 I-SCAN ANG RIDER ID";
+                    scanQrBtn.style.backgroundColor = "#ff9900"; scanQrBtn.style.color = "black";
+                } else {
+                    // START SCANNING
+                    scannerDiv.style.display = "block";
+                    scanQrBtn.textContent = "🛑 I-CANCEL ANG PAG-SCAN";
+                    scanQrBtn.style.backgroundColor = "#cc0000"; scanQrBtn.style.color = "white";
+
+                    try {
+                        globalQrScanner = new Html5Qrcode("reader");
+                        await globalQrScanner.start(
+                            { facingMode: "environment" }, { fps: 10, qrbox: { width: 250, height: 250 } },
+                            async (decodedText) => {
+                                // QR FOUND!
+                                if (globalQrScanner) {
+                                    try { await globalQrScanner.stop(); globalQrScanner.clear(); } catch(e) {}
+                                    globalQrScanner = null;
+                                }
+                                scannerDiv.style.display = "none";
+                                scanQrBtn.textContent = "📷 I-SCAN ANG RIDER ID";
+                                scanQrBtn.style.backgroundColor = "#ff9900"; scanQrBtn.style.color = "black";
+                                
+                                if (idNumBox) idNumBox.value = decodedText;
+                                localStorage.setItem('defaultRiderID', decodedText);
+                                searchDatabase(decodedText);
+                                updateCheckpointCheckmarks(decodedText);
+                            },
+                            (errorMessage) => { /* Ignore frame errors */ }
+                        );
+                    } catch (err) {
+                        alert("⚠️ Wala ma-access ang Camera. I-allow sa settings.");
+                        scannerDiv.style.display = "none";
+                        scanQrBtn.textContent = "📷 I-SCAN ANG RIDER ID";
+                        scanQrBtn.style.backgroundColor = "#ff9900"; scanQrBtn.style.color = "black";
+                    }
+                }
+            });
+        }
+
+        // ==========================================
+        // 🚀 9. APP INITIALIZATION (AUTO-LOAD SA TANAN)
         // ==========================================
         window.addEventListener('DOMContentLoaded', function() {
-            setTimeout(() => {
-                let currentId = idNumBox ? idNumBox.value.trim() : "";
-                if (!currentId) {
-                    currentId = localStorage.getItem('defaultRiderID');
-                }
-                if (currentId) {
-                    updateCheckpointCheckmarks(currentId);
-                } else {
-                    updateCheckpointCheckmarks();
-                }
-            }, 300);
+            const urlParams = new URLSearchParams(window.location.search);
+            let pID = urlParams.get('theIDno');
+            let sID = localStorage.getItem('defaultRiderID');
+            
+            let activeID = pID || sID || "";
+            if (activeID && idNumBox) {
+                idNumBox.value = activeID;
+                localStorage.setItem('defaultRiderID', activeID);
+                updateCheckpointCheckmarks(activeID);
+                // Hatagan og oras kadiyot ang database.js nga maka-load
+                setTimeout(() => { searchDatabase(activeID); }, 250); 
+            } else {
+                updateCheckpointCheckmarks(""); // I-load nga blangko
+            }
+
+            if ('serviceWorker' in navigator) {
+                navigator.serviceWorker.register('./sw.js').catch(function(error) { console.log('SW Error:', error); });
+            }
         });
+
     </script>
 
 
