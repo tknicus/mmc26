@@ -701,16 +701,34 @@
         }
 
         // ==========================================
-        // 🎯 STABLE CHECKPOINT STATUS LIST 🎯
+        // 🎯 BULLETPROOF CHECKPOINT STATUS LIST 🎯
         // ==========================================
         function updateCheckpointCheckmarks(riderId) {
             const checklistDiv = document.getElementById('checklistItems');
-            if (!checklistDiv || !riderId) return;
+            if (!checklistDiv) return;
+
+            // Kung walay gihatag nga ID, kuhaon nato direkta sa input box
+            if (!riderId) {
+                const idBox = document.getElementById('idNum');
+                riderId = idBox ? idBox.value.trim() : "";
+            }
+
+            if (!riderId) {
+                checklistDiv.innerHTML = "<span style='color: #888;'>Paghulat og Rider ID...</span>";
+                return;
+            }
 
             let riderHistoryKey = 'history_' + riderId;
             let completedCheckpoints = JSON.parse(localStorage.getItem(riderHistoryKey)) || [];
 
-            // Ang listahan sa tanang opisyal nga checkpoints
+            // Pwede sab nato i-check ang offline data kung naa didto nakasalbar
+            let offlineData = JSON.parse(localStorage.getItem('offlineData')) || [];
+            offlineData.forEach(item => {
+                if (item.idNum === riderId && item.checkpoint && !completedCheckpoints.includes(item.checkpoint)) {
+                    completedCheckpoints.push(item.checkpoint);
+                }
+            });
+
             const allCheckpoints = [
                 { val: "CP 00", name: "CP 00: Glorious Gate" },
                 { val: "CP 01", name: "CP 01: Mr. DIY" },
@@ -768,7 +786,7 @@
 
             allCheckpoints.forEach(cp => {
                 if (completedCheckpoints.includes(cp.val)) {
-                    htmlOutput += `<span style="color: #00ff00; margin-right: 8px; display: inline-block;">✓ ${cp.val}</span>`;
+                    htmlOutput += `<span style="color: #00ff00; margin-right: 8px; display: inline-block; font-weight: bold;">✓ ${cp.val}</span>`;
                     countCompleted++;
                 } else {
                     htmlOutput += `<span style="color: #555; margin-right: 8px; display: inline-block;">✗ ${cp.val}</span>`;
@@ -776,11 +794,26 @@
             });
 
             if (countCompleted === 0) {
-                checklistItems.innerHTML = "<span style='color: #888;'>Wala pa nay nahuman nga Checkpoint.</span>";
+                checklistDiv.innerHTML = "<span style='color: #888;'>Wala pa nay nahuman nga Checkpoint.</span>";
             } else {
-                checklistItems.innerHTML = htmlOutput;
+                checklistDiv.innerHTML = htmlOutput;
             }
         }
+
+        // 👉 I-run dayon ang checkmarks kung naay mausab sa ID box o inig-load
+        document.addEventListener("DOMContentLoaded", function() {
+            setTimeout(() => {
+                updateCheckpointCheckmarks();
+            }, 500);
+        });
+
+        const idBoxListener = document.getElementById('idNum');
+        if (idBoxListener) {
+            idBoxListener.addEventListener('input', function() {
+                updateCheckpointCheckmarks(this.value.trim());
+            });
+        }
+
 
         let isMarshalMode = localStorage.getItem('marshalMode') === 'true';
         const scanQrBtn = document.getElementById('scanQrBtn');
