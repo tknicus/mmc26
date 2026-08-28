@@ -377,7 +377,8 @@
 
 
 <script src="database.js"></script>
-    <script>
+ 
+<script>
         // 🌟 BAG-ONG SHA-256 HASH ENGINE
         async function sha256Hash(str) {
             const encoder = new TextEncoder();
@@ -387,99 +388,90 @@
             return hashArray.map(b => b.toString(16).padStart(2, '0')).join('');
         }
         
-        let isSyncing = false; // Kini ang atong "Lock"
+        let isSyncing = false; 
         let compressedPhotoBase64 = ""; 
 
+        const cameraInput = document.getElementById('cameraInput');
+        if (cameraInput) {
+            cameraInput.addEventListener('change', function(event) {
+                const file = event.target.files[0];
+                if (file) {
+                    const reader = new FileReader();
+                    reader.onload = function(e) {
+                        const img = new Image();
+                        img.onload = function() {
+                            const canvas = document.getElementById('photoCanvas');
+                            if (!canvas) return;
+                            const ctx = canvas.getContext("2d");
 
-        document.getElementById('cameraInput').addEventListener('change', function(event) {
-            const file = event.target.files[0];
-            if (file) {
-                const reader = new FileReader();
-                reader.onload = function(e) {
-                    const img = new Image();
-                    img.onload = function() {
-                        const canvas = document.getElementById('photoCanvas');
-                        const ctx = canvas.getContext("2d");
+                            const MAX_WIDTH = 600;
+                            const scaleSize = MAX_WIDTH / img.width;
+                            canvas.width = MAX_WIDTH;
+                            canvas.height = img.height * scaleSize;
 
-                        const MAX_WIDTH = 600;
-                        const scaleSize = MAX_WIDTH / img.width;
-                        canvas.width = MAX_WIDTH;
-                        canvas.height = img.height * scaleSize;
+                            ctx.drawImage(img, 0, 0, canvas.width, canvas.height);
 
-                        // 1. Drawing sa picture
-                        ctx.drawImage(img, 0, 0, canvas.width, canvas.height);
+                            const logoImg = new Image();
+                            logoImg.src = 'mmc.png';
+                            logoImg.onload = function() {
+                                const logoWidth = canvas.width * 0.28; 
+                                const logoHeight = (logoImg.height / logoImg.width) * logoWidth;
+                                ctx.drawImage(logoImg, 10, canvas.height - logoHeight - 10, logoWidth, logoHeight);
 
-                        // 2. Drawing sa Logo (Left Bottom)
-                        const logoImg = new Image();
-                        logoImg.src = 'mmc.png';
-                        logoImg.onload = function() {
-                            const logoWidth = canvas.width * 0.28; // I-set kini sa 0.28 (28%)
-                            const logoHeight = (logoImg.height / logoImg.width) * logoWidth;
+                                function convertToDMS(decimal, isLat) {
+                                    if (decimal === "N/A") return "N/A";
+                                    const val = parseFloat(decimal);
+                                    const absVal = Math.abs(val);
+                                    const d = Math.floor(absVal);
+                                    const m = Math.floor((absVal - d) * 60);
+                                    const s = ((absVal - d - m / 60) * 3600).toFixed(0);
+                                    const dir = isLat ? (val >= 0 ? "N" : "S") : (val >= 0 ? "E" : "W");
+                                    return `${d}° ${m}' ${s}" ${dir}`;
+                                }
                             
-                            // Drawing sa Logo (Left Bottom)
-                            ctx.drawImage(logoImg, 10, canvas.height - logoHeight - 10, logoWidth, logoHeight);
+                                ctx.fillStyle = "white";
+                                ctx.strokeStyle = "black"; 
+                                ctx.lineWidth = 3;
+                                ctx.font = "bold 16px Arial"; 
+                                ctx.textAlign = "right";
 
-                        // --- 🛠️ HELPER FUNCTION PARA SA DMS (Degrees, Minutes, Seconds) 🛠️ ---
-                        function convertToDMS(decimal, isLat) {
-                            if (decimal === "N/A") return "N/A";
-                            const val = parseFloat(decimal);
-                            const absVal = Math.abs(val);
-                            const d = Math.floor(absVal);
-                            const m = Math.floor((absVal - d) * 60);
-                            const s = ((absVal - d - m / 60) * 3600).toFixed(0);
-                            const dir = isLat ? (val >= 0 ? "N" : "S") : (val >= 0 ? "E" : "W");
-                            return `${d}° ${m}' ${s}" ${dir}`;
-                        }
-                        
-                        // 3. ✨ Drawing sa Text (ID+Name, Military Time, ug DMS GPS) ✨
-                        ctx.fillStyle = "white";
-                        ctx.strokeStyle = "black"; 
-                        ctx.lineWidth = 3;
-                        ctx.font = "bold 16px Arial"; 
-                        ctx.textAlign = "right";
+                                const idElem = document.getElementById('idNum');
+                                const nameElem = document.getElementById('name');
+                                const riderID = idElem ? idElem.value : "WALA I-SCAN";
+                                const riderName = nameElem ? nameElem.value : "Wala Kaila";
+                            
+                                const now = new Date();
+                                const militaryDateTime = `${now.getFullYear()}-${String(now.getMonth() + 1).padStart(2, '0')}-${String(now.getDate()).padStart(2, '0')} ${String(now.getHours()).padStart(2, '0')}:${String(now.getMinutes()).padStart(2, '0')}:${String(now.getSeconds()).padStart(2, '0')}`;
 
-                        const riderID = document.getElementById('idNum').value || "WALA I-SCAN";
-                        const riderName = document.getElementById('name').value || "Wala Kaila";
-                        
-                        // --- 🪖 MILITARY TIME FORMAT ---
-                        const now = new Date();
-                        const year = now.getFullYear();
-                        const month = String(now.getMonth() + 1).padStart(2, '0');
-                        const day = String(now.getDate()).padStart(2, '0');
-                        const hours = String(now.getHours()).padStart(2, '0');
-                        const minutes = String(now.getMinutes()).padStart(2, '0');
-                        const seconds = String(now.getSeconds()).padStart(2, '0');
-                        
-                        const militaryDateTime = `${year}-${month}-${day} ${hours}:${minutes}:${seconds}`;
+                                const dmsLat = convertToDMS(globalLat, true);
+                                const dmsLon = convertToDMS(globalLon, false);
 
-                        // --- 🌍 DMS GPS FORMAT ---
-                        const dmsLat = convertToDMS(globalLat, true);
-                        const dmsLon = convertToDMS(globalLon, false);
+                                const textA = `ID: ${riderID} (${riderName})`;
+                                ctx.strokeText(textA, canvas.width - 10, canvas.height - 55);
+                                ctx.fillText(textA, canvas.width - 10, canvas.height - 55);
 
-                        const textA = `ID: ${riderID} (${riderName})`;
-                        ctx.strokeText(textA, canvas.width - 10, canvas.height - 55);
-                        ctx.fillText(textA, canvas.width - 10, canvas.height - 55);
+                                const textB = `Date/Time: ${militaryDateTime}`;
+                                ctx.strokeText(textB, canvas.width - 10, canvas.height - 35);
+                                ctx.fillText(textB, canvas.width - 10, canvas.height - 35);
 
-                        const textB = `Date/Time: ${militaryDateTime}`;
-                        ctx.strokeText(textB, canvas.width - 10, canvas.height - 35);
-                        ctx.fillText(textB, canvas.width - 10, canvas.height - 35);
+                                const textC = `${dmsLat}, ${dmsLon}`;
+                                ctx.strokeText(textC, canvas.width - 10, canvas.height - 15);
+                                ctx.fillText(textC, canvas.width - 10, canvas.height - 15);
 
-                        const textC = `${dmsLat}, ${dmsLon}`;
-                        ctx.strokeText(textC, canvas.width - 10, canvas.height - 15);
-                        ctx.fillText(textC, canvas.width - 10, canvas.height - 15);
-
-                        // 4. E-convert sa Text (Base64)
-                        compressedPhotoBase64 = canvas.toDataURL("image/jpeg", 0.5);
-                        const photoPreview = document.getElementById('photoPreview');
-                        photoPreview.src = compressedPhotoBase64;
-                        photoPreview.style.display = "block";
+                                compressedPhotoBase64 = canvas.toDataURL("image/jpeg", 0.5);
+                                const photoPreview = document.getElementById('photoPreview');
+                                if (photoPreview) {
+                                    photoPreview.src = compressedPhotoBase64;
+                                    photoPreview.style.display = "block";
+                                }
+                            };
                         };
+                        img.src = e.target.result;
                     };
-                    img.src = e.target.result;
-                };
-                reader.readAsDataURL(file);
-            }
-        });
+                    reader.readAsDataURL(file);
+                }
+            });
+        }
                             
         const scriptURL = 'https://script.google.com/macros/s/AKfycbxTau-qcMyRPmu753acuF4c6Pgm8jy3llrLSAzrzlS-0z-k_xmQoE_9-sl2yIXeMjJF/exec';
         const liveLocationDiv = document.getElementById('liveLocation');
@@ -489,7 +481,7 @@
         let globalLon = "N/A";
 
         function showLiveLocationOnLoad() {
-            if (navigator.geolocation) {
+            if (navigator.geolocation && liveLocationDiv) {
                 navigator.geolocation.watchPosition(
                     (position) => {
                         globalLat = position.coords.latitude.toFixed(6);
@@ -501,13 +493,11 @@
                     },
                     { enableHighAccuracy: true, maximumAge: 0 }
                 );
-            } else {
+            } else if (liveLocationDiv) {
                 liveLocationDiv.innerHTML = "❌ GPS wala gisuportahan sa imong device.";
             }
         }
 
-
-        // --- 🛡️ BAG-ONG SEND FUNCTION NGA WALAY TIMER 🛡️ ---
         async function sendDataToServer(dataPayload) {
             try {
                 await fetch(scriptURL, {
@@ -518,35 +508,25 @@
                 });
                 return true; 
             } catch (error) {
-                console.error("Tinuod nga naputol ang internet:", error);
                 return false;
             }
         }
 
-
-        // ==========================================
-        // 🔄 SMART SYNC OFFLINE DATA (NAA NAY LOCK) 🔄
-        // ==========================================
         async function syncOfflineData() {
             if (isSyncing) return; 
-            
             let offlineData = JSON.parse(localStorage.getItem('offlineData')) || [];
             if (offlineData.length === 0) return; 
 
             isSyncing = true; 
-
-            const submitBtn = document.getElementById('myForm').querySelector('button[type="submit"]');
+            const submitBtn = myForm ? myForm.querySelector('button[type="submit"]') : null;
             if(submitBtn) { submitBtn.textContent = "🔄 Nag-Sync sa Data..."; submitBtn.disabled = true; }
 
             let failedData = []; 
-
             for (let i = 0; i < offlineData.length; i++) {
                 let singleRecord = offlineData[i];
                 try {
                     let success = await sendDataToServer(singleRecord); 
-                    if (!success) {
-                        failedData.push(singleRecord);
-                    }
+                    if (!success) { failedData.push(singleRecord); }
                 } catch (error) {
                     failedData.push(singleRecord);
                 }
@@ -570,219 +550,176 @@
                 } else {
                     navigator.geolocation.getCurrentPosition(
                         (position) => {
-                            const lat = position.coords.latitude;
-                            const lon = position.coords.longitude;
-                            const locTime = new Date(position.timestamp).toLocaleString(); 
                             resolve({
-                                link: `https://www.google.com/maps?q=${lat},${lon}`,
-                                lat: lat,
-                                lon: lon,
-                                time: locTime
+                                link: `https://www.google.com/maps?q=${position.coords.latitude},${position.coords.longitude}`,
+                                lat: position.coords.latitude,
+                                lon: position.coords.longitude,
+                                time: new Date(position.timestamp).toLocaleString()
                             });
                         },
-                        (error) => {
-                            resolve({ link: "Error/Gibalibaran", lat: "N/A", lon: "N/A", time: "N/A" });
-                        },
+                        (error) => { resolve({ link: "Error/Gibalibaran", lat: "N/A", lon: "N/A", time: "N/A" }); },
                         { timeout: 10000, enableHighAccuracy: true, maximumAge: 0 }
                     );
                 }
             });
         }
 
-
-        // 🚀 1. STABILITY TESTER FUNCTION
         async function checkInternetStability() {
             if (!navigator.onLine) return false;
             const startTime = new Date().getTime();
             try {
-                await fetch('https://www.google.com/favicon.ico?' + startTime, {
-                    mode: 'no-cors',
-                    cache: 'no-store'
-                });
-                const endTime = new Date().getTime();
-                const duration = endTime - startTime; 
-                return duration < 2000;
-            } catch (error) {
-                return false;
-            }
+                await fetch('https://www.google.com/favicon.ico?' + startTime, { mode: 'no-cors', cache: 'no-store' });
+                return (new Date().getTime() - startTime) < 2000;
+            } catch (error) { return false; }
         }
-
 
         let isSubmitting = false; 
 
-        myForm.addEventListener('submit', async function(e) {
-            e.preventDefault();
+        if (myForm) {
+            myForm.addEventListener('submit', async function(e) {
+                e.preventDefault();
+                const submitBtn = myForm.querySelector('button[type="submit"]');
+                if (isSubmitting || (submitBtn && submitBtn.disabled)) return;
+                isSubmitting = true;
 
-            const submitBtn = myForm.querySelector('button[type="submit"]');
-
-            if (isSubmitting || submitBtn.disabled) return;
-            isSubmitting = true;
-
-            submitBtn.textContent = "📍 Gipadala ang Data...";
-            submitBtn.disabled = true; 
-            submitBtn.style.opacity = "0.5"; 
-
-            const bgMusic = document.getElementById('submitMusic');
-            bgMusic.play();
-
-            const checkId = document.getElementById('idNum').value;
-            const checkName = document.getElementById('name').value;
-            const currentCheckpoint = document.getElementById('checkpoint').value;
-
-            if (checkId === "" || checkName === "" || checkName.includes("❌")) {
-                bgMusic.pause(); bgMusic.currentTime = 0; 
-                alert("🛑 DILI MA-SAVE! Blangko ang Rider ID. Palihug i-scan ang saktong QR Code.");
-                submitBtn.textContent = "I-Submit ang Data";
-                submitBtn.disabled = false;
-                submitBtn.style.opacity = "1";
-                isSubmitting = false;
-                return;
-            }
-
-            const checkpointSelect = document.getElementById('checkpoint');
-            const officialRoute = Array.from(checkpointSelect.options)
-                .map(opt => opt.value)
-                .filter(val => val !== "" && !val.toLowerCase().includes("xx"));
-
-            let riderHistoryKey = 'history_' + checkId;
-            let completedCheckpoints = JSON.parse(localStorage.getItem(riderHistoryKey)) || [];
-
-            let isTourCompleted = officialRoute.every(cp => completedCheckpoints.includes(cp));
-
-            if (isTourCompleted) {
-                bgMusic.pause(); bgMusic.currentTime = 0;
-                alert(`🏆 CONGRATULATIONS, MASTER ${checkId}!\n\nNahuman na nimo ang tibuok rota sa MasterMinds ONTOUR! Kompleto na nimo ang tanang Checkpoints gikan sa sugod hangtod sa katapusan.\n\nGusto ba mo-apil sa sunod nga rota o laing ONTOUR adventure? Kontaka dayon ang Admin / Organizer para sa imong pag-register! 🏍️🔥`);
-                
-                submitBtn.textContent = "I-Submit ang Data";
-                submitBtn.disabled = false;
-                submitBtn.style.opacity = "1";
-                isSubmitting = false;
-                return; 
-            }
-
-            let isPracticeCheckpoint = currentCheckpoint.toLowerCase().includes("xx");
-
-            if (!isPracticeCheckpoint) {
-                let submissionCount = completedCheckpoints.filter(cp => cp === currentCheckpoint).length;
-
-                if (submissionCount >= 3) {
-                    if (isMarshalMode) {
-                        let allowExtra = confirm(`⚠️ GOD-MODE MARSHAL OVERRIDE!\nNaabot na sa 3 ka beses nag-submit si Rider ${checkId} sa ${currentCheckpoint}.\nGusto ba nimo i-allow ang ika-4 nga pag-submit?`);
-                        if (!allowExtra) {
-                            bgMusic.pause(); bgMusic.currentTime = 0;
-                            submitBtn.textContent = "I-Submit ang Data";
-                            submitBtn.disabled = false;
-                            submitBtn.style.opacity = "1";
-                            isSubmitting = false;
-                            return;
-                        }
-                    } else {
-                        bgMusic.pause(); bgMusic.currentTime = 0;
-                        alert(`🛑 LIMIT REACHED! Master ${checkId}, nakatulo na ka nag-submit sa ${currentCheckpoint}!\n\nNaabot na nimo ang maximum limit (3/3). Palihug pangitaa ang Marshal.`);
-                        submitBtn.textContent = "I-Submit ang Data";
-                        submitBtn.disabled = false;
-                        submitBtn.style.opacity = "1";
-                        isSubmitting = false;
-                        return; 
-                    }
-                } else if (submissionCount > 0) {
-                    let attemptNum = submissionCount + 1;
-                    let proceedAgain = confirm(`⚠️ PAHINUMDOM: Kini ang imong ika-${attemptNum} nga pag-submit sa ${currentCheckpoint}.\n\nSiguradoha nga sakto na ang Odometer. Gusto ba nimo ipadayon?`);
-                    if (!proceedAgain) {
-                        bgMusic.pause(); bgMusic.currentTime = 0;
-                        submitBtn.textContent = "I-Submit ang Data";
-                        submitBtn.disabled = false;
-                        submitBtn.style.opacity = "1";
-                        isSubmitting = false;
-                        return;
-                    }
+                if (submitBtn) {
+                    submitBtn.textContent = "📍 Gipadala ang Data...";
+                    submitBtn.disabled = true; 
+                    submitBtn.style.opacity = "0.5"; 
                 }
-            }
 
-            const gpsData = await getLocation();
+                const bgMusic = document.getElementById('submitMusic');
+                if (bgMusic) bgMusic.play();
 
-            if (gpsData.lat === "N/A" || gpsData.link === "No GPS" || gpsData.link === "Error/Gibalibaran") {
-                bgMusic.pause(); bgMusic.currentTime = 0; 
-                alert("🛑 DILI MA-SAVE! Palihug i-on ang Location / GPS.");
-                submitBtn.textContent = "I-Submit ang Data";
-                submitBtn.disabled = false;
-                submitBtn.style.opacity = "1";
-                isSubmitting = false;
-                return; 
-            }
+                const checkId = document.getElementById('idNum') ? document.getElementById('idNum').value : "";
+                const checkName = document.getElementById('name') ? document.getElementById('name').value : "";
+                const currentCheckpoint = document.getElementById('checkpoint') ? document.getElementById('checkpoint').value : "";
 
-            if (compressedPhotoBase64 === "") {
-                bgMusic.pause(); bgMusic.currentTime = 0; 
-                alert("📸 DILI MA-SAVE! Palihug pagkuha og Ebidensya/Picture una ka mo-submit.");
-                submitBtn.textContent = "I-Submit ang Data";
-                submitBtn.disabled = false;
-                submitBtn.style.opacity = "1";
-                isSubmitting = false;
-                return; 
-            }
-
-            const data = {
-                idNum: checkId,
-                name: checkName,
-                checkpoint: currentCheckpoint, 
-                odometer: document.getElementById('odometer').value, 
-                notes: document.getElementById('notes').value,
-                photo: compressedPhotoBase64, 
-                timestamp: new Date().toLocaleString(), 
-                location: gpsData.link,
-                latitude: gpsData.lat,
-                longitude: gpsData.lon,
-                locationTime: gpsData.time, 
-                level: document.getElementById('level').value 
-            };
-
-            submitBtn.textContent = "🌐 Gisusi ang Internet...";
-            let isStable = await checkInternetStability();
-            let isDataSaved = false;
-
-            if (isStable) {
-                submitBtn.textContent = "📍 Gipadala sa Server...";
-                let success = await sendDataToServer(data);
-                
-                if (success) {
-                    bgMusic.pause(); bgMusic.currentTime = 0; 
-                    alert("✅ Success! Check imong Google Sheet, nisulod na!");
-                    isDataSaved = true; 
-                } else {
-                    bgMusic.pause(); bgMusic.currentTime = 0; 
-                    alert("⚠️ Na-putol ang signal! Gi-save sa Offline Data.");
-                    saveToOfflineStorage(data);
-                    isDataSaved = true; 
+                if (checkId === "" || checkName === "" || checkName.includes("❌")) {
+                    if (bgMusic) { bgMusic.pause(); bgMusic.currentTime = 0; }
+                    alert("🛑 DILI MA-SAVE! Blangko ang Rider ID. Palihug i-scan ang saktong QR Code.");
+                    resetSubmitBtn(submitBtn);
+                    return;
                 }
-            } else {
-                bgMusic.pause(); bgMusic.currentTime = 0; 
-                saveToOfflineStorage(data);
-                alert("⚠️ Hinay ang internet! Gi-save sa Offline Data sa device.");
-                isDataSaved = true;
-            }
 
-            if (isDataSaved) {
+                const checkpointSelect = document.getElementById('checkpoint');
+                let officialRoute = [];
+                if (checkpointSelect) {
+                    officialRoute = Array.from(checkpointSelect.options).map(opt => opt.value).filter(val => val !== "" && !val.toLowerCase().includes("xx"));
+                }
+                
+                let riderHistoryKey = 'history_' + checkId;
+                let completedCheckpoints = JSON.parse(localStorage.getItem(riderHistoryKey)) || [];
+                let isTourCompleted = officialRoute.length > 0 && officialRoute.every(cp => completedCheckpoints.includes(cp));
+
+                if (isTourCompleted) {
+                    if (bgMusic) { bgMusic.pause(); bgMusic.currentTime = 0; }
+                    alert(`🏆 CONGRATULATIONS, MASTER ${checkId}!\n\nNahuman na nimo ang tibuok rota! Kompleto na nimo ang tanang Checkpoints!`);
+                    resetSubmitBtn(submitBtn);
+                    return; 
+                }
+
+                let isPracticeCheckpoint = currentCheckpoint.toLowerCase().includes("xx");
+
                 if (!isPracticeCheckpoint) {
-                    completedCheckpoints.push(currentCheckpoint);
-                    localStorage.setItem(riderHistoryKey, JSON.stringify(completedCheckpoints));
-                    
-                    // 👉 ANG IMONG GENIUS NGA IDEYA: I-save ang Start ODO sa device kung CP 00!
-                    if (currentCheckpoint === "CP 00") {
-                        localStorage.setItem('startOdo_' + checkId, data.odometer);
+                    let submissionCount = completedCheckpoints.filter(cp => cp === currentCheckpoint).length;
+                    if (submissionCount >= 3) {
+                        if (isMarshalMode) {
+                            if (!confirm(`⚠️ GOD-MODE OVERRIDE!\nI-allow ang ika-4 nga pag-submit?`)) {
+                                if (bgMusic) { bgMusic.pause(); bgMusic.currentTime = 0; }
+                                resetSubmitBtn(submitBtn); return;
+                            }
+                        } else {
+                            if (bgMusic) { bgMusic.pause(); bgMusic.currentTime = 0; }
+                            alert(`🛑 LIMIT REACHED! Maximum limit (3/3) na ang ${currentCheckpoint}. Pangitaa ang Marshal.`);
+                            resetSubmitBtn(submitBtn); return; 
+                        }
+                    } else if (submissionCount > 0) {
+                        if (!confirm(`⚠️ PAHINUMDOM: Ika-${submissionCount + 1} nga pag-submit ni sa ${currentCheckpoint}.\nGusto ipadayon?`)) {
+                            if (bgMusic) { bgMusic.pause(); bgMusic.currentTime = 0; }
+                            resetSubmitBtn(submitBtn); return;
+                        }
                     }
                 }
 
-                myForm.reset();
-                compressedPhotoBase64 = ""; 
-                document.getElementById('photoPreview').style.display = "none"; 
-                document.getElementById('progressCard').style.display = "none"; // I-tago ang progress card human og submit
+                const gpsData = await getLocation();
+                if (gpsData.lat === "N/A" || gpsData.link === "No GPS" || gpsData.link === "Error/Gibalibaran") {
+                    if (bgMusic) { bgMusic.pause(); bgMusic.currentTime = 0; }
+                    alert("🛑 DILI MA-SAVE! Palihug i-on ang Location / GPS.");
+                    resetSubmitBtn(submitBtn); return; 
+                }
+
+                if (compressedPhotoBase64 === "") {
+                    if (bgMusic) { bgMusic.pause(); bgMusic.currentTime = 0; }
+                    alert("📸 DILI MA-SAVE! Palihug pagkuha og Ebidensya/Picture.");
+                    resetSubmitBtn(submitBtn); return; 
+                }
+
+                const data = {
+                    idNum: checkId, 
+                    name: checkName, 
+                    checkpoint: currentCheckpoint, 
+                    odometer: document.getElementById('odometer') ? document.getElementById('odometer').value : "", 
+                    notes: document.getElementById('notes') ? document.getElementById('notes').value : "",
+                    photo: compressedPhotoBase64, 
+                    timestamp: new Date().toLocaleString(), 
+                    location: gpsData.link, 
+                    latitude: gpsData.lat, 
+                    longitude: gpsData.lon,
+                    locationTime: gpsData.time, 
+                    level: document.getElementById('level') ? document.getElementById('level').value : ""
+                };
+
+                if (submitBtn) submitBtn.textContent = "🌐 Gisusi ang Internet...";
+                let isStable = await checkInternetStability();
+                let isDataSaved = false;
+
+                if (isStable) {
+                    if (submitBtn) submitBtn.textContent = "📍 Gipadala sa Server...";
+                    if (await sendDataToServer(data)) {
+                        if (bgMusic) { bgMusic.pause(); bgMusic.currentTime = 0; }
+                        alert("✅ Success! Check imong Google Sheet, nisulod na!");
+                        isDataSaved = true; 
+                    } else {
+                        if (bgMusic) { bgMusic.pause(); bgMusic.currentTime = 0; }
+                        alert("⚠️ Na-putol ang signal! Gi-save sa Offline Data.");
+                        saveToOfflineStorage(data);
+                        isDataSaved = true; 
+                    }
+                } else {
+                    if (bgMusic) { bgMusic.pause(); bgMusic.currentTime = 0; }
+                    saveToOfflineStorage(data);
+                    alert("⚠️ Hinay ang internet! Gi-save sa Offline Data.");
+                    isDataSaved = true;
+                }
+
+                if (isDataSaved) {
+                    if (!isPracticeCheckpoint) {
+                        completedCheckpoints.push(currentCheckpoint);
+                        localStorage.setItem(riderHistoryKey, JSON.stringify(completedCheckpoints));
+                        
+                        // 👉 I-save ang Start ODO sa device kung CP 00
+                        if (currentCheckpoint === "CP 00") {
+                            localStorage.setItem('startOdo_' + checkId, data.odometer);
+                        }
+                    }
+                    myForm.reset();
+                    compressedPhotoBase64 = ""; 
+                    if(document.getElementById('photoPreview')) document.getElementById('photoPreview').style.display = "none"; 
+                    if(document.getElementById('progressCard')) document.getElementById('progressCard').style.display = "none";
+                }
+                resetSubmitBtn(submitBtn);
+            });
+        }
+
+        function resetSubmitBtn(btn) {
+            if(btn) {
+                btn.textContent = "I-Submit ang Data";
+                btn.disabled = false;
+                btn.style.opacity = "1"; 
             }
-            
-            submitBtn.textContent = "I-Submit ang Data";
-            submitBtn.disabled = false;
-            submitBtn.style.opacity = "1"; 
             isSubmitting = false; 
-        });
+        }
 
         function saveToOfflineStorage(recordData) {
             let savedData = JSON.parse(localStorage.getItem('offlineData')) || [];
@@ -793,198 +730,170 @@
 
         let isMarshalMode = localStorage.getItem('marshalMode') === 'true';
         const scanQrBtn = document.getElementById('scanQrBtn');
-        
-        if (!isMarshalMode) {
-            if (scanQrBtn) scanQrBtn.style.display = "none";
-        }
+        if (!isMarshalMode && scanQrBtn) scanQrBtn.style.display = "none";
 
         let tapCount = 0;
         let tapTimeout;
         const secretButton = document.getElementById('signalStatus'); 
 
-        secretButton.addEventListener('click', async function() {
-            tapCount++;
-            clearTimeout(tapTimeout);
-            tapTimeout = setTimeout(() => { tapCount = 0; }, 1500);
+        if (secretButton) {
+            secretButton.addEventListener('click', async function() {
+                tapCount++;
+                clearTimeout(tapTimeout);
+                tapTimeout = setTimeout(() => { tapCount = 0; }, 1500);
 
-            if (tapCount === 3) {
-                tapCount = 0; 
-                
-                if (!isMarshalMode) {
-                    let passcode = prompt("🕵️‍♂️ MARSHAL MODE: Pagsulod og Passcode:");
-                    if (passcode === null) return;
-                    
-                    if (typeof riderDatabase !== 'undefined') {
-                        let hashedInput = await sha256Hash(passcode); 
-                        let validMarshal = riderDatabase.find(r => r.passcode === hashedInput && r.isMarshal === true);      
-                        
-                        if (validMarshal) {
-                            isMarshalMode = true;
-                            localStorage.setItem('marshalMode', 'true'); 
-                            if (scanQrBtn) scanQrBtn.style.display = "block"; 
-                            alert(`🔓 MARSHAL MODE ON! Welcome, Master ${validMarshal.fullname}! Pwede na nimo gamiton ang Scanner.`);
-                        } else {
-                            alert("❌ Sayop nga Passcode o dili ka awtorisado! Rider mode lang ka.");
-                        }
+                if (tapCount === 3) {
+                    tapCount = 0; 
+                    if (!isMarshalMode) {
+                        let passcode = prompt("🕵️‍♂️ MARSHAL MODE: Pagsulod og Passcode:");
+                        if (passcode === null) return;
+                        if (typeof riderDatabase !== 'undefined') {
+                            let hashedInput = await sha256Hash(passcode); 
+                            let validMarshal = riderDatabase.find(r => r.passcode === hashedInput && r.isMarshal === true);      
+                            if (validMarshal) {
+                                isMarshalMode = true;
+                                localStorage.setItem('marshalMode', 'true'); 
+                                if (scanQrBtn) scanQrBtn.style.display = "block"; 
+                                alert(`🔓 MARSHAL MODE ON! Welcome, Master ${validMarshal.fullname}!`);
+                            } else { alert("❌ Sayop nga Passcode!"); }
+                        } else { alert("⚠️ Error: Wala nabasa ang database."); }
                     } else {
-                        alert("⚠️ Error: Wala nabasa ang database.js");
-                    }
-                } else {
-                    let confirmLock = confirm("🔒 Gusto nimo i-lock ug ibalik sa Rider Mode?");
-                    if (confirmLock) {
-                        isMarshalMode = false;
-                        localStorage.setItem('marshalMode', 'false');
-                        if (scanQrBtn) scanQrBtn.style.display = "none"; 
-                        alert("🔒 Naka-RIDER MODE na ang app.");
+                        if (confirm("🔒 Gusto nimo i-lock ug ibalik sa Rider Mode?")) {
+                            isMarshalMode = false;
+                            localStorage.setItem('marshalMode', 'false');
+                            if (scanQrBtn) scanQrBtn.style.display = "none"; 
+                            alert("🔒 Naka-RIDER MODE na ang app.");
+                        }
                     }
                 }
-            }
-        });
+            });
+        }
 
         showLiveLocationOnLoad(); 
 
         if ('serviceWorker' in navigator) {
             window.addEventListener('load', function() {
-                navigator.serviceWorker.register('./sw.js')
-                .then(function(registration) { console.log('Service Worker naka-register!'); })
-                .catch(function(error) { console.log('Error sa Service Worker:', error); });
+                navigator.serviceWorker.register('./sw.js').catch(function(error) { console.log('Error sa SW:', error); });
             });
         }
 
         const idNumBox = document.getElementById('idNum');
         const nameBox = document.getElementById('name');
-
         const urlParams = new URLSearchParams(window.location.search);
         let paramID = urlParams.get('theIDno');
         let savedID = localStorage.getItem('defaultRiderID');
 
-        if (paramID) {
-            idNumBox.value = paramID;
-            localStorage.setItem('defaultRiderID', paramID); 
-        } else if (savedID) {
-            idNumBox.value = savedID; 
+        if (idNumBox) {
+            if (paramID) { idNumBox.value = paramID; localStorage.setItem('defaultRiderID', paramID); } 
+            else if (savedID) { idNumBox.value = savedID; }
         }
 
         function searchDatabase(idToSearch) {
             if (idToSearch && typeof riderDatabase !== 'undefined') {
                 const foundRider = riderDatabase.find(r => r.idNum === idToSearch);
                 if (foundRider) {
-                    document.getElementById('name').value = foundRider.fullname;
-                    document.getElementById('level').value = foundRider.level || "Wala Gi-assign"; 
-                    updateRiderProgress(); // 👈 Gi-apil na nato pag-tawag dinhi
+                    if(nameBox) nameBox.value = foundRider.fullname;
+                    let lvl = document.getElementById('level');
+                    if(lvl) lvl.value = foundRider.level || "Wala Gi-assign"; 
+                    updateRiderProgress();
                 } else {
-                    document.getElementById('name').value = "❌ Wala sa Masterlist";
-                    document.getElementById('level').value = ""; 
+                    if(nameBox) nameBox.value = "❌ Wala sa Masterlist";
+                    let lvl = document.getElementById('level');
+                    if(lvl) lvl.value = ""; 
                     updateRiderProgress();
                 }
             }
         }
 
-        searchDatabase(idNumBox.value); 
+        if (idNumBox) searchDatabase(idNumBox.value); 
 
-        idNumBox.addEventListener('dblclick', function() {
-            if (!isMarshalMode) {
-                alert("⚠️ RIDER MODE: Dili ka pwede mag-usab sa ID. Pangitaa ang Marshal!");
-                return; 
-            }
+        if (idNumBox) {
+            idNumBox.addEventListener('dblclick', function() {
+                if (!isMarshalMode) { alert("⚠️ RIDER MODE: Dili ka pwede mag-usab sa ID. Pangitaa ang Marshal!"); return; }
+                this.removeAttribute('readonly'); 
+                this.value = ""; 
+                if(nameBox) nameBox.value = ""; 
+                let lvl = document.getElementById('level');
+                if(lvl) lvl.value = ""; 
+                updateRiderProgress();
+                this.focus(); this.style.border = "3px solid #ffcc00"; 
+            });
 
-            this.removeAttribute('readonly'); 
-            this.value = ""; 
-            nameBox.value = ""; 
-            document.getElementById('level').value = ""; 
-            updateRiderProgress();
-            this.focus(); 
-            this.style.border = "3px solid #ffcc00"; 
-        });
+            idNumBox.addEventListener('input', function() {
+                this.value = this.value.replace(/[^0-9]/g, ''); 
+                if (this.value.length === 4) {
+                    this.setAttribute('readonly', true); 
+                    this.style.border = "1px solid #444"; 
+                    this.blur(); searchDatabase(this.value); 
+                    localStorage.setItem('defaultRiderID', this.value); 
+                }
+            });
+        }
 
-        idNumBox.addEventListener('input', function() {
-            this.value = this.value.replace(/[^0-9]/g, ''); 
-            if (this.value.length === 4) {
-                this.setAttribute('readonly', true); 
-                this.style.border = "1px solid #444"; 
-                this.blur(); 
-                searchDatabase(this.value); 
-                localStorage.setItem('defaultRiderID', this.value); 
-            }
-        });
-
-        const scanBtn = document.getElementById('scanQrBtn');
         const scannerDiv = document.getElementById('reader');
         let html5QrCode; 
 
-        scanBtn.addEventListener('click', function() {
-            if (scannerDiv.style.display === "none") {
-                scannerDiv.style.display = "block";
-                scanBtn.textContent = "🛑 I-CANCEL ANG PAG-SCAN";
-                scanBtn.style.backgroundColor = "#cc0000"; 
-                scanBtn.style.color = "white";
+        if (scanQrBtn) {
+            scanQrBtn.addEventListener('click', function() {
+                if (scannerDiv && scannerDiv.style.display === "none") {
+                    scannerDiv.style.display = "block";
+                    scanQrBtn.textContent = "🛑 I-CANCEL ANG PAG-SCAN";
+                    scanQrBtn.style.backgroundColor = "#cc0000"; 
+                    scanQrBtn.style.color = "white";
 
-                html5QrCode = new Html5Qrcode("reader");
-                html5QrCode.start(
-                    { facingMode: "environment" }, 
-                    { fps: 10, qrbox: { width: 250, height: 250 } },
-                    (decodedText, decodedResult) => {
-                        html5QrCode.stop().then((ignore) => {
-                            scannerDiv.style.display = "none";
-                            scanBtn.textContent = "📷 I-SCAN ANG RIDER ID";
-                            scanBtn.style.backgroundColor = "#ff9900"; 
-                            scanBtn.style.color = "black";
-                            
-                            const scannedID = decodedText;
-                            document.getElementById('idNum').value = scannedID;
-                            
-                            if (typeof riderDatabase !== 'undefined') {
-                                const foundRider = riderDatabase.find(r => r.idNum === scannedID);
-                                if (foundRider) {
-                                    document.getElementById('name').value = foundRider.fullname;
-                                    document.getElementById('level').value = foundRider.level || "Wala Gi-assign"; 
-                                    localStorage.setItem('defaultRiderID', scannedID);
-                                    updateRiderProgress(); // 👈 Gi-apil na pud pag-tawag dinhi
-                                } else {
-                                    document.getElementById('name').value = "❌ Wala sa Masterlist";
-                                    document.getElementById('level').value = ""; 
-                                    updateRiderProgress();
+                    html5QrCode = new Html5Qrcode("reader");
+                    html5QrCode.start(
+                        { facingMode: "environment" }, { fps: 10, qrbox: { width: 250, height: 250 } },
+                        (decodedText, decodedResult) => {
+                            html5QrCode.stop().then((ignore) => {
+                                scannerDiv.style.display = "none";
+                                scanQrBtn.textContent = "📷 I-SCAN ANG RIDER ID";
+                                scanQrBtn.style.backgroundColor = "#ff9900"; scanQrBtn.style.color = "black";
+                                if (idNumBox) idNumBox.value = decodedText;
+                                if (typeof riderDatabase !== 'undefined') {
+                                    const foundRider = riderDatabase.find(r => r.idNum === decodedText);
+                                    if (foundRider) {
+                                        if (nameBox) nameBox.value = foundRider.fullname;
+                                        let lvl = document.getElementById('level');
+                                        if (lvl) lvl.value = foundRider.level || "Wala Gi-assign"; 
+                                        localStorage.setItem('defaultRiderID', decodedText);
+                                        updateRiderProgress(); 
+                                    } else {
+                                        if (nameBox) nameBox.value = "❌ Wala sa Masterlist";
+                                        let lvl = document.getElementById('level');
+                                        if (lvl) lvl.value = ""; 
+                                        updateRiderProgress();
+                                    }
                                 }
-                            }
-                        }).catch((err) => { console.log("Error sa pag-stop sa camera.", err); });
-                    },
-                    (errorMessage) => {}
-                ).catch((err) => { alert("⚠️ Wala ma-access ang Camera."); });
-            } else {
-                if (html5QrCode) {
-                    html5QrCode.stop().then(() => {
-                        scannerDiv.style.display = "none";
-                        scanBtn.textContent = "📷 I-SCAN ANG RIDER ID";
-                        scanBtn.style.backgroundColor = "#ff9900";
-                        scanBtn.style.color = "black";
-                    });
+                            }).catch((err) => { console.log(err); });
+                        },
+                        (errorMessage) => {}
+                    ).catch((err) => { alert("⚠️ Wala ma-access ang Camera."); });
+                } else {
+                    if (html5QrCode && scannerDiv) {
+                        html5QrCode.stop().then(() => {
+                            scannerDiv.style.display = "none";
+                            scanQrBtn.textContent = "📷 I-SCAN ANG RIDER ID";
+                            scanQrBtn.style.backgroundColor = "#ff9900"; scanQrBtn.style.color = "black";
+                        });
+                    }
                 }
-            }
-        });
+            });
+        }
 
         async function checkRealInternet() {
             const sigStatus = document.getElementById('signalStatus');
             if (!navigator.onLine) {
-                sigStatus.innerHTML = "🔴 OFFLINE";
-                sigStatus.style.color = "#ff3333"; 
+                if (sigStatus) { sigStatus.innerHTML = "🔴 OFFLINE"; sigStatus.style.color = "#ff3333"; }
                 return;
             }
-
             try {
-                await fetch('https://www.google.com/favicon.ico?' + new Date().getTime(), {
-                    mode: 'no-cors',  
-                    cache: 'no-store' 
-                });
-                sigStatus.innerHTML = "🟢 ONLINE";
-                sigStatus.style.color = "#00ff00"; 
-
+                await fetch('https://www.google.com/favicon.ico?' + new Date().getTime(), { mode: 'no-cors', cache: 'no-store' });
+                if (sigStatus) { sigStatus.innerHTML = "🟢 ONLINE"; sigStatus.style.color = "#00ff00"; }
                 let offlineData = JSON.parse(localStorage.getItem('offlineData')) || [];
-                if (offlineData.length > 0) {
-                    syncOfflineData(); 
-                }
+                if (offlineData.length > 0) syncOfflineData(); 
             } catch (error) {
-                sigStatus.innerHTML = "⚠️ NO INTERNET";
-                sigStatus.style.color = "#ff9900"; 
+                if (sigStatus) { sigStatus.innerHTML = "⚠️ NO INTERNET"; sigStatus.style.color = "#ff9900"; }
             }
         }
 
@@ -993,17 +902,20 @@
         setInterval(checkRealInternet, 5000);
         checkRealInternet(); 
 
+        // 🔋 BATTERY MONITOR LOGIC 🔋
         if ('getBattery' in navigator) {
             navigator.getBattery().then(function(battery) {
                 function updateBatteryInfo() {
                     const level = Math.round(battery.level * 100);
                     const batStatus = document.getElementById('batteryStatus');
-                    const icon = battery.charging ? "⚡" : "🔋";
-                    batStatus.innerHTML = `${icon} ${level}%`;
-                    if (level <= 15 && !battery.charging) {
-                        batStatus.style.color = "#ff3333"; 
-                    } else {
-                        batStatus.style.color = "white";
+                    if (batStatus) {
+                        const icon = battery.charging ? "⚡" : "🔋";
+                        batStatus.innerHTML = `${icon} ${level}%`;
+                        if (level <= 15 && !battery.charging) {
+                            batStatus.style.color = "#ff3333"; 
+                        } else {
+                            batStatus.style.color = "white";
+                        }
                     }
                 }
                 updateBatteryInfo();
@@ -1011,17 +923,16 @@
                 battery.addEventListener('chargingchange', updateBatteryInfo);
             });
         } else {
-            document.getElementById('batteryStatus').innerHTML = "🔋 N/A";
+            const batStatus = document.getElementById('batteryStatus');
+            if(batStatus) batStatus.innerHTML = "🔋 N/A";
         }
 
         function updateDashboardCounters() {
             let offlineData = JSON.parse(localStorage.getItem('offlineData')) || [];
             const pCount = document.getElementById('pendingCount');
-            pCount.innerText = offlineData.length;
-            if (offlineData.length > 0) {
-                pCount.style.color = "#ff9900"; 
-            } else {
-                pCount.style.color = "white"; 
+            if (pCount) {
+                pCount.innerText = offlineData.length;
+                pCount.style.color = offlineData.length > 0 ? "#ff9900" : "white"; 
             }
         }
         setInterval(updateDashboardCounters, 2000);
@@ -1033,49 +944,60 @@
         const routeTotalKm = {
             "G1": 777,
             "G2": 777,
-            "G3": 3333, // Mindanao Coastal Gaming
+            "G3": 3333, 
             "G4": 777,
-            "G5": 5555  // Man of Steel
+            "G5": 5555  
         };
 
         function updateRiderProgress() {
-            let levelField = document.getElementById("level") ? document.getElementById("level").value.trim() : "";
-            let currentOdoField = parseFloat(document.getElementById("odometer").value) || 0;
-            let currentId = document.getElementById("idNum").value; // Kuhaon ang ID sa Rider
+            let lvlElem = document.getElementById("level");
+            let levelField = lvlElem ? lvlElem.value.trim() : "";
+            
+            let odoElem = document.getElementById("odometer");
+            let currentOdoField = odoElem ? parseFloat(odoElem.value) || 0 : 0;
+            
+            let idElem = document.getElementById("idNum");
+            let currentId = idElem ? idElem.value.trim() : ""; 
+            
             let card = document.getElementById("progressCard");
 
-            // 👈 PANGITAON SA SELPON ANG NA-SAVE NGA START ODO (Atol sa pag-submit sa CP 00)
             let savedStartOdo = parseFloat(localStorage.getItem('startOdo_' + currentId)) || 0;
 
-            if (routeTotalKm[levelField] && currentOdoField > 0) {
+            if (routeTotalKm[levelField] && currentOdoField > 0 && card) {
                 let totalRoute = routeTotalKm[levelField];
-                
-                // 👉 PORMULA: Current ODO - Start ODO (Gikan sa CP 00)
                 let nadagan = currentOdoField - savedStartOdo;
                 
-                // Kung wala pa siya naka-scan sa CP 00 o sayop ang ODO, i-zero lang una
                 if (savedStartOdo === 0 || nadagan < 0) nadagan = 0; 
                 
                 let nabilin = totalRoute - nadagan;
                 if (nabilin < 0) nabilin = 0; 
 
-                document.getElementById("displayLevel").innerText = levelField;
-                document.getElementById("txtNadagan").innerText = nadagan.toLocaleString() + " KM";
-                document.getElementById("txtNabilin").innerText = nabilin.toLocaleString() + " KM";
+                let dispLevel = document.getElementById("displayLevel");
+                let txtNadagan = document.getElementById("txtNadagan");
+                let txtNabilin = document.getElementById("txtNabilin");
+
+                if (dispLevel) dispLevel.innerText = levelField;
+                if (txtNadagan) txtNadagan.innerText = nadagan.toLocaleString() + " KM";
+                if (txtNabilin) txtNabilin.innerText = nabilin.toLocaleString() + " KM";
+                
                 card.style.display = "block"; 
-            } else {
+            } else if (card) {
                 card.style.display = "none"; 
             }
         }
 
-        // Tigpaminaw sa pag-type sa Odometer
-        document.getElementById("odometer").addEventListener("input", updateRiderProgress);
+        let odometerInput = document.getElementById("odometer");
+        if (odometerInput) {
+            odometerInput.addEventListener("input", updateRiderProgress);
+        }
         
-        if(document.getElementById("level")) {
-            document.getElementById("level").addEventListener("change", updateRiderProgress);
-            document.getElementById("level").addEventListener("input", updateRiderProgress);
+        let levelInput = document.getElementById("level");
+        if (levelInput) {
+            levelInput.addEventListener("change", updateRiderProgress);
+            levelInput.addEventListener("input", updateRiderProgress);
         }
     </script>
+
 
 </body>
 </html>
