@@ -784,7 +784,7 @@
         }
 
         // ==========================================
-        // 📊 6. SMART RIDER PROGRESS CALCULATOR 
+        // 📊 6. SMART RIDER PROGRESS CALCULATOR (FIXED)
         // ==========================================
         const routeTotalKm = { "G1": 777, "G2": 777, "G3": 3333, "G4": 777, "G5": 5555 };
 
@@ -801,18 +801,33 @@
             let card = document.getElementById("progressCard");
             if (!card) return;
 
-            let savedStartOdo = parseFloat(localStorage.getItem('startOdo_' + currentId)) || 0;
-            let savedLastOdo = parseFloat(localStorage.getItem('lastOdo_' + currentId)) || savedStartOdo;
+            // Kuhaon ang checkpoint nga gipili karon sa dropdown
+            let cpElem = document.getElementById("checkpoint");
+            let currentCP = cpElem ? cpElem.value : "";
+
+            let savedStartOdo = parseFloat(localStorage.getItem('startOdo_' + currentId));
+            
+            // Kon naa sa CP 00, ang starting odo kay ang gi-type karon sa rider
+            let activeStartOdo = savedStartOdo;
+            if (currentCP === "CP 00" && !isNaN(typedOdo)) {
+                activeStartOdo = typedOdo;
+            }
+            if (isNaN(activeStartOdo)) activeStartOdo = 0;
+
+            let savedLastOdo = parseFloat(localStorage.getItem('lastOdo_' + currentId)) || activeStartOdo;
             let activeOdo = isNaN(typedOdo) ? savedLastOdo : typedOdo;
 
             if (routeTotalKm[levelField]) {
                 let totalRoute = routeTotalKm[levelField];
                 let nadagan = 0;
 
-                if (savedStartOdo > 0 && activeOdo >= savedStartOdo) {
-                    nadagan = activeOdo - savedStartOdo;
-                } else if (savedStartOdo === 0 && activeOdo > 0) {
-                    nadagan = activeOdo; 
+                // 👉 KINI ANG FIX: Kung naa sa CP 00 o wala pa'y gisugdan, 0 KM gyud ang nadagan!
+                if (currentCP === "CP 00") {
+                    nadagan = 0; 
+                } else if (activeStartOdo > 0 && activeOdo >= activeStartOdo) {
+                    nadagan = activeOdo - activeStartOdo;
+                } else if (activeStartOdo === 0 && activeOdo > 0) {
+                    nadagan = 0; 
                 }
                 
                 let nabilin = totalRoute - nadagan;
@@ -826,7 +841,7 @@
                 if (txtNadagan) txtNadagan.innerText = nadagan.toLocaleString() + " KM";
                 if (txtNabilin) txtNabilin.innerText = nabilin.toLocaleString() + " KM";
                 
-                if (activeOdo > 0 || savedStartOdo > 0) {
+                if (activeOdo > 0 || activeStartOdo > 0) {
                     card.style.display = "block"; 
                 } else {
                     card.style.display = "none";
@@ -835,6 +850,13 @@
                 card.style.display = "none"; 
             }
         }
+
+        // I-bind usab ang checkpoint dropdown aron mo-update dayon ang progress inig ilis sa CP
+        let checkpointDropdown = document.getElementById("checkpoint");
+        if (checkpointDropdown) {
+            checkpointDropdown.addEventListener("change", updateRiderProgress);
+        }
+
 
         let odometerInput = document.getElementById("odometer");
         if (odometerInput) {
