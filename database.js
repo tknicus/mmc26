@@ -1,10 +1,10 @@
 // KINI ANG IMONG OFFLINE DATABASE
 const riderDatabase = [
   { idNum: "0000", fullname: "ELKAPITAN", nickname: "invictus", level: "Street Pilot", category: "Adventure 500cc", classification: "MASTER" },
-  { idNum: "0001", fullname: "technicus", nickname: "rayHARGG", level: "G5", category: "Adventure 525cc", classification: "Aspirant", passcode: "4c327801d652b4e7b3449684f83febb4fea62dbd2c80ee4136f32ecbccc0f45e", isMarshal: true },
-  { idNum: "0002", fullname: "Long Way Ph", nickname: "Elkapitan Jr", level: "G5", category: "ADV 350cc", classification: "MASTER", passcode: "e40e0225f947f1ae6cba2245dd9a1a50361512bb718c1ca1ce3f983fe3b3aa4e", isMarshal: true },
+  { idNum: "0001", fullname: "technicus", nickname: "rayHARGG", level: "AS26", category: "Adventure 525cc", classification: "Aspirant", passcode: "4c327801d652b4e7b3449684f83febb4fea62dbd2c80ee4136f32ecbccc0f45e", isMarshal: true },
+  { idNum: "0002", fullname: "Long Way Ph", nickname: "Elkapitan Jr", level: "AS26", category: "ADV 350cc", classification: "MASTER", passcode: "e40e0225f947f1ae6cba2245dd9a1a50361512bb718c1ca1ce3f983fe3b3aa4e", isMarshal: true },
   { idNum: "0017", fullname: "MCcoy", nickname: "17", level: "G5", category: "BMW GS450cc", classification: "MASTER" },
-  { idNum: "0251", fullname: "Zhack", nickname: "zhackyyy", level: "G1", category: "Rouser RS2000", classification: "Aspirant", passcode: "e0799b5b526a8866b02243691e20c51cf33ef66d84c7c4e3b99727aa48d21d20", isMarshal: true  },
+  { idNum: "0251", fullname: "Zhack", nickname: "zhackyyy", level: "G1S", category: "Rouser RS2000", classification: "Aspirant", passcode: "e0799b5b526a8866b02243691e20c51cf33ef66d84c7c4e3b99727aa48d21d20", isMarshal: true  },
   { idNum: "1001", fullname: "Juan Dela Cruz", nickname: "Juan", level: "G5", category: "Adventure 1000cc", classification: "Veteran" },
   { idNum: "1002", fullname: "Pedro Penduko", nickname: "Pedz", level: "SKM26", category: "Scooter 155cc", classification: "Novice" },
   { idNum: "1234", fullname: "Prof G", nickname: "Master", level: "SKM26", category: "Enduro", classification: "Novice" },

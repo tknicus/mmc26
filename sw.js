@@ -1,8 +1,9 @@
-const CACHE_NAME = 'mmc-scanner-v3.2'; // ⬅️ GI-UPDATE NATO ANG VERSION ARON MO-DOWNLOAD OG BAG-O
+const CACHE_NAME = 'mmc-scanner-v3.3'; // ⬅️ GI-UPDATE NATO ANG VERSION ARON MO-DOWNLOAD OG BAG-O
 
 // KINI ANG MGA FILES NGA I-DOWNLOAD UG I-SAVE SA SELPON INIG UNANG ABLI
 const urlsToCache = [
   './',
+  './index.html',
   './database.js', // ⬅️ IDUGANG: Ang imong masterlist
   './menu.html',
   './menu.json',
