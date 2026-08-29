@@ -297,6 +297,17 @@
 
     <script src="database.js"></script>
     <script>
+        const routeNames = {
+            "AS26": "628 All Star",
+            "G5": "Man of Steel",
+            "G4": "JAS-T'Boli",
+            "G3": "Coastal Gaming",
+            "G1N": "North - MaKahulogan",
+            "G1E": "East - LoCoCaMaMa",
+            "G1W": "West - DaDiPaPi",
+            "G1S": "South Route"
+        };
+
         // ==========================================
         // 🗺️ 8 KA NAGKALAIN-LAING RUTA UG ILANG MGA LUGAR
         // ==========================================
@@ -1010,7 +1021,7 @@
                     photo: compressedPhotoBase64, 
                     timestamp: new Date().toLocaleString('en-PH', { timeZone: 'Asia/Manila' }), 
                     location: gpsData.link, latitude: gpsData.lat, longitude: gpsData.lon,
-                    locationTime: gpsData.time, level: document.getElementById('level') ? document.getElementById('level').value : "" 
+                    locationTime: gpsData.time, level: window.activeRiderLevel || "G5" 
                 };
 
                 if (submitBtn) submitBtn.textContent = "🌐 Gisusi ang Internet...";
@@ -1257,7 +1268,15 @@
                     if (foundRider) {
                         let rLevel = foundRider.level || "G5";
                         if(nameBox) nameBox.value = foundRider.fullname || "";
-                        if(lvlBox) lvlBox.value = rLevel; 
+                        
+                        // 🌟 KUHAON ANG TIBUOK PANGALAN GIKAN SA routeNames DICTIONARY
+                        let fullRouteName = routeNames[rLevel] ? routeNames[rLevel] : rLevel;
+                        
+                        // I-display ang full name sa text box
+                        if(lvlBox) lvlBox.value = fullRouteName;
+                        
+                        // TIPIGI ANG ORIHINAL NGA CODE SA GLOBAL VARIABLE PARA SA DATABASE ROUTING
+                        window.activeRiderLevel = rLevel; 
                         
                         populateCheckpointsByLevel(rLevel);
 
@@ -1266,6 +1285,7 @@
                     } else {
                         if(nameBox) nameBox.value = "❌ Wala sa Masterlist";
                         if(lvlBox) lvlBox.value = ""; 
+                        window.activeRiderLevel = "G5"; // Default fallback
                         populateCheckpointsByLevel("G5");
                     }
                 } else if (idToSearch) {
