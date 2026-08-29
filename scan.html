@@ -1060,7 +1060,7 @@
         }
 
         // ==========================================
-        // 🚀 9. APP INITIALIZATION (AUTO-LOAD SA TANAN)
+        // 🚀 9. APP INITIALIZATION & ID AUTO-RECOVERY
         // ==========================================
         window.addEventListener('DOMContentLoaded', function() {
             const urlParams = new URLSearchParams(window.location.search);
@@ -1071,16 +1071,19 @@
             const idNumBox = document.getElementById('idNum');
             
             if (activeID) {
+                // 👉 KINI ANG FIX: Piliton dayon og sulod ang ID sa box!
                 if (idNumBox) {
-                    idNumBox.value = activeID; // Piliton gyud og sulod ang ID
+                    idNumBox.value = activeID;
+                    idNumBox.setAttribute('readonly', true); // I-lock aron dili ma-usab
                 }
                 localStorage.setItem('defaultRiderID', activeID);
+                
+                // Tawgon dayon ang checkmarks ug ang offline profile memory
                 updateCheckpointCheckmarks(activeID);
                 
-                // Tawgon dayon ang searchDatabase para mogawas ang Pangalan gikan sa Offline Memory
                 setTimeout(() => { 
                     searchDatabase(activeID); 
-                }, 100); 
+                }, 150); 
             } else {
                 updateCheckpointCheckmarks(""); 
             }
