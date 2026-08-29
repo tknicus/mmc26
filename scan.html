@@ -778,10 +778,12 @@
             });
             checklistDiv.innerHTML = countCompleted === 0 ? "<span style='color: #888;'>Wala pa nay nahuman nga Checkpoint.</span>" : htmlOutput;
 
-            // 👉 KINI ANG SMART AUTO-SELECT MAGIC:
+            // 👉 SMART AUTO-SELECT (MAY DELAY PARA SURE-BOL)
             const dropdown = document.getElementById('checkpoint');
             if (dropdown && firstUnfinishedCP !== "") {
-                dropdown.value = firstUnfinishedCP; // Awtomatik ibutang sa dropdown
+                setTimeout(() => {
+                    dropdown.value = firstUnfinishedCP; // Awtomatik ibutang sa dropdown human maka-ginhawa
+                }, 100); 
             }
         }
 
@@ -849,6 +851,21 @@
         if (odometerInput) {
             odometerInput.addEventListener("input", updateRiderProgress);
             odometerInput.addEventListener("keyup", updateRiderProgress);
+            
+            // 👉 KINI ANG ANTI-TYPO WARNING MAGIC:
+            odometerInput.addEventListener("blur", function() {
+                let idElem = document.getElementById("idNum");
+                let currentId = idElem ? idElem.value.trim() : ""; 
+                let savedLastOdo = parseFloat(localStorage.getItem('lastOdo_' + currentId)) || 0;
+                let typedOdo = parseFloat(this.value);
+                
+                if (typedOdo > 0 && savedLastOdo > 0 && typedOdo < savedLastOdo) {
+                    alert(`⚠️ WARNING: Ang imong gi-type nga Odometer (${typedOdo}) kay mas GAMAY kaysa sa imong miaging Odo (${savedLastOdo}). Basin nasayop ka'g type, Rider!`);
+                    this.style.border = "2px solid #ff3333"; // Pa-pulahon ang box para makabantay
+                } else {
+                    this.style.border = "1px solid #444"; // Ibalik sa normal
+                }
+            });
         }
         
         let levelInput = document.getElementById("level");
