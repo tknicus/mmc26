@@ -169,7 +169,7 @@
             opacity: 0;
             cursor: pointer;
             height: 100%;
-            width: 100%; /* <-- IDUGANG KINI ARO MASAKOP ANG TIBUOK BUTTON */
+            width: 100%;
         }
 
         /* Picture Preview */
@@ -181,7 +181,6 @@
             display: none; /* Tago una kung walay pic */
         }
 
-
         /* DESIGN PARA SA DROPDOWN ARON MASIGO UG MO-ITOM */
         select {
             width: 100%;
@@ -190,10 +189,10 @@
             margin-bottom: 15px;
             border: 1px solid #444;
             border-radius: 4px;
-            background-color: #2a2a2a; /* Kini ang mopaitom niya */
-            color: #ffffff; /* Puti nga text */
+            background-color: #2a2a2a;
+            color: #ffffff;
             font-size: 16px;
-            box-sizing: border-box; /* KINI GYUD ANG MOPUGOS NGA DILI SIYA MOLAPAS */
+            box-sizing: border-box;
             transition: all 0.3s ease;
             font-family: Arial, sans-serif;
         }
@@ -209,39 +208,27 @@
 <body>
 
     <div class="container">
-        <!-- Kini ang mopagawas sa imong Logo -->
         <img src="mmc.png" alt="MasterMinds CUP Logo" class="app-logo">
         <h4>" never say never "</h4>
         <h2>Checkpoint Scanner</h2>
 
-        <!-- Internet Status & Live Location -->
-        <!-- <div id="statusIndicator" class="status online">🌐 Online - Connected</div> -->
         <div id="liveLocation">📍 Nangita sa imong location...</div>
 
-        <!-- 📊 HEADS-UP DASHBOARD (UPGRADE 2 & 3) 📊 -->
-            <div id="dashboard" style="background: #222; border: 2px solid #444; border-radius: 8px; padding: 12px; margin-bottom: 15px; color: white; display: flex; justify-content: space-between; align-items: center; font-family: Arial, sans-serif;">
-                
-                <!-- SIGNAL STATUS -->
-                <div style="text-align: center; width: 33%;">
-                    <span style="color: #aaa; font-size: 11px; font-weight: bold; letter-spacing: 1px;">SIGNAL</span><br>
-                    <b id="signalStatus" style="font-size: 14px;">🟢 ONLINE</b>
-                </div>
-
-                <!-- BATTERY MONITOR -->
-                <div style="text-align: center; width: 33%; border-left: 1px solid #444; border-right: 1px solid #444;">
-                    <span style="color: #aaa; font-size: 11px; font-weight: bold; letter-spacing: 1px;">BATTERY</span><br>
-                    <b id="batteryStatus" style="font-size: 14px;">🔋 --%</b>
-                </div>
-
-                <!-- PENDING OFFLINE DATA -->
-                <div style="text-align: center; width: 33%;">
-                    <span style="color: #aaa; font-size: 11px; font-weight: bold; letter-spacing: 1px;">PENDING</span><br>
-                    <b id="pendingCount" style="font-size: 18px; color: #ff9900;">0</b>
-                </div>
-
+        <!-- 📊 HEADS-UP DASHBOARD 📊 -->
+        <div id="dashboard" style="background: #222; border: 2px solid #444; border-radius: 8px; padding: 12px; margin-bottom: 15px; color: white; display: flex; justify-content: space-between; align-items: center; font-family: Arial, sans-serif;">
+            <div style="text-align: center; width: 33%;">
+                <span style="color: #aaa; font-size: 11px; font-weight: bold; letter-spacing: 1px;">SIGNAL</span><br>
+                <b id="signalStatus" style="font-size: 14px;">🟢 ONLINE</b>
             </div>
-
-           
+            <div style="text-align: center; width: 33%; border-left: 1px solid #444; border-right: 1px solid #444;">
+                <span style="color: #aaa; font-size: 11px; font-weight: bold; letter-spacing: 1px;">BATTERY</span><br>
+                <b id="batteryStatus" style="font-size: 14px;">🔋 --%</b>
+            </div>
+            <div style="text-align: center; width: 33%;">
+                <span style="color: #aaa; font-size: 11px; font-weight: bold; letter-spacing: 1px;">PENDING</span><br>
+                <b id="pendingCount" style="font-size: 18px; color: #ff9900;">0</b>
+            </div>
+        </div>
 
         <form id="myForm">
 
@@ -250,17 +237,13 @@
                 📷 I-SCAN ANG RIDER ID
             </button>
             
-            <!-- Dinhi mogawas ang video sa camera. Naka-tago (none) ni siya daan. -->
             <div id="reader" style="display: none; width: 100%; margin-bottom: 10px; border-radius: 8px; overflow: hidden; border: 2px solid #ff9900;"></div>
-
 
             <input type="text" id="idNum" placeholder="Rider ID" readonly required>
             <input type="text" id="name" placeholder="Imong Pangalan" readonly required>
             <input type="text" id="level" placeholder="Imong Level" readonly required>
-            
 
-
-            <!-- 📊 RIDER PROGRESS LIVE CARD (GI-ISINGIT DINHI) -->
+            <!-- 📊 RIDER PROGRESS LIVE CARD -->
             <div id="progressCard" style="background: #1a1a1a; border: 1px solid #333; border-radius: 8px; padding: 12px; margin-bottom: 15px; text-align: center; display: none;">
                 <div style="font-size: 11px; color: #ffcc00; font-weight: bold; text-transform: uppercase; margin-bottom: 6px;">
                     📍 Rota Progress: <span id="displayLevel" style="color: #fff;">--</span>
@@ -277,70 +260,10 @@
                 </div>
             </div>
 
-
-
-
-            <!-- 👇 ANG BAG-ONG CHECKPOINT DROPDOWN 👇 -->
+            <!-- 👇 ROUTE-BASED DYNAMIC DROPDOWN 👇 -->
             <select id="checkpoint" required>
-                <option value="" disabled selected>-- PILIA ANG CHECKPOINT --</option>
-                <option value="CP 00">#00 Glorious Gate</option>
-                <option value="CP 01">#01 Mr. DIY</option>
-                <option value="CP 02">#02 Junction Paquibato - Kalagangan Rd / Calinan Rd.</option>
-                <option value="CP 03">#03 New Paquibato District Hall</option>
-                <option value="CP 04">#04 Pungco Hill</option>
-                <option value="CP 05">#05 Junction Panaga - Tapak Road / Paquibato - Kalagangan Rd</option>
-                <option value="CP 06">#06 Junction Kalagangan - Talaingod Rd</option>
-
-                <option value="CP 07">#07 💪 Junction Bukidnon - Laak Road</option>
-                <option value="CP 08">#08 💪 Sitio Bulo, Brgy Namnam, San Fernando, Bukidnon, Terracing Landscape View</option>
-                <option value="CP 09">#09 💪 Pipisan Bridge, Sitio Pipisan, Brgy. Gupitan, Kapalong</option>
-                <option value="CP 10">#10 💪 Lumondong Bridge / Falls, Sitio Lumondong, Brgy Gupitan, Kapalong</option>
-
-                <option value="CP 11">#11 👌 Uraya's Peak Adventure Park</option>
-                <option value="CP 12">#12 👌 Ridge View Mountainview</option>
-                <option value="CP 13">#13 👌 Talaingod View Deck</option>
-                <option value="CP 14">#14 👌 Florida</option>
-                <option value="CP 15">#15 👌 Sua-on</option>
-                <option value="CP 16">#16 👌 Gupitan</option>
-
-                <option value="CP 17">#17 Junction Kili-Kili, Sitio Kili-Kili, Brgy Gupitan, Kapalong</option>
-                <option value="CP 18">#18 Gatnaon Road, Sitio Butoy, Gupitan, Kapalong</option>
-                <option value="CP 19">#19 Junction Imelda, Brgy. Imelda, Laak</option>
-                <option value="CP 20">#20 Laak ta Bai</option>
-                <option value="CP 21">#21 Sampaguita Junction Park</option>
-                <option value="CP 22">#22 Sta Josefa Petron</option>
-                <option value="CP 23">#23 Crossing Brgy. Angas & Brgy. Awao</option>
-                <option value="CP 24">#24 Awao River Crossing (A)</option>
-                <option value="CP 25">#25 Awao River Crossing (B)</option>
-                <option value="CP 26">#26 Awao Ticket Booth</option>
-                <option value="CP 27">#27 Awao Falls</option>
-                <option value="CP 28">#28 Crossing Brgy. Angas & Brgy. Awao</option>
-                <option value="CP 29">#29 INC, Monkayo</option>
-                <option value="CP 30">#30 JESREL STORE, Mount Diwata</option>
-                <option value="CP 31">#31 GKK Santo Niño</option>
-                <option value="CP 32">#32 Goldie Mark Store, Purok 1-A, Mount Diwata</option>
-                <option value="CP 33">#33 Libunao Store</option>
-                <option value="CP 34">#34 Tru-Cut, Diwalwal</option>
-                <option value="CP 35">#35 Petron</option>
-                <option value="CP 36">#36 Aliwagwag Falls Ecopark</option>
-                <option value="CP 37">#37 Manurigao Highlands 5650ft above sea level</option>
-                <option value="CP 38">#38 Shadol's Coffee Paste</option>
-                <option value="CP 39">#39 Maragusan Rotunda</option>
-
-                <option value="CP 40">#40 👌 Lake Leonard Eco Tourism Park</option>
-                <option value="CP 41">#41 👌 Bilawa Falls</option>
-                <option value="CP 42">#42 👌 711 Mawab</option>
-
-                <option value="CP 43">#43 💪 Araibo, Pantukan, Davao de Oro</option>
-                <option value="CP 44">#44 💪 Special Village, Las Arenas, Pantukan</option>
-                <option value="CP 45">#45 💪 Motor Parts, Brgy. Tagugpo, Pantukan</option>
-                <option value="CP 46">#46 💪 Napnapan</option>
-                <option value="CP 47">#47 💪 Jolibee Pantukan</option>
-
-                <option value="CP FL">#48 ELKAPITAN's Headstone</option>
-                <option value="CP xx">#xx Stand By Me</option>
+                <option value="" disabled selected>-- PILIA ANG CHECKPOINT -- (I-scan usa ang Rider)</option>
             </select>
-            <!-- 👆 KAHAPONAN SA DROPDOWN 👆 -->
             
             <!-- 📋 CHECKPOINT HISTORY CHECKLIST BOX -->
             <div id="checkpointChecklist" style="background: #1a1a1a; border: 1px solid #444; border-radius: 6px; padding: 10px; margin-bottom: 15px; font-size: 13px; color: #ccc;">
@@ -351,7 +274,6 @@
             <input type="number" id="odometer" placeholder="Odometer (ODO)" required>
             <textarea id="notes" placeholder="Mensahe o Notes o REMARKS" rows="3" required></textarea>
 
-            <!-- Astig nga Camera Button -->
             <div class="camera-btn-wrapper">
                 <button type="button" class="camera-btn">📸 Pindota aron mag-Picture</button>
                 <input type="file" id="cameraInput" accept="image/*" capture="environment">
@@ -363,25 +285,103 @@
             <button type="submit">I-Submit ang Data</button>
         </form>
 
-        <!-- 🏷️ APP VERSION & STATUS FOOTER -->
-        <!-- 👇 KINI ANG IDUGANG NIMO NGA FOOTER/COPYRIGHT TEXT 👇 -->
         <div style="text-align: center; margin-top: 25px; padding-bottom: 20px; font-size: 12px; color: #aaa; border-top: 1px solid #333; padding-top: 15px;">
             <p style="margin: 0; font-weight: bold; color: #ffcc00;">&copy; 2026 MasterMinds'CUP. All Rights Reserved.</p>
-            <p style="margin: 5px 0 0 0;">Build Version: <span id="appVersionText" style="color: #00ff00; font-family: monospace;">v2.6-technicus</span></p>
+            <p style="margin: 5px 0 0 0;">Build Version: <span id="appVersionText" style="color: #00ff00; font-family: monospace;">v2.7-route-filter</span></p>
             <p style="margin: 3px 0 0 0; font-size: 10px; color: #666;">Status: Active & Secure 🛡️</p>
         </div>
-        <!-- 👆 KAHAPONAN SA FOOTER 👆 -->
 
-    </div> <!-- Katapusan sa container -->
+    </div>
 
-    <!-- 🎵 INVISIBLE RADIO PARA SA SUBMIT MUSIC 🎵 -->
     <audio id="submitMusic" src="never_say_never.mp3" loop></audio>
 
-    <!-- IMONG ORIGINAL NGA JAVASCRIPT (WALA GITHUBTAN) -->
-
-
-<script src="database.js"></script>
+    <script src="database.js"></script>
     <script>
+        // 🗺️ ROUTE-BASED CHECKPOINT MAPPINGS (GI-DEFINE DINHI ANG MGA CP SA KADA RUTA)
+        const routeCheckpoints = {
+            "G1": ["CP 00", "CP 01", "CP 02", "CP 03", "CP FL"], 
+            "G2": ["CP 00", "CP 01", "CP 02", "CP 03", "CP 04", "CP FL"],
+            "G3": ["CP 00", "CP 07", "CP 08", "CP 09", "CP 10", "CP FL"],
+            "G4": ["CP 00", "CP 11", "CP 12", "CP 13", "CP FL"],
+            "G5": [
+                "CP 00", "CP 01", "CP 02", "CP 03", "CP 04", "CP 05", "CP 06", 
+                "CP 07", "CP 08", "CP 09", "CP 10", "CP 11", "CP 12", "CP 13", 
+                "CP 14", "CP 15", "CP 16", "CP 17", "CP 18", "CP 19", "CP 20", 
+                "CP 21", "CP 22", "CP 23", "CP 24", "CP 25", "CP 26", "CP 27", 
+                "CP 28", "CP 29", "CP 30", "CP 31", "CP 32", "CP 33", "CP 34", 
+                "CP 35", "CP 36", "CP 37", "CP 38", "CP 39", "CP 40", "CP 41", 
+                "CP 42", "CP 43", "CP 44", "CP 45", "CP 46", "CP 47", "CP FL", "CP xx"
+            ]
+        };
+
+        const cpFullNames = {
+            "CP 00": "#00 Glorious Gate",
+            "CP 01": "#01 Mr. DIY",
+            "CP 02": "#02 Junction Paquibato - Kalagangan Rd / Calinan Rd.",
+            "CP 03": "#03 New Paquibato District Hall",
+            "CP 04": "#04 Pungco Hill",
+            "CP 05": "#05 Junction Panaga - Tapak Road / Paquibato - Kalagangan Rd",
+            "CP 06": "#06 Junction Kalagangan - Talaingod Rd",
+            "CP 07": "#07 💪 Junction Bukidnon - Laak Road",
+            "CP 08": "#08 💪 Sitio Bulo, Brgy Namnam, San Fernando, Bukidnon",
+            "CP 09": "#09 💪 Pipisan Bridge, Sitio Pipisan, Brgy. Gupitan, Kapalong",
+            "CP 10": "#10 💪 Lumondong Bridge / Falls, Sitio Lumondong",
+            "CP 11": "#11 👌 Uraya's Peak Adventure Park",
+            "CP 12": "#12 👌 Ridge View Mountainview",
+            "CP 13": "#13 👌 Talaingod View Deck",
+            "CP 14": "#14 👌 Florida",
+            "CP 15": "#15 👌 Sua-on",
+            "CP 16": "#16 👌 Gupitan",
+            "CP 17": "#17 Junction Kili-Kili, Sitio Kili-Kili, Brgy Gupitan, Kapalong",
+            "CP 18": "#18 Gatnaon Road, Sitio Butoy, Gupitan, Kapalong",
+            "CP 19": "#19 Junction Imelda, Brgy. Imelda, Laak",
+            "CP 20": "#20 Laak ta Bai",
+            "CP 21": "#21 Sampaguita Junction Park",
+            "CP 22": "#22 Sta Josefa Petron",
+            "CP 23": "#23 Crossing Brgy. Angas & Brgy. Awao",
+            "CP 24": "#24 Awao River Crossing (A)",
+            "CP 25": "#25 Awao River Crossing (B)",
+            "CP 26": "#26 Awao Ticket Booth",
+            "CP 27": "#27 Awao Falls",
+            "CP 28": "#28 Crossing Brgy. Angas & Brgy. Awao",
+            "CP 29": "#29 INC, Monkayo",
+            "CP 30": "#30 JESREL STORE, Mount Diwata",
+            "CP 31": "#31 GKK Santo Niño",
+            "CP 32": "#32 Goldie Mark Store, Purok 1-A, Mount Diwata",
+            "CP 33": "#33 Libunao Store",
+            "CP 34": "#34 Tru-Cut, Diwalwal",
+            "CP 35": "#35 Petron",
+            "CP 36": "#36 Aliwagwag Falls Ecopark",
+            "CP 37": "#37 Manurigao Highlands 5650ft above sea level",
+            "CP 38": "#38 Shadol's Coffee Paste",
+            "CP 39": "#39 Maragusan Rotunda",
+            "CP 40": "#40 👌 Lake Leonard Eco Tourism Park",
+            "CP 41": "#41 👌 Bilawa Falls",
+            "CP 42": "#42 👌 711 Mawab",
+            "CP 43": "#43 💪 Araibo, Pantukan, Davao de Oro",
+            "CP 44": "#44 💪 Special Village, Las Arenas, Pantukan",
+            "CP 45": "#45 💪 Motor Parts, Brgy. Tagugpo, Pantukan",
+            "CP 46": "#46 💪 Napnapan",
+            "CP 47": "#47 💪 Jolibee Pantukan",
+            "CP FL": "#48 ELKAPITAN's Headstone",
+            "CP xx": "#xx Stand By Me"
+        };
+
+        function populateCheckpointsByLevel(riderLevel) {
+            const dropdown = document.getElementById('checkpoint');
+            if (!dropdown) return;
+
+            dropdown.innerHTML = '<option value="" disabled selected>-- PILIA ANG CHECKPOINT --</option>';
+            let allowedCPs = routeCheckpoints[riderLevel] || routeCheckpoints["G5"];
+
+            allowedCPs.forEach(cpVal => {
+                let opt = document.createElement('option');
+                opt.value = cpVal;
+                opt.textContent = cpFullNames[cpVal] || cpVal;
+                dropdown.appendChild(opt);
+            });
+        }
+
         // 🌟 SHA-256 HASH ENGINE
         async function sha256Hash(str) {
             const encoder = new TextEncoder();
@@ -396,9 +396,6 @@
         let globalLat = "N/A";
         let globalLon = "N/A";
 
-        // ==========================================
-        // 🔋 1. BULLETPROOF BATTERY MONITOR
-        // ==========================================
         function initBatteryMonitor() {
             const batStatus = document.getElementById('batteryStatus');
             if (!batStatus) return;
@@ -419,9 +416,6 @@
         }
         initBatteryMonitor(); 
 
-        // ==========================================
-        // 📸 2. CAMERA WATERMARK ENGINE
-        // ==========================================
         const cameraInput = document.getElementById('cameraInput');
         if (cameraInput) {
             cameraInput.addEventListener('change', function(event) {
@@ -504,9 +498,6 @@
             });
         }
                             
-        // ==========================================
-        // 🌍 3. GPS & TRUE INTERNET CHECKER
-        // ==========================================
         const scriptURL = 'https://script.google.com/macros/s/AKfycbxTau-qcMyRPmu753acuF4c6Pgm8jy3llrLSAzrzlS-0z-k_xmQoE_9-sl2yIXeMjJF/exec';
         const liveLocationDiv = document.getElementById('liveLocation');
         const myForm = document.getElementById('myForm');
@@ -545,7 +536,6 @@
             });
         }
 
-        // KINI MAG-BYPASS SA SERVICE WORKER CACHE PARA TINUOD NGA OFFLINE DETECT
         async function checkInternetStability() {
             if (!navigator.onLine) return false;
             try {
@@ -556,13 +546,10 @@
 
         async function checkRealInternet() {
             const sigStatus = document.getElementById('signalStatus');
-            
-            // KINI ANG FIX: Kung gibati sa browser nga offline, i-update dayon!
             if (!navigator.onLine) {
                 if (sigStatus) { sigStatus.innerHTML = "🔴 OFFLINE"; sigStatus.style.color = "#ff3333"; }
                 return;
             }
-
             let isOnline = await checkInternetStability();
             if (isOnline) {
                 if (sigStatus) { sigStatus.innerHTML = "🟢 ONLINE"; sigStatus.style.color = "#00ff00"; }
@@ -576,9 +563,6 @@
         window.addEventListener('offline', checkRealInternet);
         setInterval(checkRealInternet, 5000);
 
-        // ==========================================
-        // 🔄 4. DATA SYNCING & FORM SUBMISSION
-        // ==========================================
         async function sendDataToServer(dataPayload) {
             try {
                 await fetch(scriptURL, { method: 'POST', mode: 'no-cors', headers: { 'Content-Type': 'text/plain;charset=utf-8' }, body: JSON.stringify(dataPayload) });
@@ -673,7 +657,8 @@
                     idNum: checkId, name: checkName, checkpoint: currentCheckpoint, 
                     odometer: document.getElementById('odometer') ? document.getElementById('odometer').value : "", 
                     notes: document.getElementById('notes') ? document.getElementById('notes').value : "",
-                    photo: compressedPhotoBase64, timestamp: new Date().toLocaleString(), 
+                    photo: compressedPhotoBase64, 
+                    timestamp: new Date().toLocaleString('en-PH', { timeZone: 'Asia/Manila' }), 
                     location: gpsData.link, latitude: gpsData.lat, longitude: gpsData.lon,
                     locationTime: gpsData.time, level: document.getElementById('level') ? document.getElementById('level').value : "" 
                 };
@@ -728,9 +713,6 @@
             });
         }
 
-        // ==========================================
-        // 🎯 5. CHECKPOINT CHECKLIST & SMART AUTO-SELECT
-        // ==========================================
         function updateCheckpointCheckmarks(riderId) {
             const checklistDiv = document.getElementById('checklistItems');
             if (!checklistDiv) return;
@@ -752,36 +734,28 @@
                 }
             });
 
-            const allCheckpoints = [
-                { val: "CP 00"}, { val: "CP 01"}, { val: "CP 02"}, { val: "CP 03"}, { val: "CP 04"}, { val: "CP 05"},
-                { val: "CP 06"}, { val: "CP 07"}, { val: "CP 08"}, { val: "CP 09"}, { val: "CP 10"}, { val: "CP 11"},
-                { val: "CP 12"}, { val: "CP 13"}, { val: "CP 14"}, { val: "CP 15"}, { val: "CP 16"}, { val: "CP 17"},
-                { val: "CP 18"}, { val: "CP 19"}, { val: "CP 20"}, { val: "CP 21"}, { val: "CP 22"}, { val: "CP 23"},
-                { val: "CP 24"}, { val: "CP 25"}, { val: "CP 26"}, { val: "CP 27"}, { val: "CP 28"}, { val: "CP 29"},
-                { val: "CP 30"}, { val: "CP 31"}, { val: "CP 32"}, { val: "CP 33"}, { val: "CP 34"}, { val: "CP 35"},
-                { val: "CP 36"}, { val: "CP 37"}, { val: "CP 38"}, { val: "CP 39"}, { val: "CP 40"}, { val: "CP 41"},
-                { val: "CP 42"}, { val: "CP 43"}, { val: "CP 44"}, { val: "CP 45"}, { val: "CP 46"}, { val: "CP 47"},
-                { val: "CP FL"}
-            ];
+            // Kuhaon ang level sa rider aron masundan ang saktong route checkpoints
+            let lvlBox = document.getElementById('level');
+            let currentLevel = lvlBox && lvlBox.value ? lvlBox.value.trim() : "G5";
+            let allowedCPs = routeCheckpoints[currentLevel] || routeCheckpoints["G5"];
 
             let htmlOutput = "";
             let countCompleted = 0;
             let firstUnfinishedCP = ""; 
 
-            allCheckpoints.forEach(cp => {
-                if (completedCheckpoints.includes(cp.val)) {
-                    htmlOutput += `<span style="color: #00ff00; margin-right: 8px; display: inline-block; font-weight: bold;">✓ ${cp.val}</span>`;
+            allowedCPs.forEach(cpVal => {
+                if (completedCheckpoints.includes(cpVal)) {
+                    htmlOutput += `<span style="color: #00ff00; margin-right: 8px; display: inline-block; font-weight: bold;">✓ ${cpVal}</span>`;
                     countCompleted++;
                 } else {
-                    htmlOutput += `<span style="color: #555; margin-right: 8px; display: inline-block;">✗ ${cp.val}</span>`;
+                    htmlOutput += `<span style="color: #555; margin-right: 8px; display: inline-block;">✗ ${cpVal}</span>`;
                     if (firstUnfinishedCP === "") {
-                        firstUnfinishedCP = cp.val;
+                        firstUnfinishedCP = cpVal;
                     }
                 }
             });
             checklistDiv.innerHTML = countCompleted === 0 ? "<span style='color: #888;'>Wala pa nay nahuman nga Checkpoint.</span>" : htmlOutput;
 
-            // 👉 KINI ANG SMART AUTO-SELECT NGA DILI MATRAP
             const dropdown = document.getElementById('checkpoint');
             if (dropdown && firstUnfinishedCP !== "") {
                 setTimeout(() => {
@@ -790,9 +764,6 @@
             }
         }
 
-        // ==========================================
-        // 📊 6. SMART RIDER PROGRESS CALCULATOR (FIXED)
-        // ==========================================
         const routeTotalKm = { "G1": 777, "G2": 777, "G3": 3333, "G4": 777, "G5": 5555 };
 
         function updateRiderProgress() {
@@ -808,13 +779,11 @@
             let card = document.getElementById("progressCard");
             if (!card) return;
 
-            // Kuhaon ang checkpoint nga gipili karon sa dropdown
             let cpElem = document.getElementById("checkpoint");
             let currentCP = cpElem ? cpElem.value : "";
 
             let savedStartOdo = parseFloat(localStorage.getItem('startOdo_' + currentId));
             
-            // Kon naa sa CP 00, ang starting odo kay ang gi-type karon sa rider
             let activeStartOdo = savedStartOdo;
             if (currentCP === "CP 00" && !isNaN(typedOdo)) {
                 activeStartOdo = typedOdo;
@@ -828,7 +797,6 @@
                 let totalRoute = routeTotalKm[levelField];
                 let nadagan = 0;
 
-                // 👉 KINI ANG FIX: Kung naa sa CP 00 o wala pa'y gisugdan, 0 KM gyud ang nadagan!
                 if (currentCP === "CP 00") {
                     nadagan = 0; 
                 } else if (activeStartOdo > 0 && activeOdo >= activeStartOdo) {
@@ -858,12 +826,10 @@
             }
         }
 
-        // I-bind usab ang checkpoint dropdown aron mo-update dayon ang progress inig ilis sa CP
         let checkpointDropdown = document.getElementById("checkpoint");
         if (checkpointDropdown) {
             checkpointDropdown.addEventListener("change", updateRiderProgress);
         }
-
 
         let odometerInput = document.getElementById("odometer");
         if (odometerInput) {
@@ -891,9 +857,6 @@
             levelInput.addEventListener("input", updateRiderProgress);
         }
 
-        // ==========================================
-        // 🕵️‍♂️ 7. MARSHAL MODE & OFFLINE PROFILE MEMORY
-        // ==========================================
         let isMarshalMode = localStorage.getItem('marshalMode') === 'true';
         const scanQrBtn = document.getElementById('scanQrBtn');
         if (!isMarshalMode && scanQrBtn) scanQrBtn.style.display = "none";
@@ -933,47 +896,47 @@
             });
         }
 
-        // 👉 KINI ANG MAGIC NGA MAG-SAVE SA PANGALAN Bisan Walay Internet
-        // ==========================================
-        // 🛡️ BATTLE-TESTED SEARCH DATABASE (ANTI-CRASH)
-        // ==========================================
         function searchDatabase(idToSearch) {
             const nameBox = document.getElementById('name');
             const lvlBox = document.getElementById('level');
             
             try {
-                // Siguraduhoon nga naay sulod ang ID ug buhi ang riderDatabase
                 if (idToSearch && typeof riderDatabase !== 'undefined' && Array.isArray(riderDatabase)) {
                     const foundRider = riderDatabase.find(r => r.idNum === idToSearch);
                     if (foundRider) {
+                        let rLevel = foundRider.level || "G5";
                         if(nameBox) nameBox.value = foundRider.fullname || "";
-                        if(lvlBox) lvlBox.value = foundRider.level || "Wala Gi-assign"; 
+                        if(lvlBox) lvlBox.value = rLevel; 
                         
-                        // I-save dayon sa offline memory
+                        // 👉 I-LOAD ANG MGA CHECKPOINT BASE SA LEVEL SA RIDER
+                        populateCheckpointsByLevel(rLevel);
+
                         localStorage.setItem('offlineName_' + idToSearch, foundRider.fullname || "");
-                        localStorage.setItem('offlineLevel_' + idToSearch, foundRider.level || "Wala Gi-assign");
+                        localStorage.setItem('offlineLevel_' + idToSearch, rLevel);
                     } else {
                         if(nameBox) nameBox.value = "❌ Wala sa Masterlist";
                         if(lvlBox) lvlBox.value = ""; 
+                        populateCheckpointsByLevel("G5");
                     }
                 } else if (idToSearch) {
-                    // KUNG OFFLINE O WALA MA-LOAD ANG DATABASE.JS, KUHAON SA MEMORY NGA WALAY HAPOL
                     let memName = localStorage.getItem('offlineName_' + idToSearch);
-                    let memLevel = localStorage.getItem('offlineLevel_' + idToSearch);
+                    let memLevel = localStorage.getItem('offlineLevel_' + idToSearch) || "G5";
                     
                     if (memName) {
                         if(nameBox) nameBox.value = memName;
-                        if(lvlBox) lvlBox.value = memLevel || "Wala Gi-assign";
+                        if(lvlBox) lvlBox.value = memLevel;
+                        
+                        populateCheckpointsByLevel(memLevel);
                     } else {
                         if(nameBox) nameBox.value = "Rider #" + idToSearch;
-                        if(lvlBox) lvlBox.value = "G5"; // Default fallback para dili blangko
+                        if(lvlBox) lvlBox.value = "G5";
+                        populateCheckpointsByLevel("G5");
                     }
                 }
             } catch (err) {
                 console.log("Database search error caught safely:", err);
             }
             
-            // I-siguro nga tawgon gihapon ang progress calculator bisan unsa pay mahitabo
             if (typeof updateRiderProgress === 'function') {
                 updateRiderProgress();
             }
@@ -1008,9 +971,6 @@
             });
         }
 
-        // ==========================================
-        // 📷 8. SOLID QR CODE SCANNER
-        // ==========================================
         const scannerDiv = document.getElementById('reader');
         let globalQrScanner = null; 
 
@@ -1059,9 +1019,6 @@
             });
         }
 
-        // ==========================================
-        // 🚀 9. APP INITIALIZATION & ID AUTO-RECOVERY
-        // ==========================================
         window.addEventListener('DOMContentLoaded', function() {
             const urlParams = new URLSearchParams(window.location.search);
             let pID = urlParams.get('theIDno');
@@ -1071,19 +1028,14 @@
             const idNumBox = document.getElementById('idNum');
             
             if (activeID) {
-                // 👉 KINI ANG FIX: Piliton dayon og sulod ang ID sa box!
                 if (idNumBox) {
                     idNumBox.value = activeID;
-                    idNumBox.setAttribute('readonly', true); // I-lock aron dili ma-usab
+                    idNumBox.setAttribute('readonly', true);
                 }
                 localStorage.setItem('defaultRiderID', activeID);
                 
-                // Tawgon dayon ang checkmarks ug ang offline profile memory
+                searchDatabase(activeID);
                 updateCheckpointCheckmarks(activeID);
-                
-                setTimeout(() => { 
-                    searchDatabase(activeID); 
-                }, 150); 
             } else {
                 updateCheckpointCheckmarks(""); 
             }
@@ -1093,9 +1045,5 @@
             }
         });
     </script>
-
-
-    
-
 </body>
 </html>
