@@ -824,7 +824,20 @@
             });
         }
                             
-        const scriptURL = 'https://script.google.com/macros/s/AKfycbxTau-qcMyRPmu753acuF4c6Pgm8jy3llrLSAzrzlS-0z-k_xmQoE_9-sl2yIXeMjJF/exec';
+        // const scriptURL = 'https://script.google.com/macros/s/AKfycbxTau-qcMyRPmu753acuF4c6Pgm8jy3llrLSAzrzlS-0z-k_xmQoE_9-sl2yIXeMjJF/exec';
+        // 🌐 MGA LAHI-LAHI NGA SCRIPT URL PARA SA MATAG ROTA 🌐
+        const routeScriptURLs = {
+            "AS26": "https://script.google.com/macros/s/AKfycbxTau-qcMyRPmu753acuF4c6Pgm8jy3llrLSAzrzlS-0z-k_xmQoE_9-sl2yIXeMjJF/exec",
+            "G5": "https://script.google.com/macros/s/AKfycbx3wEteB4HL7gy3t3dS-lon5kY4MwKn8XTh-7I-RpK7IT3EISSf-9WUr0XxKsUB1rc8/exec",
+            "G4": "https://script.google.com/macros/s/AKfycby8eFI-lHgB71fiDWBVy_Jm9U2SPlvHw2hfDr_2NQr5YZkzpbAQmO8DspSvT6XAtxbz/exec",
+            "G3": "https://script.google.com/macros/s/AKfycbygg_k9reS3scefqvP_UKXxwCTihIBL0l2T5P1NgAaxMaXv_RBIP7sVfdNf3TXOnAmqyg/exec",
+            "G1N": "https://script.google.com/macros/s/AKfycbzQFK6-oBnlLOKPk8_mvJST_ai__oAupaDSfjOKA3SK75CQ2vjl1_qadDsIDk8nbMIKCw/exec",
+            "G1E": "https://script.google.com/macros/s/AKfycbzt_sabiNcZ5aJ0hu8CZYWLZ691Yz_skvk5QjjVloNxSK7NVSkEcRCBue_9tqZqPAtw5w/exec",
+            "G1W": "https://script.google.com/macros/s/AKfycbxYIxvC_tZ1UOavjHrQdMMAsOyVjaX8Tn8AmczoAHkEUVLqnq_Nys5XJm22VGJ9ZbbdIQ/exec",
+            "G1S": "https://script.google.com/macros/s/AKfycbzauIovOX8mY8D1MgPq2op-AmnFrkrREupLy6cILDPRqtUx1UqaE7P3hCYKNvITgGhX/exec",
+            "DEFAULT": "https://script.google.com/macros/s/AKfycbxTau-qcMyRPmu753acuF4c6Pgm8jy3llrLSAzrzlS-0z-k_xmQoE_9-sl2yIXeMjJF/exec"
+        };
+        
         const liveLocationDiv = document.getElementById('liveLocation');
         const myForm = document.getElementById('myForm');
 
@@ -891,9 +904,20 @@
 
         async function sendDataToServer(dataPayload) {
             try {
-                await fetch(scriptURL, { method: 'POST', mode: 'no-cors', headers: { 'Content-Type': 'text/plain;charset=utf-8' }, body: JSON.stringify(dataPayload) });
+                // Pilion ang saktong URL base sa level sa rider. Kung walay labot, gamiton ang DEFAULT.
+                let riderLevel = dataPayload.level ? dataPayload.level.trim() : "DEFAULT";
+                let activeScriptURL = routeScriptURLs[riderLevel] || routeScriptURLs["DEFAULT"];
+
+                await fetch(activeScriptURL, { 
+                    method: 'POST', 
+                    mode: 'no-cors', 
+                    headers: { 'Content-Type': 'text/plain;charset=utf-8' }, 
+                    body: JSON.stringify(dataPayload) 
+                });
                 return true; 
-            } catch (error) { return false; }
+            } catch (error) { 
+                return false; 
+            }
         }
 
         async function syncOfflineData() {
