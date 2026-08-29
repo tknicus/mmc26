@@ -41,20 +41,32 @@
             <button onclick="fetchRiderReport()">Pangitaa</button>
         </div>
 
-        <div id="loading" style="text-align: center; display: none; color: #ffcc00;">Gisusi ang database sa Google Sheet...</div>
+        <div id="loading" style="text-align: center; display: none; color: #ffcc00;">Gisusi ang database base sa Rota sa Rider...</div>
         <div id="resultContainer"></div>
     </div>
 
+    <!-- Gi-apil ang database.js aron mabasa ang rider levels -->
+    <script src="database.js"></script>
     <script>
-        // ILISANI KINING URL SA IMONG BAG-ONG GOOGLE APPS SCRIPT WEB APP URL
-        const WEB_APP_URL = "https://script.google.com/macros/s/AKfycbxTau-qcMyRPmu753acuF4c6Pgm8jy3llrLSAzrzlS-0z-k_xmQoE_9-sl2yIXeMjJF/exec";
+        // 🌐 MGA LAHI-LAHI NGA SCRIPT URL PARA SA MATAG ROTA 🌐
+        // Butangi sa saktong Web App URL ang matag usa ka Rota base sa imong gihimo nga Google Sheets
+        const routeScriptURLs = {
+            "G5": "https://script.google.com/macros/s/AKfycbx3wEteB4HL7gy3t3dS-lon5kY4MwKn8XTh-7I-RpK7IT3EISSf-9WUr0XxKsUB1rc8/exec",
+            "G3": "https://script.google.com/macros/s/AKfycbygg_k9reS3scefqvP_UKXxwCTihIBL0l2T5P1NgAaxMaXv_RBIP7sVfdNf3TXOnAmqyg/exec",
+            "AS26": "https://script.google.com/macros/s/AKfycbxTau-qcMyRPmu753acuF4c6Pgm8jy3llrLSAzrzlS-0z-k_xmQoE_9-sl2yIXeMjJF/exec",
+            "G1N": "https://script.google.com/macros/s/AKfycbzQFK6-oBnlLOKPk8_mvJST_ai__oAupaDSfjOKA3SK75CQ2vjl1_qadDsIDk8nbMIKCw/exec",
+            "G1E": "https://script.google.com/macros/s/AKfycbzt_sabiNcZ5aJ0hu8CZYWLZ691Yz_skvk5QjjVloNxSK7NVSkEcRCBue_9tqZqPAtw5w/exec",
+            "G1W": "https://script.google.com/macros/s/AKfycbxYIxvC_tZ1UOavjHrQdMMAsOyVjaX8Tn8AmczoAHkEUVLqnq_Nys5XJm22VGJ9ZbbdIQ/exec",
+            "G1S": "https://script.google.com/macros/s/AKfycbzauIovOX8mY8D1MgPq2op-AmnFrkrREupLy6cILDPRqtUx1UqaE7P3hCYKNvITgGhX/exec",
+            "G4": "https://script.google.com/macros/s/AKfycby8eFI-lHgB71fiDWBVy_Jm9U2SPlvHw2hfDr_2NQr5YZkzpbAQmO8DspSvT6XAtxbz/exec",
+            "DEFAULT": "https://script.google.com/macros/s/AKfycbxTau-qcMyRPmu753acuF4c6Pgm8jy3llrLSAzrzlS-0z-k_xmQoE_9-sl2yIXeMjJF/exec"
+        };
         
         // 👉 KINI ANG PINS TIME FORMATTER FUNCTION
         function formatPinasTime(dateString) {
             if (!dateString) return "Wala'y Oras";
             try {
                 let d = new Date(dateString);
-                // Susiha kung balido ba ang petsa
                 if (isNaN(d.getTime())) return dateString; 
                 
                 return d.toLocaleString('en-PH', { 
@@ -86,13 +98,35 @@
             loading.style.display = "block";
 
             try {
-                let response = await fetch(`${WEB_APP_URL}?action=getReport&id=${id}`);
+                // 1. PANGITAON SA DATABASE.JS ANG LEVEL/ROTA SA RIDER
+                let riderLevel = "DEFAULT";
+                let riderName = "Unknown";
+
+                if (typeof riderDatabase !== 'undefined' && Array.isArray(riderDatabase)) {
+                    let foundRider = riderDatabase.find(r => r.idNum === id);
+                    if (foundRider) {
+                        riderLevel = foundRider.level ? foundRider.level.trim() : "DEFAULT";
+                        riderName = foundRider.fullname || "Unknown";
+                    }
+                }
+
+                // 2. PILION ANG SAKTONG WEB APP URL BASE SA LEVEL SA RIDER
+                let activeScriptURL = routeScriptURLs[riderLevel] || routeScriptURLs["DEFAULT"];
+
+                if (!activeScriptURL || activeScriptURL.includes("BUTANGI_DINHI")) {
+                    loading.style.display = "none";
+                    container.innerHTML = `<div class="no-data">⚠️ Wala pa na-set ang Google Sheet URL para sa level: ${riderLevel}</div>`;
+                    return;
+                }
+
+                // 3. KUHAON ANG DATA GIKAN SA SAKTONG GOOGLE SHEET
+                let response = await fetch(`${activeScriptURL}?action=getReport&id=${id}`);
                 let records = await response.json();
 
                 loading.style.display = "none";
 
-                if (records.length === 0) {
-                    container.innerHTML = `<div class="no-data">Wala pay nakit-an nga rekord para sa Rider ID: ${id}</div>`;
+                if (!Array.isArray(records) || records.length === 0) {
+                    container.innerHTML = `<div class="no-data">Wala pay nakit-an nga rekord para sa Rider ID: ${id} (Rota: ${riderLevel})</div>`;
                     return;
                 }
 
@@ -112,10 +146,10 @@
                 });
                 // ==========================================
                 
-                let html = `<h3>Mga Naagian ni Rider ID: ${id} (${records.length} Checkpoints)</h3>`;
+                let html = `<h3>Rider: ${riderName} (${id})</h3>`;
+                html += `<p style="text-align:center; color:#00ff00; font-size:12px; margin-top:-5px;">Rota: ${riderLevel} | Naagian: ${records.length} Checkpoints</p>`;
                 
                 records.forEach((rec, index) => {
-                    // 👉 GIPASA SA FORMATTER ARON MAHIMONG SAKTO NGA PINAS TIME
                     let formattedTime = formatPinasTime(rec.appTime);
 
                     html += `
@@ -134,14 +168,10 @@
 
             } catch (error) {
                 loading.style.display = "none";
-                container.innerHTML = `<div class="no-data">Error sa pagkuha sa data. Susiha ang imong Web App URL.</div>`;
+                container.innerHTML = `<div class="no-data">Error sa pagkuha sa data. Susiha ang imong Web App URL o koneksyon.</div>`;
                 console.error(error);
             }
         }
     </script>
-
-
-
-
 </body>
 </html>
