@@ -724,7 +724,7 @@
         }
 
         // ==========================================
-        // 🎯 5. CHECKPOINT CHECKLIST SYSTEM
+        // 🎯 5. CHECKPOINT CHECKLIST & SMART AUTO-SELECT
         // ==========================================
         function updateCheckpointCheckmarks(riderId) {
             const checklistDiv = document.getElementById('checklistItems');
@@ -762,16 +762,31 @@
 
             let htmlOutput = "";
             let countCompleted = 0;
+            let firstUnfinishedCP = ""; // I-andam ang pangitaon nga sunod CP
+
             allCheckpoints.forEach(cp => {
                 if (completedCheckpoints.includes(cp.val)) {
                     htmlOutput += `<span style="color: #00ff00; margin-right: 8px; display: inline-block; font-weight: bold;">✓ ${cp.val}</span>`;
                     countCompleted++;
                 } else {
                     htmlOutput += `<span style="color: #555; margin-right: 8px; display: inline-block;">✗ ${cp.val}</span>`;
+                    // I-save ang pinaka-unang wala ma-check
+                    if (firstUnfinishedCP === "") {
+                        firstUnfinishedCP = cp.val;
+                    }
                 }
             });
             checklistDiv.innerHTML = countCompleted === 0 ? "<span style='color: #888;'>Wala pa nay nahuman nga Checkpoint.</span>" : htmlOutput;
+
+            // 👉 KINI ANG SMART AUTO-SELECT MAGIC:
+            const dropdown = document.getElementById('checkpoint');
+            if (dropdown && firstUnfinishedCP !== "") {
+                dropdown.value = firstUnfinishedCP; // Awtomatik ibutang sa dropdown
+            }
         }
+
+
+
 
         // ==========================================
         // 📊 6. SMART RIDER PROGRESS CALCULATOR 
