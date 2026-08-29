@@ -96,6 +96,7 @@
         <div class="header-controls">
             <!-- 🔽 ROUTE SELECTOR DROPDOWN -->
             <select id="routeSelect" onchange="switchRoute()">
+                <option value="all">🌐 ALL ROUTES (All Riders Live View)</option>
                 <option value="none">🗺️ SELECT (All Routes Hidden)</option>
                 <option value="G1N">777 (North) MaKahulogan</option>
                 <option value="G1E">777 (East) LoCoCaMaMa</option>
@@ -132,6 +133,28 @@
         let markerLayer = L.layerGroup().addTo(map);
         let routePolylineLayer = L.layerGroup().addTo(map);
 
+        // 🎨 MGA KOLOR PARA SA MATAG ROTA (Color Coding)
+        const routeColors = {
+            "G5": "#ff0000",   // Pula (Red) - Man of Steel
+            "G3": "#0088ff",   // Asul (Blue) - Coastal Gaming
+            "AS26": "#00ff00", // Berde (Green) - 628 All Star
+            "G4": "#ff9900",   // Orange - Talaingod
+            "G1N": "#ff00ff",  // Magenta/Pink - North
+            "G1E": "#ffff00",  // Yellow - East
+            "G1W": "#00ffff",  // Cyan - West
+            "G1S": "#9900ff"   // Violet - South
+        };
+
+        // 👇 DIRIA NIMO ISINGIT ANG CREATECOLOREDICON FUNCTION 👇
+        function createColoredIcon(colorHex) {
+            return L.divIcon({
+                className: 'custom-pin',
+                html: `<div style="background-color: ${colorHex}; width: 14px; height: 14px; border-radius: 50%; border: 2px solid white; box-shadow: 0 0 4px rgba(0,0,0,0.8);"></div>`,
+                iconSize: [16, 16],
+                iconAnchor: [8, 8]
+            });
+        }
+
         // 🌐 MGA LAHI-LAHI NGA SCRIPT URL PARA SA MATAG ROTA (Multi-Database Routing)
         // Ibutang dinhi ang mga tinuod nga Web App URLs sa tagsa-tagsa nimo ka Google Sheets
         const routeScriptURLs = {
@@ -145,7 +168,7 @@
             "G1S": "https://script.google.com/macros/s/AKfycbzauIovOX8mY8D1MgPq2op-AmnFrkrREupLy6cILDPRqtUx1UqaE7P3hCYKNvITgGhX/exec",
             "G4": "https://script.google.com/macros/s/AKfycby8eFI-lHgB71fiDWBVy_Jm9U2SPlvHw2hfDr_2NQr5YZkzpbAQmO8DspSvT6XAtxbz/exec"
         };
-
+        
         // 2. IMONG MGA ROTA COORDINATES (Kung asa nimo gibutang ang routesData)
         const routesData = {
             "G1N": [
@@ -567,56 +590,63 @@
         async function loadRidersToMap(selectedRoute = "none") {
             markerLayer.clearLayers();
 
-            if (selectedRoute === "none" || !routeScriptURLs[selectedRoute]) {
-                return; // Kung walay pinili o "none", walay i-load nga markers
+            // Kung "all" o gusto nimo makita tanan
+            let routesToFetch = [];
+            if (selectedRoute === "all" || selectedRoute === "none") {
+                routesToFetch = Object.keys(routeScriptURLs); // Kuhaon tanan rota
+            } else {
+                routesToFetch = [selectedRoute]; // Pilia lang ang usa ka rota
             }
 
-            let activeURL = routeScriptURLs[selectedRoute] + "?action=getAllLocations";
+            // Loop sa matag rota aron kuhaon ilang live riders
+            for (let routeKey of routesToFetch) {
+                let url = routeScriptURLs[routeKey];
+                if (!url || url.includes("BUTANGI_DINHI")) continue;
 
-            try {
-                let response = await fetch(activeURL);
-                let data = await response.json(); 
+                try {
+                    let response = await fetch(url + "?action=getAllLocations");
+                    let data = await response.json();
 
-                if (!Array.isArray(data)) return;
+                    if (!Array.isArray(data)) continue;
 
-                data.forEach(rider => {
-                    let lat = parseFloat(rider.latitude);
-                    let lon = parseFloat(rider.longitude);
+                    let pinColor = routeColors[routeKey] || "#ffffff"; // Default white kung walay color
 
-                    if (!isNaN(lat) && !isNaN(lon)) {
-                        let formattedTime = "Wala";
-                        if (rider.timestamp) {
-                            let d = new Date(rider.timestamp);
-                            formattedTime = d.toLocaleString('en-PH', {
-                                timeZone: 'Asia/Manila',
-                                year: 'numeric',
-                                month: 'short',
-                                day: 'numeric',
-                                hour: '2-digit',
-                                minute: '2-digit',
-                                second: '2-digit',
-                                hour12: false
-                            });
+                    data.forEach(rider => {
+                        let lat = parseFloat(rider.latitude);
+                        let lon = parseFloat(rider.longitude);
+
+                        if (!isNaN(lat) && !isNaN(lon)) {
+                            let formattedTime = "Wala";
+                            if (rider.timestamp) {
+                                let d = new Date(rider.timestamp);
+                                formattedTime = d.toLocaleString('en-PH', {
+                                    timeZone: 'Asia/Manila',
+                                    month: 'short', day: 'numeric',
+                                    hour: '2-digit', minute: '2-digit', hour12: false
+                                });
+                            }
+                            
+                            // Gamiton ang custom colored icon
+                            let marker = L.marker([lat, lon], { icon: createColoredIcon(pinColor) });
+                            
+                            marker.bindPopup(`
+                                <div style="color: black; font-family: Arial; font-size: 13px;">
+                                    <b>🏍️ ID: ${rider.idNum}</b><br>
+                                    👤 Pangalan: <b>${rider.name}</b><br>
+                                    📍 Checkpoint: <b>${rider.checkpoint}</b><br>
+                                    🛣️ Rota: <b style="color: ${pinColor}; background: #222; padding: 2px 5px; border-radius: 3px;">${routeKey}</b><br>
+                                    ⚙️ Odometer: ${rider.odometer} KM<br>
+                                    🕒 Oras: ${formattedTime}<br>
+                                    📝 Notes: <b>${rider.notes || 'Wala'}</b><br>
+                                    <a href="${rider.location}" target="_blank">🗺️ Google Maps</a>
+                                </div>
+                            `);
+                            markerLayer.addLayer(marker);
                         }
-                        
-                        let marker = L.marker([lat, lon]);
-                        marker.bindPopup(`
-                            <div style="color: black; font-family: Arial; font-size: 13px;">
-                                <b>🏍️ ID: ${rider.idNum}</b><br>
-                                👤 Pangalan: <b>${rider.name}</b><br>
-                                📍 Checkpoint: <b>${rider.checkpoint}</b><br>
-                                🛣️ Rota/Level: <b>${rider.level || selectedRoute}</b><br>
-                                ⚙️ Odometer: ${rider.odometer} KM<br>
-                                🕒 Oras: ${formattedTime}<br>
-                                📝 Notes: <b>${rider.notes || 'Wala'}</b><br>
-                                <a href="${rider.location}" target="_blank">🗺️ Google Maps</a>
-                            </div>
-                        `);
-                        markerLayer.addLayer(marker);
-                    }
-                });
-            } catch (error) {
-                console.error("Wala nakuha ang live riders para sa rotangni " + selectedRoute, error);
+                    });
+                } catch (error) {
+                    console.error("Napakyas pagkuha sa data para sa rotang: " + routeKey, error);
+                }
             }
         }
     </script>
