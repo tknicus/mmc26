@@ -1095,8 +1095,8 @@
                 }
             });
 
-            let lvlBox = document.getElementById('level');
-            let currentLevel = lvlBox && lvlBox.value ? lvlBox.value.trim() : "G5";
+            // 🌟 GAMITON ANG window.activeRiderLevel ARON MAKUHA ANG SAKTONG CODE (AS26, G5, etc.)
+            let currentLevel = window.activeRiderLevel || "G5";
             let cpList = routeConfigs[currentLevel] || routeConfigs["G5"];
 
             let htmlOutput = "";
