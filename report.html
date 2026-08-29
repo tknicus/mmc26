@@ -48,7 +48,29 @@
     <script>
         // ILISANI KINING URL SA IMONG BAG-ONG GOOGLE APPS SCRIPT WEB APP URL
         const WEB_APP_URL = "https://script.google.com/macros/s/AKfycbxTau-qcMyRPmu753acuF4c6Pgm8jy3llrLSAzrzlS-0z-k_xmQoE_9-sl2yIXeMjJF/exec";
-                             
+        
+        // 👉 KINI ANG PINS TIME FORMATTER FUNCTION
+        function formatPinasTime(dateString) {
+            if (!dateString) return "Wala'y Oras";
+            try {
+                let d = new Date(dateString);
+                // Susiha kung balido ba ang petsa
+                if (isNaN(d.getTime())) return dateString; 
+                
+                return d.toLocaleString('en-PH', { 
+                    timeZone: 'Asia/Manila',
+                    year: 'numeric',
+                    month: '2-digit',
+                    day: '2-digit',
+                    hour: '2-digit',
+                    minute: '2-digit',
+                    second: '2-digit',
+                    hour12: true
+                });
+            } catch (e) {
+                return dateString; 
+            }
+        }
 
         async function fetchRiderReport() {
             const id = document.getElementById('searchId').value.trim();
@@ -81,23 +103,20 @@
                     let cpA = String(a.checkpoint).toUpperCase();
                     let cpB = String(b.checkpoint).toUpperCase();
 
-                    // I-siguro nga ang Finish Line (FL) kay pirme naa sa pinaka-katapusan
                     if (cpA.includes("FL")) return 1;
                     if (cpB.includes("FL")) return -1;
 
-                    // I-sort ang uban base sa alphanumeric sequence (CP 00, CP 01...)
                     if (cpA < cpB) return -1;
                     if (cpA > cpB) return 1;
                     return 0;
                 });
                 // ==========================================
-
                 
                 let html = `<h3>Mga Naagian ni Rider ID: ${id} (${records.length} Checkpoints)</h3>`;
                 
                 records.forEach((rec, index) => {
-                    // 👉 KINUHA NANG DIREKTA ANG ORAS KASI NAKA-PINAS TIME NA SA GOOGLE SHEET
-                    let formattedTime = rec.appTime || "Wala'y Oras";
+                    // 👉 GIPASA SA FORMATTER ARON MAHIMONG SAKTO NGA PINAS TIME
+                    let formattedTime = formatPinasTime(rec.appTime);
 
                     html += `
                         <div class="card">
@@ -111,14 +130,11 @@
                     `;
                 });
 
-
-
-
                 container.innerHTML = html;
 
             } catch (error) {
                 loading.style.display = "none";
-                container.innerHTML = `<div class="no-data">Error sa pagkuha sa data. Susiha ang iyong Web App URL.</div>`;
+                container.innerHTML = `<div class="no-data">Error sa pagkuha sa data. Susiha ang imong Web App URL.</div>`;
                 console.error(error);
             }
         }
