@@ -92,20 +92,44 @@
                 });
                 // ==========================================
 
+                
                 let html = `<h3>Mga Naagian ni Rider ID: ${id} (${records.length} Checkpoints)</h3>`;
                 
                 records.forEach((rec, index) => {
+                    // 👉 KINI ANG IDUGANG ARON MAHIMONG PINAS TIME ANG REC.APPTIME
+                    let formattedTime = rec.appTime;
+                    try {
+                        let d = new Date(rec.appTime);
+                        if (!isNaN(d.getTime())) {
+                            formattedTime = d.toLocaleString('en-PH', { 
+                                timeZone: 'Asia/Manila',
+                                year: 'numeric',
+                                month: '2-digit',
+                                day: '2-digit',
+                                hour: '2-digit',
+                                minute: '2-digit',
+                                second: '2-digit',
+                                hour12: true
+                            });
+                        }
+                    } catch (e) {
+                        formattedTime = rec.appTime;
+                    }
+
                     html += `
                         <div class="card">
                             <p><strong>#${index + 1} Checkpoint:</strong> <span style="color: #ffcc00;">${rec.checkpoint}</span></p>
                             <p><strong>Odometer:</strong> ${rec.odometer}</p>
                             <p><strong>Notes/Remarks:</strong> ${rec.notes || "Wala'y notes"}</p>
-                            <p><strong>Oras sa Pagpasa:</strong> ${rec.appTime}</p>
+                            <p><strong>Oras sa Pagpasa:</strong> ${formattedTime}</p>
                             <p><strong>Map Link:</strong> <a href="${rec.mapLink}" target="_blank">Tan-awa sa Google Maps 🗺️</a></p>
                             ${rec.photoUrl && rec.photoUrl !== "Walay Ebidensya" ? `<p><strong>Ebidensya:</strong><br><img src="${rec.photoUrl}" alt="Checkpoint Photo"></p>` : ''}
                         </div>
                     `;
                 });
+
+
+
 
                 container.innerHTML = html;
 
