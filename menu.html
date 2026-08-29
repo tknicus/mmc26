@@ -112,7 +112,9 @@
             <h2>🛡️ ADMIN PORTAL</h2>
             <p>Palihug i-type ang Admin Passcode</p>
             
-            <input type="password" id="adminPassInput" placeholder="••••" onkeypress="handleEnter(event)">
+            <!--input type="password" id="adminPassInput" placeholder="••••" onkeypress="handleEnter(event)"-->
+            <input type="password" inputmode="numeric" id="adminPassInput" placeholder="••••" onkeypress="handleEnter(event)">
+            <!--input type="tel" id="adminPassInput" placeholder="••••" style="-webkit-text-security: disc;" onkeypress="handleEnter(event)"-->
             
             <button class="menu-btn primary" style="margin-bottom: 0;" onclick="verifyAdminPass()">SULOD</button>
         </div>
