@@ -402,9 +402,7 @@
         function initBatteryMonitor() {
             const batStatus = document.getElementById('batteryStatus');
             if (!batStatus) return;
-            
             batStatus.innerHTML = "🔋 100%"; 
-
             if (navigator.getBattery) {
                 navigator.getBattery().then(function(battery) {
                     const updateBatteryInfo = () => {
@@ -470,8 +468,8 @@
 
                                 const idElem = document.getElementById('idNum');
                                 const nameElem = document.getElementById('name');
-                                const riderID = idElem ? idElem.value : "WALA I-SCAN";
-                                const riderName = nameElem ? nameElem.value : "Wala Kaila";
+                                const riderID = idElem && idElem.value ? idElem.value : "WALA I-SCAN";
+                                const riderName = nameElem && nameElem.value ? nameElem.value : "Wala Kaila";
                             
                                 const now = new Date();
                                 const militaryDateTime = `${now.getFullYear()}-${String(now.getMonth() + 1).padStart(2, '0')}-${String(now.getDate()).padStart(2, '0')} ${String(now.getHours()).padStart(2, '0')}:${String(now.getMinutes()).padStart(2, '0')}:${String(now.getSeconds()).padStart(2, '0')}`;
@@ -507,7 +505,7 @@
         }
                             
         // ==========================================
-        // 🌍 3. GPS & INTERNET LOCATION SYSTEM
+        // 🌍 3. GPS & TRUE INTERNET CHECKER
         // ==========================================
         const scriptURL = 'https://script.google.com/macros/s/AKfycbxTau-qcMyRPmu753acuF4c6Pgm8jy3llrLSAzrzlS-0z-k_xmQoE_9-sl2yIXeMjJF/exec';
         const liveLocationDiv = document.getElementById('liveLocation');
@@ -547,10 +545,11 @@
             });
         }
 
+        // KINI MAG-BYPASS SA SERVICE WORKER CACHE PARA TINUOD NGA OFFLINE DETECT
         async function checkInternetStability() {
             if (!navigator.onLine) return false;
             try {
-                await fetch('https://www.google.com/favicon.ico?' + new Date().getTime(), { mode: 'no-cors', cache: 'no-store' });
+                await fetch('https://www.google.com/favicon.ico?rand=' + Math.random(), { mode: 'no-cors', cache: 'no-store' });
                 return true;
             } catch (error) { return false; }
         }
@@ -703,11 +702,10 @@
                         localStorage.setItem(riderHistoryKey, JSON.stringify(completedCheckpoints));
                     }
                     
-                    // 👉 SMART ODOMETER MEMORY (Gidugang para di mo-reset og 0)
                     if (currentCheckpoint === "CP 00") {
                         localStorage.setItem('startOdo_' + checkId, data.odometer);
                     }
-                    localStorage.setItem('lastOdo_' + checkId, data.odometer); // I-save ang pinaka-last nga reading
+                    localStorage.setItem('lastOdo_' + checkId, data.odometer); 
 
                     document.getElementById('odometer').value = "";
                     document.getElementById('notes').value = "";
@@ -716,7 +714,7 @@
                     if(document.getElementById('photoPreview')) document.getElementById('photoPreview').style.display = "none"; 
                     
                     updateCheckpointCheckmarks(checkId);
-                    updateRiderProgress(); // Awtomatik i-compute utro
+                    updateRiderProgress(); 
                 }
                 if(submitBtn) { submitBtn.textContent = "I-Submit ang Data"; submitBtn.disabled = false; submitBtn.style.opacity = "1"; }
                 isSubmitting = false; 
@@ -731,7 +729,7 @@
             if (!checklistDiv) return;
             if (!riderId) {
                 const idBox = document.getElementById('idNum');
-                riderId = idBox ? idBox.value.trim() : "";
+                riderId = idBox && idBox.value ? idBox.value.trim() : "";
             }
             if (!riderId) {
                 checklistDiv.innerHTML = "<span style='color: #888;'>Paghulat og Rider ID...</span>";
@@ -740,7 +738,6 @@
 
             let riderHistoryKey = 'history_' + riderId;
             let completedCheckpoints = JSON.parse(localStorage.getItem(riderHistoryKey)) || [];
-
             let offlineData = JSON.parse(localStorage.getItem('offlineData')) || [];
             offlineData.forEach(item => {
                 if (item.idNum === riderId && item.checkpoint && !completedCheckpoints.includes(item.checkpoint)) {
@@ -762,7 +759,7 @@
 
             let htmlOutput = "";
             let countCompleted = 0;
-            let firstUnfinishedCP = ""; // I-andam ang pangitaon nga sunod CP
+            let firstUnfinishedCP = ""; 
 
             allCheckpoints.forEach(cp => {
                 if (completedCheckpoints.includes(cp.val)) {
@@ -770,7 +767,6 @@
                     countCompleted++;
                 } else {
                     htmlOutput += `<span style="color: #555; margin-right: 8px; display: inline-block;">✗ ${cp.val}</span>`;
-                    // I-save ang pinaka-unang wala ma-check
                     if (firstUnfinishedCP === "") {
                         firstUnfinishedCP = cp.val;
                     }
@@ -778,17 +774,14 @@
             });
             checklistDiv.innerHTML = countCompleted === 0 ? "<span style='color: #888;'>Wala pa nay nahuman nga Checkpoint.</span>" : htmlOutput;
 
-            // 👉 SMART AUTO-SELECT (MAY DELAY PARA SURE-BOL)
+            // 👉 KINI ANG SMART AUTO-SELECT NGA DILI MATRAP
             const dropdown = document.getElementById('checkpoint');
             if (dropdown && firstUnfinishedCP !== "") {
                 setTimeout(() => {
-                    dropdown.value = firstUnfinishedCP; // Awtomatik ibutang sa dropdown human maka-ginhawa
+                    dropdown.value = firstUnfinishedCP;
                 }, 100); 
             }
         }
-
-
-
 
         // ==========================================
         // 📊 6. SMART RIDER PROGRESS CALCULATOR 
@@ -797,22 +790,19 @@
 
         function updateRiderProgress() {
             let lvlElem = document.getElementById("level");
-            let levelField = lvlElem ? lvlElem.value.trim() : "";
+            let levelField = lvlElem && lvlElem.value ? lvlElem.value.trim() : "";
             
             let odoElem = document.getElementById("odometer");
-            // Kon blangko ang box, himuon nato kining NaN aron makasabot ang script nga mangita siyag reserba (Last Odo)
             let typedOdo = (odoElem && odoElem.value !== "") ? parseFloat(odoElem.value) : NaN;
             
             let idElem = document.getElementById("idNum");
-            let currentId = idElem ? idElem.value.trim() : ""; 
+            let currentId = idElem && idElem.value ? idElem.value.trim() : ""; 
             
             let card = document.getElementById("progressCard");
             if (!card) return;
 
             let savedStartOdo = parseFloat(localStorage.getItem('startOdo_' + currentId)) || 0;
             let savedLastOdo = parseFloat(localStorage.getItem('lastOdo_' + currentId)) || savedStartOdo;
-
-            // KINI ANG MAGIC: Kung walay gi-type, gamiton ang previous submitted Odo!
             let activeOdo = isNaN(typedOdo) ? savedLastOdo : typedOdo;
 
             if (routeTotalKm[levelField]) {
@@ -822,7 +812,7 @@
                 if (savedStartOdo > 0 && activeOdo >= savedStartOdo) {
                     nadagan = activeOdo - savedStartOdo;
                 } else if (savedStartOdo === 0 && activeOdo > 0) {
-                    nadagan = activeOdo; // Fallback kon walay CP 00 pero naay gi-input
+                    nadagan = activeOdo; 
                 }
                 
                 let nabilin = totalRoute - nadagan;
@@ -836,7 +826,6 @@
                 if (txtNadagan) txtNadagan.innerText = nadagan.toLocaleString() + " KM";
                 if (txtNabilin) txtNabilin.innerText = nabilin.toLocaleString() + " KM";
                 
-                // Ipakita dayon ang dashboard basta duna nay history o duna nay gi-type
                 if (activeOdo > 0 || savedStartOdo > 0) {
                     card.style.display = "block"; 
                 } else {
@@ -852,18 +841,17 @@
             odometerInput.addEventListener("input", updateRiderProgress);
             odometerInput.addEventListener("keyup", updateRiderProgress);
             
-            // 👉 KINI ANG ANTI-TYPO WARNING MAGIC:
             odometerInput.addEventListener("blur", function() {
                 let idElem = document.getElementById("idNum");
-                let currentId = idElem ? idElem.value.trim() : ""; 
+                let currentId = idElem && idElem.value ? idElem.value.trim() : ""; 
                 let savedLastOdo = parseFloat(localStorage.getItem('lastOdo_' + currentId)) || 0;
                 let typedOdo = parseFloat(this.value);
                 
                 if (typedOdo > 0 && savedLastOdo > 0 && typedOdo < savedLastOdo) {
-                    alert(`⚠️ WARNING: Ang imong gi-type nga Odometer (${typedOdo}) kay mas GAMAY kaysa sa imong miaging Odo (${savedLastOdo}). Basin nasayop ka'g type, Rider!`);
-                    this.style.border = "2px solid #ff3333"; // Pa-pulahon ang box para makabantay
+                    alert(`⚠️ WARNING: Ang gi-type nga Odometer (${typedOdo}) kay mas GAMAY kaysa sa miaging Odo (${savedLastOdo}). Basin nasayop ka'g type, Rider!`);
+                    this.style.border = "2px solid #ff3333"; 
                 } else {
-                    this.style.border = "1px solid #444"; // Ibalik sa normal
+                    this.style.border = "1px solid #444"; 
                 }
             });
         }
@@ -875,7 +863,7 @@
         }
 
         // ==========================================
-        // 🕵️‍♂️ 7. MARSHAL MODE & DATABASE LOADER
+        // 🕵️‍♂️ 7. MARSHAL MODE & OFFLINE PROFILE MEMORY
         // ==========================================
         let isMarshalMode = localStorage.getItem('marshalMode') === 'true';
         const scanQrBtn = document.getElementById('scanQrBtn');
@@ -916,17 +904,30 @@
             });
         }
 
+        // 👉 KINI ANG MAGIC NGA MAG-SAVE SA PANGALAN Bisan Walay Internet
         function searchDatabase(idToSearch) {
             const nameBox = document.getElementById('name');
             const lvlBox = document.getElementById('level');
+            
             if (idToSearch && typeof riderDatabase !== 'undefined') {
                 const foundRider = riderDatabase.find(r => r.idNum === idToSearch);
                 if (foundRider) {
                     if(nameBox) nameBox.value = foundRider.fullname;
                     if(lvlBox) lvlBox.value = foundRider.level || "Wala Gi-assign"; 
+                    // I-save sa offline memory ang profile!
+                    localStorage.setItem('offlineName_' + idToSearch, foundRider.fullname);
+                    localStorage.setItem('offlineLevel_' + idToSearch, foundRider.level || "Wala Gi-assign");
                 } else {
                     if(nameBox) nameBox.value = "❌ Wala sa Masterlist";
                     if(lvlBox) lvlBox.value = ""; 
+                }
+            } else if (idToSearch) {
+                // KUNG OFFLINE UG WALA MA-LOAD ANG DATABASE.JS, KUHAON SA MEMORY:
+                let memName = localStorage.getItem('offlineName_' + idToSearch);
+                let memLevel = localStorage.getItem('offlineLevel_' + idToSearch);
+                if (memName && memLevel) {
+                    if(nameBox) nameBox.value = memName;
+                    if(lvlBox) lvlBox.value = memLevel;
                 }
             }
             updateRiderProgress();
@@ -1022,7 +1023,7 @@
             
             let activeID = pID || sID || "";
             if (activeID && idNumBox) {
-                idNumBox.value = activeID;
+                idNumBox.value = activeID; // BUTANGAN GYUD DAYON OG SULOD ANG KAHON
                 localStorage.setItem('defaultRiderID', activeID);
                 updateCheckpointCheckmarks(activeID);
                 setTimeout(() => { searchDatabase(activeID); }, 250); 
