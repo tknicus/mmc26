@@ -927,32 +927,49 @@
         }
 
         // 👉 KINI ANG MAGIC NGA MAG-SAVE SA PANGALAN Bisan Walay Internet
+        // ==========================================
+        // 🛡️ BATTLE-TESTED SEARCH DATABASE (ANTI-CRASH)
+        // ==========================================
         function searchDatabase(idToSearch) {
             const nameBox = document.getElementById('name');
             const lvlBox = document.getElementById('level');
             
-            if (idToSearch && typeof riderDatabase !== 'undefined') {
-                const foundRider = riderDatabase.find(r => r.idNum === idToSearch);
-                if (foundRider) {
-                    if(nameBox) nameBox.value = foundRider.fullname;
-                    if(lvlBox) lvlBox.value = foundRider.level || "Wala Gi-assign"; 
-                    // I-save sa offline memory ang profile!
-                    localStorage.setItem('offlineName_' + idToSearch, foundRider.fullname);
-                    localStorage.setItem('offlineLevel_' + idToSearch, foundRider.level || "Wala Gi-assign");
-                } else {
-                    if(nameBox) nameBox.value = "❌ Wala sa Masterlist";
-                    if(lvlBox) lvlBox.value = ""; 
+            try {
+                // Siguraduhoon nga naay sulod ang ID ug buhi ang riderDatabase
+                if (idToSearch && typeof riderDatabase !== 'undefined' && Array.isArray(riderDatabase)) {
+                    const foundRider = riderDatabase.find(r => r.idNum === idToSearch);
+                    if (foundRider) {
+                        if(nameBox) nameBox.value = foundRider.fullname || "";
+                        if(lvlBox) lvlBox.value = foundRider.level || "Wala Gi-assign"; 
+                        
+                        // I-save dayon sa offline memory
+                        localStorage.setItem('offlineName_' + idToSearch, foundRider.fullname || "");
+                        localStorage.setItem('offlineLevel_' + idToSearch, foundRider.level || "Wala Gi-assign");
+                    } else {
+                        if(nameBox) nameBox.value = "❌ Wala sa Masterlist";
+                        if(lvlBox) lvlBox.value = ""; 
+                    }
+                } else if (idToSearch) {
+                    // KUNG OFFLINE O WALA MA-LOAD ANG DATABASE.JS, KUHAON SA MEMORY NGA WALAY HAPOL
+                    let memName = localStorage.getItem('offlineName_' + idToSearch);
+                    let memLevel = localStorage.getItem('offlineLevel_' + idToSearch);
+                    
+                    if (memName) {
+                        if(nameBox) nameBox.value = memName;
+                        if(lvlBox) lvlBox.value = memLevel || "Wala Gi-assign";
+                    } else {
+                        if(nameBox) nameBox.value = "Rider #" + idToSearch;
+                        if(lvlBox) lvlBox.value = "G5"; // Default fallback para dili blangko
+                    }
                 }
-            } else if (idToSearch) {
-                // KUNG OFFLINE UG WALA MA-LOAD ANG DATABASE.JS, KUHAON SA MEMORY:
-                let memName = localStorage.getItem('offlineName_' + idToSearch);
-                let memLevel = localStorage.getItem('offlineLevel_' + idToSearch);
-                if (memName && memLevel) {
-                    if(nameBox) nameBox.value = memName;
-                    if(lvlBox) lvlBox.value = memLevel;
-                }
+            } catch (err) {
+                console.log("Database search error caught safely:", err);
             }
-            updateRiderProgress();
+            
+            // I-siguro nga tawgon gihapon ang progress calculator bisan unsa pay mahitabo
+            if (typeof updateRiderProgress === 'function') {
+                updateRiderProgress();
+            }
         }
 
         const idNumBox = document.getElementById('idNum');
