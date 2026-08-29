@@ -1234,8 +1234,25 @@
                 if (tapCount === 3) {
                     tapCount = 0; 
                     if (!isMarshalMode) {
-                        let passcode = prompt("🕵️‍♂️ MARSHAL MODE: Pagsulod og Passcode:");
-                        if (passcode === null) return;
+                        // 🌟 Gamiton ang SweetAlert2 aron mogawas ang Numeric Keypad ug Password Masking
+                        const { value: passcode } = await Swal.fire({
+                            title: '<span style="color: #fff;">🕵️‍♂️ MARSHAL MODE</span>',
+                            html: '<p style="color: #aaa; font-size: 14px;">Palihug i-type ang Admin Passcode</p>',
+                            input: 'password',
+                            inputAttributes: {
+                                inputmode: 'numeric',
+                                placeholder: '••••',
+                                style: 'background-color: #2a2a2a; color: #fff; border: 1px solid #444; border-radius: 4px; padding: 10px; font-size: 20px; text-align: center; letter-spacing: 5px;'
+                            },
+                            background: '#1e1e1e',
+                            confirmButtonColor: '#cc0000',
+                            confirmButtonText: 'SULOD',
+                            showCancelButton: true,
+                            cancelButtonText: 'Kanselahon'
+                        });
+
+                        if (!passcode) return; // Kung gi-cancel o blangko
+
                         if (typeof riderDatabase !== 'undefined') {
                             let hashedInput = await sha256Hash(passcode); 
                             let validMarshal = riderDatabase.find(r => r.passcode === hashedInput && r.isMarshal === true);      
@@ -1243,15 +1260,19 @@
                                 isMarshalMode = true;
                                 localStorage.setItem('marshalMode', 'true'); 
                                 if (scanQrBtn) scanQrBtn.style.display = "block"; 
-                                alert(`🔓 MARSHAL MODE ON! Welcome, Master ${validMarshal.fullname}!`);
-                            } else { alert("❌ Sayop nga Passcode!"); }
-                        } else { alert("⚠️ Error: Wala nabasa ang database."); }
-                    } else {
-                        if (confirm("🔒 Gusto nimo i-lock ug ibalik sa Rider Mode?")) {
-                            isMarshalMode = false;
-                            localStorage.setItem('marshalMode', 'false');
-                            if (scanQrBtn) scanQrBtn.style.display = "none"; 
-                            alert("🔒 Naka-RIDER MODE na ang app.");
+                                Swal.fire({
+                                    icon: 'success',
+                                    title: 'MARSHAL MODE ON!',
+                                    text: `Welcome, Master ${validMarshal.fullname}!`,
+                                    background: '#1e1e1e',
+                                    color: '#fff',
+                                    confirmButtonColor: '#cc0000'
+                                });
+                            } else { 
+                                Swal.fire({ icon: 'error', title: 'Sayop nga Passcode!', background: '#1e1e1e', color: '#fff', confirmButtonColor: '#cc0000' }); 
+                            }
+                        } else { 
+                            Swal.fire({ icon: 'warning', title: 'Error: Wala nabasa ang database.', background: '#1e1e1e', color: '#fff', confirmButtonColor: '#cc0000' }); 
                         }
                     }
                 }
