@@ -397,13 +397,13 @@
         let globalLon = "N/A";
 
         // ==========================================
-        // 🔋 1. BULLETPROOF BATTERY MONITOR (Gipa-una aron di ma-block)
+        // 🔋 1. BULLETPROOF BATTERY MONITOR
         // ==========================================
         function initBatteryMonitor() {
             const batStatus = document.getElementById('batteryStatus');
             if (!batStatus) return;
             
-            batStatus.innerHTML = "🔋 100%"; // Default Fallback
+            batStatus.innerHTML = "🔋 100%"; 
 
             if (navigator.getBattery) {
                 navigator.getBattery().then(function(battery) {
@@ -416,10 +416,10 @@
                     updateBatteryInfo();
                     battery.addEventListener('levelchange', updateBatteryInfo);
                     battery.addEventListener('chargingchange', updateBatteryInfo);
-                }).catch(() => { console.log("Battery API blocked by browser."); });
+                }).catch(() => {});
             }
         }
-        initBatteryMonitor(); // Tawgon dayon!
+        initBatteryMonitor(); 
 
         // ==========================================
         // 📸 2. CAMERA WATERMARK ENGINE
@@ -702,18 +702,21 @@
                         completedCheckpoints.push(currentCheckpoint);
                         localStorage.setItem(riderHistoryKey, JSON.stringify(completedCheckpoints));
                     }
+                    
+                    // 👉 SMART ODOMETER MEMORY (Gidugang para di mo-reset og 0)
                     if (currentCheckpoint === "CP 00") {
                         localStorage.setItem('startOdo_' + checkId, data.odometer);
                     }
+                    localStorage.setItem('lastOdo_' + checkId, data.odometer); // I-save ang pinaka-last nga reading
 
                     document.getElementById('odometer').value = "";
                     document.getElementById('notes').value = "";
                     document.getElementById('checkpoint').selectedIndex = 0;
                     compressedPhotoBase64 = ""; 
                     if(document.getElementById('photoPreview')) document.getElementById('photoPreview').style.display = "none"; 
-                    if(document.getElementById('progressCard')) document.getElementById('progressCard').style.display = "none";
                     
-                    updateCheckpointCheckmarks(checkId); // I-update dayon ang checklist
+                    updateCheckpointCheckmarks(checkId);
+                    updateRiderProgress(); // Awtomatik i-compute utro
                 }
                 if(submitBtn) { submitBtn.textContent = "I-Submit ang Data"; submitBtn.disabled = false; submitBtn.style.opacity = "1"; }
                 isSubmitting = false; 
@@ -771,7 +774,7 @@
         }
 
         // ==========================================
-        // 📊 RIDER PROGRESS LIVE CALCULATOR SYSTEM
+        // 📊 6. SMART RIDER PROGRESS CALCULATOR 
         // ==========================================
         const routeTotalKm = { "G1": 777, "G2": 777, "G3": 3333, "G4": 777, "G5": 5555 };
 
@@ -780,28 +783,29 @@
             let levelField = lvlElem ? lvlElem.value.trim() : "";
             
             let odoElem = document.getElementById("odometer");
-            let currentOdoField = odoElem ? parseFloat(odoElem.value) || 0 : 0;
+            // Kon blangko ang box, himuon nato kining NaN aron makasabot ang script nga mangita siyag reserba (Last Odo)
+            let typedOdo = (odoElem && odoElem.value !== "") ? parseFloat(odoElem.value) : NaN;
             
             let idElem = document.getElementById("idNum");
             let currentId = idElem ? idElem.value.trim() : ""; 
             
             let card = document.getElementById("progressCard");
+            if (!card) return;
 
-            // Kuhaon ang starting odo. Kung wala pa ma-save sa CP 00, gamiton nato ang 0 o ang kasamtangang ODO
-            let savedStartOdo = parseFloat(localStorage.getItem('startOdo_' + currentId));
-            if (isNaN(savedStartOdo)) {
-                savedStartOdo = 0; // Kung walay CP 00, sugod sa 0 o sa unang gi-input
-            }
+            let savedStartOdo = parseFloat(localStorage.getItem('startOdo_' + currentId)) || 0;
+            let savedLastOdo = parseFloat(localStorage.getItem('lastOdo_' + currentId)) || savedStartOdo;
 
-            if (routeTotalKm[levelField] && card) {
+            // KINI ANG MAGIC: Kung walay gi-type, gamiton ang previous submitted Odo!
+            let activeOdo = isNaN(typedOdo) ? savedLastOdo : typedOdo;
+
+            if (routeTotalKm[levelField]) {
                 let totalRoute = routeTotalKm[levelField];
                 let nadagan = 0;
 
-                if (savedStartOdo > 0 && currentOdoField >= savedStartOdo) {
-                    nadagan = currentOdoField - savedStartOdo;
-                } else if (savedStartOdo === 0 && currentOdoField > 0) {
-                    // Kung wala pay CP 00 nga na-save, i-base sa current odo ang calculation para mo-function dayon
-                    nadagan = currentOdoField; 
+                if (savedStartOdo > 0 && activeOdo >= savedStartOdo) {
+                    nadagan = activeOdo - savedStartOdo;
+                } else if (savedStartOdo === 0 && activeOdo > 0) {
+                    nadagan = activeOdo; // Fallback kon walay CP 00 pero naay gi-input
                 }
                 
                 let nabilin = totalRoute - nadagan;
@@ -815,13 +819,17 @@
                 if (txtNadagan) txtNadagan.innerText = nadagan.toLocaleString() + " KM";
                 if (txtNabilin) txtNabilin.innerText = nabilin.toLocaleString() + " KM";
                 
-                card.style.display = "block"; 
-            } else if (card) {
+                // Ipakita dayon ang dashboard basta duna nay history o duna nay gi-type
+                if (activeOdo > 0 || savedStartOdo > 0) {
+                    card.style.display = "block"; 
+                } else {
+                    card.style.display = "none";
+                }
+            } else {
                 card.style.display = "none"; 
             }
         }
 
-        // Awtomatikong i-trigger ang calculation kung naay mag-type sa Odometer o Level
         let odometerInput = document.getElementById("odometer");
         if (odometerInput) {
             odometerInput.addEventListener("input", updateRiderProgress);
@@ -922,7 +930,7 @@
         }
 
         // ==========================================
-        // 📷 8. SOLID QR CODE SCANNER (CRASH-PROOF)
+        // 📷 8. SOLID QR CODE SCANNER
         // ==========================================
         const scannerDiv = document.getElementById('reader');
         let globalQrScanner = null; 
@@ -930,7 +938,6 @@
         if (scanQrBtn && scannerDiv) {
             scanQrBtn.addEventListener('click', async function() {
                 if (scannerDiv.style.display === "block") {
-                    // STOP SCANNING
                     if (globalQrScanner) {
                         try { await globalQrScanner.stop(); globalQrScanner.clear(); } catch(e) {}
                         globalQrScanner = null;
@@ -939,7 +946,6 @@
                     scanQrBtn.textContent = "📷 I-SCAN ANG RIDER ID";
                     scanQrBtn.style.backgroundColor = "#ff9900"; scanQrBtn.style.color = "black";
                 } else {
-                    // START SCANNING
                     scannerDiv.style.display = "block";
                     scanQrBtn.textContent = "🛑 I-CANCEL ANG PAG-SCAN";
                     scanQrBtn.style.backgroundColor = "#cc0000"; scanQrBtn.style.color = "white";
@@ -949,7 +955,6 @@
                         await globalQrScanner.start(
                             { facingMode: "environment" }, { fps: 10, qrbox: { width: 250, height: 250 } },
                             async (decodedText) => {
-                                // QR FOUND!
                                 if (globalQrScanner) {
                                     try { await globalQrScanner.stop(); globalQrScanner.clear(); } catch(e) {}
                                     globalQrScanner = null;
@@ -963,7 +968,7 @@
                                 searchDatabase(decodedText);
                                 updateCheckpointCheckmarks(decodedText);
                             },
-                            (errorMessage) => { /* Ignore frame errors */ }
+                            (errorMessage) => { }
                         );
                     } catch (err) {
                         alert("⚠️ Wala ma-access ang Camera. I-allow sa settings.");
@@ -988,17 +993,15 @@
                 idNumBox.value = activeID;
                 localStorage.setItem('defaultRiderID', activeID);
                 updateCheckpointCheckmarks(activeID);
-                // Hatagan og oras kadiyot ang database.js nga maka-load
                 setTimeout(() => { searchDatabase(activeID); }, 250); 
             } else {
-                updateCheckpointCheckmarks(""); // I-load nga blangko
+                updateCheckpointCheckmarks(""); 
             }
 
             if ('serviceWorker' in navigator) {
-                navigator.serviceWorker.register('./sw.js').catch(function(error) { console.log('SW Error:', error); });
+                navigator.serviceWorker.register('./sw.js').catch(function(error) {});
             }
         });
-
     </script>
 
 
