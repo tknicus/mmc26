@@ -556,6 +556,13 @@
 
         async function checkRealInternet() {
             const sigStatus = document.getElementById('signalStatus');
+            
+            // KINI ANG FIX: Kung gibati sa browser nga offline, i-update dayon!
+            if (!navigator.onLine) {
+                if (sigStatus) { sigStatus.innerHTML = "🔴 OFFLINE"; sigStatus.style.color = "#ff3333"; }
+                return;
+            }
+
             let isOnline = await checkInternetStability();
             if (isOnline) {
                 if (sigStatus) { sigStatus.innerHTML = "🟢 ONLINE"; sigStatus.style.color = "#00ff00"; }
@@ -1061,11 +1068,19 @@
             let sID = localStorage.getItem('defaultRiderID');
             
             let activeID = pID || sID || "";
-            if (activeID && idNumBox) {
-                idNumBox.value = activeID; // BUTANGAN GYUD DAYON OG SULOD ANG KAHON
+            const idNumBox = document.getElementById('idNum');
+            
+            if (activeID) {
+                if (idNumBox) {
+                    idNumBox.value = activeID; // Piliton gyud og sulod ang ID
+                }
                 localStorage.setItem('defaultRiderID', activeID);
                 updateCheckpointCheckmarks(activeID);
-                setTimeout(() => { searchDatabase(activeID); }, 250); 
+                
+                // Tawgon dayon ang searchDatabase para mogawas ang Pangalan gikan sa Offline Memory
+                setTimeout(() => { 
+                    searchDatabase(activeID); 
+                }, 100); 
             } else {
                 updateCheckpointCheckmarks(""); 
             }
