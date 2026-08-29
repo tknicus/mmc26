@@ -1,8 +1,9 @@
-const CACHE_NAME = 'mmc26-cache-v2.32'; // ⬅️ GI-UPDATE NATO ANG VERSION ARON MO-DOWNLOAD OG BAG-O
+const CACHE_NAME = 'mmc-scanner-v3'; // ⬅️ GI-UPDATE NATO ANG VERSION ARON MO-DOWNLOAD OG BAG-O
 
 // KINI ANG MGA FILES NGA I-DOWNLOAD UG I-SAVE SA SELPON INIG UNANG ABLI
 const urlsToCache = [
   './',
+  './database.js', // ⬅️ IDUGANG: Ang imong masterlist
   './menu.html',
   './menu.json',
   './menu.png',
@@ -14,7 +15,7 @@ const urlsToCache = [
   'https://unpkg.com/html5-qrcode', // ⬅️ IDUGANG: Ang utok sa QR Scanner
   './report.html',
   './map.html',
-  './database.js', // ⬅️ IDUGANG: Ang imong masterlist
+ 
   // 👇 IDUGANG ANG IMONG KANTA DINHI 👇
   './never_say_never.mp3', // ⬅️ IDUGANG: Ang para tugtog inig mag SEND sa DATA
   //'./imong_kanta.mp3', // ⚠️ ILISI KINI KUNG UNSA GYUD ANG EXACT FILENAME SA IMONG AUDIO (ex: never_say_never.mp3)
@@ -23,42 +24,46 @@ const urlsToCache = [
 ];
 
 
-// INSTALLATION: Inig abli sa rider sa link nga naay internet, i-download niya ang files
+// 1. INSTALL EVENT: I-download ug i-save ang mga files sa celfon cache
 self.addEventListener('install', event => {
   event.waitUntil(
     caches.open(CACHE_NAME)
       .then(cache => {
-        console.log('Gi-ablihan ang cache ug gi-download ang files');
+        console.log('Opened cache');
         return cache.addAll(urlsToCache);
       })
   );
+  self.skipWaiting();
 });
 
-// ... (ANG UBAN NIMO NGA CODE SA FETCH UG ACTIVATE MAGPABILIN RA, WALA NAY USABON DIDTO) ...
-
-// FETCHING: Inig abli sa rider sa bukid nga walay internet, i-serve ang naka-save nga files
+// 2. FETCH EVENT: I-serve ang files gikan sa cache kung offline na
 self.addEventListener('fetch', event => {
   event.respondWith(
-    caches.match(event.request, { ignoreSearch: true })
+    caches.match(event.request)
       .then(response => {
-        // Kung na-save na sa cache, mao nay i-gawas. Kung wala, i-download gikan sa internet.
-        return response || fetch(event.request);
+        // Kung naa sa cache, ihatag dayon bisan walay internet
+        if (response) {
+          return response;
+        }
+        // Kung wala, kuhaa sa network kung online
+        return fetch(event.request);
       })
   );
 });
 
-// ACTIVATION: Pag-limpyo kung naay bag-o nga version sa cache
+// 3. ACTIVATE EVENT: Limpyohi ang mga karaan nga cache
 self.addEventListener('activate', event => {
-  const cacheWhitelist = [CACHE_NAME];
   event.waitUntil(
     caches.keys().then(cacheNames => {
       return Promise.all(
         cacheNames.map(cacheName => {
-          if (cacheWhitelist.indexOf(cacheName) === -1) {
+          if (cacheName !== CACHE_NAME) {
+            console.log('Deleting old cache:', cacheName);
             return caches.delete(cacheName);
           }
         })
       );
     })
   );
+  self.clients.claim();
 });
