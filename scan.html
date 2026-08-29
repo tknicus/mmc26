@@ -489,7 +489,7 @@
                 { val: "CP xx", name: "#xx Stand By Me" }
             ],
             "G5": [
-                { val: "CP xx", name: "#xx Stand By Me" }
+                { val: "CP xx", name: "#xx Stand By Me" },
                 { val: "CP 000", name: "#00 DavNor Sports Complex" },
                 { val: "CP 001", name: "#00 Davao City Coastal Road" },
                 { val: "CP 002", name: "#00 McDo Cogon Digos" },
@@ -638,7 +638,7 @@
                 { val: "CP 145", name: "#00 Fe Misa Ayala Seniors Park" },
                 { val: "CP 146", name: "#00 ELKAPITAN 's Burial Ground " },
                 { val: "CP 147", name: "#00 DavNor Sports Complex" }
-            ]
+            ],
             "AS": [
                 { val: "CP 00", name: "#00 Glorious Gate" },
                 { val: "CP 01", name: "#01 Mr. DIY" },
@@ -1090,6 +1090,7 @@
             }
         }
 
+        // TANDAAN: Kon gi-ilisan na nimo ang pangalan sa routes (G1N, G1E, etc.), i-update sab ni para mo-work ang KM computation!
         const routeTotalKm = { "G1": 777, "G2": 777, "G3": 3333, "G4": 777, "G5": 5555 };
 
         function updateRiderProgress() {
