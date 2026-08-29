@@ -298,73 +298,86 @@
     <script src="database.js"></script>
     <script>
         // 🗺️ ROUTE-BASED CHECKPOINT MAPPINGS (GI-DEFINE DINHI ANG MGA CP SA KADA RUTA)
-        const routeCheckpoints = {
-            "G1": ["CP 00", "CP 01", "CP 02", "CP 03", "CP FL"], 
-            "G2": ["CP 00", "CP 01", "CP 02", "CP 03", "CP 04", "CP FL"],
-            "G3": ["CP 00", "CP 07", "CP 08", "CP 09", "CP 10", "CP FL"],
-            "G4": ["CP 00", "CP 11", "CP 12", "CP 13", "CP FL"],
+        // 🗺️ TUNTUNAN SA TIBUOK NGA RUTA (G1 HANGTOD G5)
+        // ==========================================
+        // 🗺️ 5 KA NAGKALAIN-LAING RUTA UG ILANG MGA LUGAR
+        // ==========================================
+        const routeConfigs = {
+            "G1": [
+                { val: "CP 00", name: "#00 Glorious Gate (Start G1)" },
+                { val: "CP 01", name: "#01 Lungsod sa G1 - A" },
+                { val: "CP 02", name: "#02 Lungsod sa G1 - B" },
+                { val: "CP FL", name: "#03 Finish Line G1" }
+            ],
+            "G2": [
+                { val: "CP 00", name: "#00 Glorious Gate (Start G2)" },
+                { val: "CP 03", name: "#03 Lungsod sa G2 - A" },
+                { val: "CP 04", name: "#04 Lungsod sa G2 - B" },
+                { val: "CP FL", name: "#05 Finish Line G2" }
+            ],
+            "G3": [
+                { val: "CP 00", name: "#00 Start G3" },
+                { val: "CP 07", name: "#07 Bukidnon Route - A" },
+                { val: "CP 08", name: "#08 Bukidnon Route - B" },
+                { val: "CP FL", name: "#09 Finish Line G3" }
+            ],
+            "G4": [
+                { val: "CP 00", name: "#00 Start G4" },
+                { val: "CP 11", name: "#11 Talaingod Route - A" },
+                { val: "CP 12", name: "#12 Talaingod Route - B" },
+                { val: "CP FL", name: "#13 Finish Line G4" }
+            ],
             "G5": [
-                "CP 00", "CP 01", "CP 02", "CP 03", "CP 04", "CP 05", "CP 06", 
-                "CP 07", "CP 08", "CP 09", "CP 10", "CP 11", "CP 12", "CP 13", 
-                "CP 14", "CP 15", "CP 16", "CP 17", "CP 18", "CP 19", "CP 20", 
-                "CP 21", "CP 22", "CP 23", "CP 24", "CP 25", "CP 26", "CP 27", 
-                "CP 28", "CP 29", "CP 30", "CP 31", "CP 32", "CP 33", "CP 34", 
-                "CP 35", "CP 36", "CP 37", "CP 38", "CP 39", "CP 40", "CP 41", 
-                "CP 42", "CP 43", "CP 44", "CP 45", "CP 46", "CP 47", "CP FL", "CP xx"
-            ]
-        };
-
-        const cpFullNames = {
-            "CP 00": "#00 Glorious Gate",
-            "CP 01": "#01 Mr. DIY",
-            "CP 02": "#02 Junction Paquibato - Kalagangan Rd / Calinan Rd.",
-            "CP 03": "#03 New Paquibato District Hall",
-            "CP 04": "#04 Pungco Hill",
-            "CP 05": "#05 Junction Panaga - Tapak Road / Paquibato - Kalagangan Rd",
-            "CP 06": "#06 Junction Kalagangan - Talaingod Rd",
-            "CP 07": "#07 💪 Junction Bukidnon - Laak Road",
-            "CP 08": "#08 💪 Sitio Bulo, Brgy Namnam, San Fernando, Bukidnon",
-            "CP 09": "#09 💪 Pipisan Bridge, Sitio Pipisan, Brgy. Gupitan, Kapalong",
-            "CP 10": "#10 💪 Lumondong Bridge / Falls, Sitio Lumondong",
-            "CP 11": "#11 👌 Uraya's Peak Adventure Park",
-            "CP 12": "#12 👌 Ridge View Mountainview",
-            "CP 13": "#13 👌 Talaingod View Deck",
-            "CP 14": "#14 👌 Florida",
-            "CP 15": "#15 👌 Sua-on",
-            "CP 16": "#16 👌 Gupitan",
-            "CP 17": "#17 Junction Kili-Kili, Sitio Kili-Kili, Brgy Gupitan, Kapalong",
-            "CP 18": "#18 Gatnaon Road, Sitio Butoy, Gupitan, Kapalong",
-            "CP 19": "#19 Junction Imelda, Brgy. Imelda, Laak",
-            "CP 20": "#20 Laak ta Bai",
-            "CP 21": "#21 Sampaguita Junction Park",
-            "CP 22": "#22 Sta Josefa Petron",
-            "CP 23": "#23 Crossing Brgy. Angas & Brgy. Awao",
-            "CP 24": "#24 Awao River Crossing (A)",
-            "CP 25": "#25 Awao River Crossing (B)",
-            "CP 26": "#26 Awao Ticket Booth",
-            "CP 27": "#27 Awao Falls",
-            "CP 28": "#28 Crossing Brgy. Angas & Brgy. Awao",
-            "CP 29": "#29 INC, Monkayo",
-            "CP 30": "#30 JESREL STORE, Mount Diwata",
-            "CP 31": "#31 GKK Santo Niño",
-            "CP 32": "#32 Goldie Mark Store, Purok 1-A, Mount Diwata",
-            "CP 33": "#33 Libunao Store",
-            "CP 34": "#34 Tru-Cut, Diwalwal",
-            "CP 35": "#35 Petron",
-            "CP 36": "#36 Aliwagwag Falls Ecopark",
-            "CP 37": "#37 Manurigao Highlands 5650ft above sea level",
-            "CP 38": "#38 Shadol's Coffee Paste",
-            "CP 39": "#39 Maragusan Rotunda",
-            "CP 40": "#40 👌 Lake Leonard Eco Tourism Park",
-            "CP 41": "#41 👌 Bilawa Falls",
-            "CP 42": "#42 👌 711 Mawab",
-            "CP 43": "#43 💪 Araibo, Pantukan, Davao de Oro",
-            "CP 44": "#44 💪 Special Village, Las Arenas, Pantukan",
-            "CP 45": "#45 💪 Motor Parts, Brgy. Tagugpo, Pantukan",
-            "CP 46": "#46 💪 Napnapan",
-            "CP 47": "#47 💪 Jolibee Pantukan",
-            "CP FL": "#48 ELKAPITAN's Headstone",
-            "CP xx": "#xx Stand By Me"
+                { val: "CP 00", name: "#00 Glorious Gate" },
+                { val: "CP 01", name: "#01 Mr. DIY" },
+                { val: "CP 02", name: "#02 Junction Paquibato - Kalagangan Rd / Calinan Rd." },
+                { val: "CP 03", name: "#03 New Paquibato District Hall" },
+                { val: "CP 04", name: "#04 Pungco Hill" },
+                { val: "CP 05", name: "#05 Junction Panaga - Tapak Road / Paquibato - Kalagangan Rd" },
+                { val: "CP 06", name: "#06 Junction Kalagangan - Talaingod Rd" },
+                { val: "CP 07", name: "#07 💪 Junction Bukidnon - Laak Road" },
+                { val: "CP 08", name: "#08 💪 Sitio Bulo, Brgy Namnam, San Fernando, Bukidnon" },
+                { val: "CP 09", name: "#09 💪 Pipisan Bridge, Sitio Pipisan, Brgy. Gupitan, Kapalong" },
+                { val: "CP 10", name: "#10 💪 Lumondong Bridge / Falls, Sitio Lumondong" },
+                { val: "CP 11", name: "#11 👌 Uraya's Peak Adventure Park" },
+                { val: "CP 12", name: "#12 👌 Ridge View Mountainview" },
+                { val: "CP 13", name: "#13 👌 Talaingod View Deck" },
+                { val: "CP 14", name: "#14 👌 Florida" },
+                { val: "CP 15", name: "#15 👌 Sua-on" },
+                { val: "CP 16", name: "#16 👌 Gupitan" },
+                { val: "CP 17", name: "#17 Junction Kili-Kili, Sitio Kili-Kili, Brgy Gupitan, Kapalong" },
+                { val: "CP 18", name: "#18 Gatnaon Road, Sitio Butoy, Gupitan, Kapalong" },
+                { val: "CP 19", name: "#19 Junction Imelda, Brgy. Imelda, Laak" },
+                { val: "CP 20", name: "#20 Laak ta Bai" },
+                { val: "CP 21", name: "#21 Sampaguita Junction Park" },
+                { val: "CP 22", name: "#22 Sta Josefa Petron" },
+                { val: "CP 23", name: "#23 Crossing Brgy. Angas & Brgy. Awao" },
+                { val: "CP 24", name: "#24 Awao River Crossing (A)" },
+                { val: "CP 25", name: "#25 Awao River Crossing (B)" },
+                { val: "CP 26", name: "#26 Awao Ticket Booth" },
+                { val: "CP 27", name: "#27 Awao Falls" },
+                { val: "CP 28", name: "#28 Crossing Brgy. Angas & Brgy. Awao" },
+                { val: "CP 29", name: "#29 INC, Monkayo" },
+                { val: "CP 30", name: "#30 JESREL STORE, Mount Diwata" },
+                { val: "CP 31", name: "#31 GKK Santo Niño" },
+                { val: "CP 32", name: "#32 Goldie Mark Store, Purok 1-A, Mount Diwata" },
+                { val: "CP 33", name: "#33 Libunao Store" },
+                { val: "CP 34", name: "#34 Tru-Cut, Diwalwal" },
+                { val: "CP 35", name: "#35 Petron" },
+                { val: "CP 36", name: "#36 Aliwagwag Falls Ecopark" },
+                { val: "CP 37", name: "#37 Manurigao Highlands 5650ft above sea level" },
+                { val: "CP 38", name: "#38 Shadol's Coffee Paste" },
+                { val: "CP 39", name: "#39 Maragusan Rotunda" },
+                { val: "CP 40", name: "#40 👌 Lake Leonard Eco Tourism Park" },
+                { val: "CP 41", name: "#41 👌 Bilawa Falls" },
+                { val: "CP 42", name: "#42 👌 711 Mawab" },
+                { val: "CP 43", name: "#43 💪 Araibo, Pantukan, Davao de Oro" },
+                { val: "CP 44", name: "#44 💪 Special Village, Las Arenas, Pantukan" },
+                { val: "CP 45", name: "#45 💪 Motor Parts, Brgy. Tagugpo, Pantukan" },
+                { val: "CP 46", name: "#46 💪 Napnapan" },
+                { val: "CP 47", name: "#47 💪 Jolibee Pantukan" },
+                { val: "CP FL", name: "#48 ELKAPITAN's Headstone" },
+                { val: "CP xx", name: "#xx Stand By Me" ]
         };
 
         function populateCheckpointsByLevel(riderLevel) {
@@ -372,12 +385,12 @@
             if (!dropdown) return;
 
             dropdown.innerHTML = '<option value="" disabled selected>-- PILIA ANG CHECKPOINT --</option>';
-            let allowedCPs = routeCheckpoints[riderLevel] || routeCheckpoints["G5"];
+            let cpList = routeConfigs[riderLevel] || routeConfigs["G5"];
 
-            allowedCPs.forEach(cpVal => {
+            cpList.forEach(item => {
                 let opt = document.createElement('option');
-                opt.value = cpVal;
-                opt.textContent = cpFullNames[cpVal] || cpVal;
+                opt.value = item.val;
+                opt.textContent = item.name;
                 dropdown.appendChild(opt);
             });
         }
@@ -734,16 +747,16 @@
                 }
             });
 
-            // Kuhaon ang level sa rider aron masundan ang saktong route checkpoints
             let lvlBox = document.getElementById('level');
             let currentLevel = lvlBox && lvlBox.value ? lvlBox.value.trim() : "G5";
-            let allowedCPs = routeCheckpoints[currentLevel] || routeCheckpoints["G5"];
+            let cpList = routeConfigs[currentLevel] || routeConfigs["G5"];
 
             let htmlOutput = "";
             let countCompleted = 0;
             let firstUnfinishedCP = ""; 
 
-            allowedCPs.forEach(cpVal => {
+            cpList.forEach(item => {
+                let cpVal = item.val;
                 if (completedCheckpoints.includes(cpVal)) {
                     htmlOutput += `<span style="color: #00ff00; margin-right: 8px; display: inline-block; font-weight: bold;">✓ ${cpVal}</span>`;
                     countCompleted++;
@@ -763,6 +776,7 @@
                 }, 100); 
             }
         }
+
 
         const routeTotalKm = { "G1": 777, "G2": 777, "G3": 3333, "G4": 777, "G5": 5555 };
 
