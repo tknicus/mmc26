@@ -1453,28 +1453,38 @@
         }
 
         // ==========================================================
-        // 👑 SECRET LONG-PRESS SA LOGO PARA SA ADMIN MENU (menu.html)
+        // 👑 SECRET LONG-SPEC SA LOGO PARA SA ADMIN MENU (Gamit ang Database Hash)
         // ==========================================================
         let pressTimer;
         const adminLogo = document.getElementById('masterMindsLogo');
 
         if (adminLogo) {
-            // 👇 KINI ANG MOPATAY SA "DOWNLOAD IMAGE" NGA MENU SA CHROME 👇
             adminLogo.addEventListener('contextmenu', function(e) {
                 e.preventDefault();
             });
 
             const startPress = (e) => {
                 pressTimer = setTimeout(async () => {
+                    // Gamiton gihapon ang imong astig nga customPinPrompt
                     let passcode = await customPinPrompt("👑 ADMIN PANEL", "Pagsulod og Admin Passcode:");
                     if (!passcode) return;
 
-                    if (passcode === "1234") { 
-                        window.location.href = 'menu.html';
+                    // I-check kung naa ba ang database ug kung sakto ba ang hash
+                    if (typeof riderDatabase !== 'undefined') {
+                        let hashedInput = await sha256Hash(passcode); 
+                        // Mangita sa database kung naay marshal nga parehas ang hash ug isMarshal === true
+                        let validAdmin = riderDatabase.find(r => r.passcode === hashedInput && r.isMarshal === true);     
+
+                        if (validAdmin) {
+                            // Sakto! Pasudlon na sa menu.html
+                            window.location.href = 'menu.html';
+                        } else {
+                            alert("❌ Sayop ang Admin Passcode!");
+                        }
                     } else {
-                        alert("❌ Sayop ang Admin Passcode!");
+                        alert("⚠️ Error: Wala nabasa ang database.");
                     }
-                }, 2500); 
+                }, 2500); // 2.5 segundos nga long-press
             };
 
             const cancelPress = () => {
