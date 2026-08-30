@@ -288,7 +288,8 @@
             <img id="photoPreview" alt="Ebidensya">
             <canvas id="photoCanvas" style="display:none;"></canvas>
 
-            <button type="submit">I-Submit ang Data</button>
+            <!--button type="submit">I-Submit ang Data</button-->
+            <button type="submit" id="mainSubmitBtn">I-Submit ang Data</button>
         </form>
 
         <div style="text-align: center; margin-top: 25px; padding-bottom: 20px; font-size: 12px; color: #aaa; border-top: 1px solid #333; padding-top: 15px;">
@@ -299,10 +300,178 @@
 
     </div>
 
-    <audio id="submitMusic" src="never_say_never.mp3" loop></audio>
+    <!--audio id="submitMusic" src="./never_say_never.mp3" preload="auto"></audio>s -->
+
 
     <script src="database.js"></script>
     <script>
+        ////////////////////////////////////////////////////////////////////////////////////////////////////
+        // 🔒 PERMANENT STATUS & EXPIRY CHECKER (T or F)
+        let appStatus = localStorage.getItem('mmc_app_status');
+
+        // 1. Kung primerong install pa lang, butangan dayon og 'T' (True / Active)
+        if (!appStatus) {
+            localStorage.setItem('mmc_app_status', 'T');
+            appStatus = 'T';
+        }
+
+        const eventExpiryDate = new Date('2026-09-01T00:00:00'); // Petsa sa katapusan
+        const today = new Date();
+
+        // 2. Susiha kung lapas na ba sa petsa O KAYA na-set na daan sa 'F'
+        if (today > eventExpiryDate || appStatus === 'F') {
+            
+            // Himuong 'F' ang status para permanenteng patay na ang scanner
+            localStorage.setItem('mmc_app_status', 'F');
+
+            // Dinhi na mogawas ang giplano natong Finisher / Participant Badge Screen
+            let currentId = localStorage.getItem('defaultRiderID') || "0000";
+            let riderName = localStorage.getItem('offlineName_' + currentId) || "MasterMinds Rider";
+            let riderLevel = localStorage.getItem('offlineLevel_' + currentId) || "G5";
+            
+            let riderHistoryKey = 'history_' + currentId;
+            let completedCheckpoints = JSON.parse(localStorage.getItem(riderHistoryKey)) || [];
+            let isFinisher = completedCheckpoints.includes("CP FL");
+            
+            let badgeTitle = isFinisher ? "🏆 Official Finisher Badge" : "🛡️ Official Participant Badge";
+            let statusText = isFinisher ? "⭐ FINISHER" : "🏁 RIDER PARTICIPANT";
+            let statusColor = isFinisher ? "#00ff00" : "#ffcc00";
+            let borderGlow = isFinisher ? "#ffcc00" : "#ff9900";
+            let messageText = isFinisher 
+                ? "📸 <b>I-screenshot kini nga screen para i-flex sa imong wall!</b><br>Daghang salamat sa imong kaisog ug pag-apil sa MasterMinds' CUP."
+                : "📸 <b>I-screenshot kini nga badge isip handumanan!</b><br>Bisan wala nakaabot sa finish line, dako kaayog pasidungog ang imong gi-survive nga mga checkpoints.";
+
+            document.addEventListener("DOMContentLoaded", function() {
+                const container = document.querySelector('.container');
+                if (container) {
+                    container.innerHTML = `
+                        <img src="mmc.png" alt="MasterMinds CUP Logo" class="app-logo">
+                        <h4 style="color: #ffcc00; text-align: center; font-style: italic;">" never say never "</h4>
+                        <h2 style="color: #fff; text-align: center; text-transform: uppercase;">${badgeTitle}</h2>
+                        
+                        <div style="background: linear-gradient(145deg, #1a1a1a, #2a2a2a); border: 2px solid ${borderGlow}; border-radius: 12px; padding: 20px; margin: 20px 0; text-align: center; box-shadow: 0 0 15px rgba(255,204,0,0.2);">
+                            <div style="font-size: 12px; color: #aaa; text-transform: uppercase; letter-spacing: 2px;">Gisertipikahan si</div>
+                            <h1 style="color: #ffffff; font-size: 24px; margin: 10px 0; text-transform: uppercase; text-shadow: 0 2px 4px rgba(0,0,0,0.5);">${riderName}</h1>
+                            <div style="font-size: 13px; color: #ff9900; font-weight: bold; margin-bottom: 15px;">Rider ID: #${currentId} | Level: ${riderLevel}</div>
+                            
+                            <hr style="border: 0; border-top: 1px solid #444; margin: 15px 0;">
+                            
+                            <div style="display: flex; justify-content: space-around; color: #fff; font-size: 14px;">
+                                <div>
+                                    <span style="font-size: 10px; color: #aaa; display: block;">STATUS</span>
+                                    <b style="color: ${statusColor};">${statusText}</b>
+                                </div>
+                                <div style="border-left: 1px solid #444; padding-left: 15px;">
+                                    <span style="font-size: 10px; color: #aaa; display: block;">NA-SURVIVE</span>
+                                    <b style="color: #00d2ff;">${completedCheckpoints.length} Checkpoints</b>
+                                </div>
+                            </div>
+                        </div>
+
+                        <p style="text-align: center; color: #ccc; font-size: 13px; line-height: 1.5; margin-bottom: 20px;">
+                            ${messageText}<br><br>
+                            <span style="color: #888; font-size: 11px;">Tapos na ang event. Pwede na nimo i-uninstall kining app sa imong selpon.</span>
+                        </p>
+
+                        <button onclick="alert('Palihug adtoa ang Phone Settings > Apps > MasterMinds CUP para i-uninstall. Salamat!')" style="background-color: #cc0000; color: white; padding: 15px; font-weight: bold; border: none; border-radius: 4px; width: 100%; cursor: pointer; text-transform: uppercase;">
+                            🗑️ Unsaon pag-Uninstall
+                        </button>
+
+                        <div style="text-align: center; margin-top: 25px; font-size: 12px; color: #777;">
+                            &copy; 2026 MasterMinds'CUP. All Rights Reserved.
+                        </div>
+                    `;
+                }
+            });
+            // return; // Mo-relax na ang app, dili na modagan ang scanner form!
+        }
+        /////////////////////////////////////////////////////////////////////////////////////////////
+        
+        // 🎵 ULTIMATE AUDIO WEAPON (Pure JS) 🎵
+        const submitAudio = new Audio('./never_say_never.mp3');
+        submitAudio.preload = 'auto'; // I-karga daan sa memory
+
+        // Inig click gyud mismo sa button (dili form submit), patugtugon dayon!
+        document.addEventListener("DOMContentLoaded", function() {
+            const mainSubmitBtn = document.getElementById('mainSubmitBtn');
+            if (mainSubmitBtn) {
+                mainSubmitBtn.addEventListener('click', function() {
+                    submitAudio.currentTime = 0;
+                    let playPromise = submitAudio.play();
+                    if (playPromise !== undefined) {
+                        playPromise.catch(e => console.log("Gipugngan sa Android:", e));
+                    }
+                });
+            }
+        });
+        
+        // 🌟 KINI ANG SAKTONG INITIALIZATION PARA SA RIDER ID NGA MO-PROMPT KUNG WALA PA
+        document.addEventListener("DOMContentLoaded", function() {
+            const idElem = document.getElementById('idNum');
+            const nameElem = document.getElementById('name');
+            const levelElem = document.getElementById('level');
+
+            if (!idElem) return;
+
+            // 1. Susiha ang parehong storage keys aron walay libog ('mmc_rider_id' o 'defaultRiderID')
+            let savedRiderID = localStorage.getItem("mmc_rider_id") || localStorage.getItem("defaultRiderID");
+
+            if (!savedRiderID) {
+                // Kung wala pa gyud, pangutan-a ang rider/marshal sa unang higayon ra
+                let inputID = prompt("👑 WELCOME SA MASTERMINDS'CUP!\nPalihug isulod ang imong Rider / Marshal ID Number:");
+                
+                if (inputID && inputID.trim() !== "") {
+                    savedRiderID = inputID.trim().replace(/[^0-9]/g, ''); // Sigurohon nga numero ra
+                    localStorage.setItem("mmc_rider_id", savedRiderID);
+                    localStorage.setItem("defaultRiderID", savedRiderID);
+                    alert(`✅ Narehistro na ang ID: ${savedRiderID} sa kini nga selpon.`);
+                } else {
+                    alert("⚠️ Kinahanglan ang ID number para magamit ang app!");
+                    return;
+                }
+            }
+
+            // 2. Ibutang ang ID sa idNum input box ug i-lock aron dili ma-edit
+            idElem.value = savedRiderID;
+            idElem.setAttribute('readonly', true);
+
+            // 3. Pangitaa sa database.js ang pangalan ug level gamit ang savedRiderID
+            if (typeof riderDatabase !== 'undefined' && Array.isArray(riderDatabase)) {
+                let currentRider = riderDatabase.find(r => r.idNum === savedRiderID);
+                
+                if (currentRider) {
+                    let rLevel = currentRider.level || "G5";
+                    if (nameElem) nameElem.value = currentRider.fullname || currentRider.name || "";
+                    
+                    let fullRouteName = routeNames[rLevel] ? routeNames[rLevel] : rLevel;
+                    if (levelElem) levelElem.value = fullRouteName;
+                    
+                    window.activeRiderLevel = rLevel; 
+                    populateCheckpointsByLevel(rLevel);
+
+                    localStorage.setItem('offlineName_' + savedRiderID, currentRider.fullname || currentRider.name || "");
+                    localStorage.setItem('offlineLevel_' + savedRiderID, rLevel);
+                } else {
+                    if (nameElem) nameElem.value = "❌ Wala sa Masterlist";
+                    if (levelElem) levelElem.value = "G5";
+                    window.activeRiderLevel = "G5";
+                    populateCheckpointsByLevel("G5");
+                }
+            } else {
+                console.error("⚠️ Error: Wala nabasa ang database.js.");
+            }
+
+            // Tawgon ang progress ug checkpoints update
+            updateCheckpointCheckmarks(savedRiderID);
+            if (typeof updateRiderProgress === 'function') {
+                updateRiderProgress();
+            }
+
+            if ('serviceWorker' in navigator) {
+                navigator.serviceWorker.register('./sw.js').catch(function(error) {});
+            }
+        });   
+        
         const routeNames = {
             "AS26": "628 ALL STAR",
             "G5": "MAN OF STEEL",
@@ -992,7 +1161,15 @@
                 if (submitBtn) { submitBtn.textContent = "📍 Gipadala ang Data..."; submitBtn.disabled = true; submitBtn.style.opacity = "0.5"; }
 
                 const bgMusic = document.getElementById('submitMusic');
-                if (bgMusic) bgMusic.play();
+                if (bgMusic) {
+                    bgMusic.currentTime = 0;
+                    let playPromise = bgMusic.play();
+                    if (playPromise !== undefined) {
+                        playPromise.catch(error => {
+                            console.warn("Wala gi-allow sa Android WebView ang audio:", error);
+                        });
+                    }
+                }
 
                 const checkId = document.getElementById('idNum') ? document.getElementById('idNum').value : "";
                 const checkName = document.getElementById('name') ? document.getElementById('name').value : "";
@@ -1034,24 +1211,30 @@
                 let isStable = await checkInternetStability();
                 let isDataSaved = false;
 
+                // GI-TANGTANG NATO ANG bgMusic.pause() DIRE ARON PADAYON MO-TUGTOG ANG KANTA
                 if (isStable) {
                     if (submitBtn) submitBtn.textContent = "📍 Gipadala sa Server...";
                     if (await sendDataToServer(data)) {
-                        if (bgMusic) { bgMusic.pause(); bgMusic.currentTime = 0; }
                         alert("✅ Success! Check imong Google Sheet, nisulod na!");
                         isDataSaved = true; 
                     } else {
-                        if (bgMusic) { bgMusic.pause(); bgMusic.currentTime = 0; }
                         alert("⚠️ Na-putol ang signal! Gi-save sa Offline Data.");
                         saveToOfflineStorage(data);
                         isDataSaved = true; 
                     }
                 } else {
-                    if (bgMusic) { bgMusic.pause(); bgMusic.currentTime = 0; }
                     saveToOfflineStorage(data);
                     alert("⚠️ Hinay ang internet! Gi-save sa Offline Data.");
                     isDataSaved = true;
                 }
+
+                // 🛑 I-PAUSE ANG MUSIC HUMAN MA-CLICK ANG "OK" SA ALERT BOX
+                //if (bgMusic) { 
+                //    bgMusic.pause(); 
+                //    bgMusic.currentTime = 0; 
+                //}
+                submitAudio.pause(); 
+                submitAudio.currentTime = 0;
 
                 if (isDataSaved) {
                     let riderHistoryKey = 'history_' + checkId;
@@ -1507,31 +1690,31 @@
         }
         // ==========================================================
 
-        window.addEventListener('DOMContentLoaded', function() {
-            const urlParams = new URLSearchParams(window.location.search);
-            let pID = urlParams.get('theIDno');
-            let sID = localStorage.getItem('defaultRiderID');
+        //window.addEventListener('DOMContentLoaded', function() {
+        //    const urlParams = new URLSearchParams(window.location.search);
+        //    let pID = urlParams.get('theIDno');
+        //    let sID = localStorage.getItem('defaultRiderID');
             
-            let activeID = pID || sID || "";
-            const idNumBox = document.getElementById('idNum');
+        //    let activeID = pID || sID || "";
+        //    const idNumBox = document.getElementById('idNum');
             
-            if (activeID) {
-                if (idNumBox) {
-                    idNumBox.value = activeID;
-                    idNumBox.setAttribute('readonly', true);
-                }
-                localStorage.setItem('defaultRiderID', activeID);
+        //    if (activeID) {
+        //        if (idNumBox) {
+        //            idNumBox.value = activeID;
+        //            idNumBox.setAttribute('readonly', true);
+        //        }
+        //        localStorage.setItem('defaultRiderID', activeID);
                 
-                searchDatabase(activeID);
-                updateCheckpointCheckmarks(activeID);
-            } else {
-                updateCheckpointCheckmarks(""); 
-            }
+        //        searchDatabase(activeID);
+        //        updateCheckpointCheckmarks(activeID);
+        //    } else {
+        //        updateCheckpointCheckmarks(""); 
+        //    }
 
-            if ('serviceWorker' in navigator) {
-                navigator.serviceWorker.register('./sw.js').catch(function(error) {});
-            }
-        });
+        //    if ('serviceWorker' in navigator) {
+        //        navigator.serviceWorker.register('./sw.js').catch(function(error) {});
+        //    }
+        //});
 
     </script>
 </body>
