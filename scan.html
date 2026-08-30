@@ -1459,14 +1459,16 @@
         const adminLogo = document.getElementById('masterMindsLogo');
 
         if (adminLogo) {
-            const startPress = (e) => {
-                // Magsugod ang timer (2.5 segundos)
-                pressTimer = setTimeout(async () => {
-                    // Gamiton nato ang imong astig nga customPinPrompt!
-                    let passcode = await customPinPrompt("👑 ADMIN PANEL", "Pagsulod og Admin Passcode:");
-                    if (!passcode) return; // Kung gi-cancel o gi-close
+            // 👇 KINI ANG MOPATAY SA "DOWNLOAD IMAGE" NGA MENU SA CHROME 👇
+            adminLogo.addEventListener('contextmenu', function(e) {
+                e.preventDefault();
+            });
 
-                    // Ilisi ang "1234" sa imong tinuod nga Admin Password
+            const startPress = (e) => {
+                pressTimer = setTimeout(async () => {
+                    let passcode = await customPinPrompt("👑 ADMIN PANEL", "Pagsulod og Admin Passcode:");
+                    if (!passcode) return;
+
                     if (passcode === "1234") { 
                         window.location.href = 'menu.html';
                     } else {
@@ -1476,11 +1478,9 @@
             };
 
             const cancelPress = () => {
-                // I-cancel kung gibuhian dayon ang logo (wala kaabot 2.5s)
                 clearTimeout(pressTimer);
             };
 
-            // Mga Trigger para sa Touchscreen (Cellphone) ug Mouse (Laptop)
             adminLogo.addEventListener('mousedown', startPress);
             adminLogo.addEventListener('touchstart', startPress);
 
