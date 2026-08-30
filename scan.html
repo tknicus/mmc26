@@ -1473,7 +1473,7 @@
                     if (typeof riderDatabase !== 'undefined') {
                         let hashedInput = await sha256Hash(passcode); 
                         // Mangita sa database kung naay marshal nga parehas ang hash ug isMarshal === true
-                        let validAdmin = riderDatabase.find(r => r.passcode === hashedInput && r.isAdmin === true);     
+                        let validAdmin = riderDatabase.find(r => r.passcode === hashedInput && r.isMarshal === true);     
 
                         if (validAdmin) {
                             // Sakto! Pasudlon na sa menu.html
