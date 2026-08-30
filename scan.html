@@ -208,7 +208,7 @@
 <body>
 
     <div class="container">
-        <img src="mmc.png" alt="MasterMinds CUP Logo" class="app-logo">
+        <img src="mmc.png" alt="MasterMinds CUP Logo" class="app-logo" id="masterMindsLogo">
         <h4>" never say never "</h4>
         <h2>Checkpoint Scanner</h2>
 
@@ -1446,6 +1446,45 @@
             });
         }
 
+        // ==========================================================
+        // 👑 SECRET LONG-PRESS SA LOGO PARA SA ADMIN MENU (menu.html)
+        // ==========================================================
+        let pressTimer;
+        const adminLogo = document.getElementById('masterMindsLogo');
+
+        if (adminLogo) {
+            const startPress = (e) => {
+                // Magsugod ang timer (2.5 segundos)
+                pressTimer = setTimeout(async () => {
+                    // Gamiton nato ang imong astig nga customPinPrompt!
+                    let passcode = await customPinPrompt("👑 ADMIN PANEL", "Pagsulod og Admin Passcode:");
+                    if (!passcode) return; // Kung gi-cancel o gi-close
+
+                    // Ilisi ang "1234" sa imong tinuod nga Admin Password
+                    if (passcode === "1234") { 
+                        window.location.href = 'menu.html';
+                    } else {
+                        alert("❌ Sayop ang Admin Passcode!");
+                    }
+                }, 2500); 
+            };
+
+            const cancelPress = () => {
+                // I-cancel kung gibuhian dayon ang logo (wala kaabot 2.5s)
+                clearTimeout(pressTimer);
+            };
+
+            // Mga Trigger para sa Touchscreen (Cellphone) ug Mouse (Laptop)
+            adminLogo.addEventListener('mousedown', startPress);
+            adminLogo.addEventListener('touchstart', startPress);
+
+            adminLogo.addEventListener('mouseup', cancelPress);
+            adminLogo.addEventListener('mouseleave', cancelPress);
+            adminLogo.addEventListener('touchend', cancelPress);
+            adminLogo.addEventListener('touchcancel', cancelPress);
+        }
+        // ==========================================================
+
         window.addEventListener('DOMContentLoaded', function() {
             const urlParams = new URLSearchParams(window.location.search);
             let pID = urlParams.get('theIDno');
@@ -1471,6 +1510,7 @@
                 navigator.serviceWorker.register('./sw.js').catch(function(error) {});
             }
         });
+
     </script>
 </body>
 </html>
