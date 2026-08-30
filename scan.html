@@ -1453,7 +1453,7 @@
         }
 
         // ==========================================================
-        // 👑 SECRET LONG-SPEC SA LOGO PARA SA ADMIN MENU (Gamit ang Database Hash)
+        // 👑 SECRET LONG-PRESS SA LOGO PARA SA ADMIN MENU (Gamit ang Admin ID Filter)
         // ==========================================================
         let pressTimer;
         const adminLogo = document.getElementById('masterMindsLogo');
@@ -1465,24 +1465,30 @@
 
             const startPress = (e) => {
                 pressTimer = setTimeout(async () => {
-                    // Gamiton gihapon ang imong astig nga customPinPrompt
+                    // Gamiton ang imong customPinPrompt
                     let passcode = await customPinPrompt("👑 ADMIN PANEL", "Pagsulod og Admin Passcode:");
                     if (!passcode) return;
 
-                    // I-check kung naa ba ang database ug kung sakto ba ang hash
-                    if (typeof riderDatabase !== 'undefined') {
-                        let hashedInput = await sha256Hash(passcode); 
-                        // Mangita sa database kung naay marshal nga parehas ang hash ug isMarshal === true
-                        let validAdmin = riderDatabase.find(r => r.passcode === hashedInput && r.isMarshal === true);     
-
-                        if (validAdmin) {
-                            // Sakto! Pasudlon na sa menu.html
-                            window.location.href = 'menu.html';
-                        } else {
-                            alert("❌ Sayop ang Admin Passcode!");
-                        }
-                    } else {
+                    if (typeof riderDatabase === 'undefined') {
                         alert("⚠️ Error: Wala nabasa ang database.");
+                        return;
+                    }
+
+                    // I-hash ang gisulod nga PIN
+                    const encoder = new TextEncoder();
+                    const data = encoder.encode(passcode);
+                    const hashBuffer = await crypto.subtle.digest('SHA-256', data);
+                    const hashArray = Array.from(new Uint8Array(hashBuffer));
+                    const hashedInput = hashArray.map(b => b.toString(16).padStart(2, '0')).join('');
+
+                    // 🔒 GIAKOP NIYA ANG ID FILTER PARA SA ADMIN RA GYUD (Ilisi ang ID kon kinahanglan)
+                    let validAdmin = riderDatabase.find(r => r.passcode === hashedInput && (r.idNum === "0001" || r.idNum === "0002" || r.idNum === "0003"));
+
+                    if (validAdmin) {
+                        // Husto ang passcode ug Admin ID! Pasudlon na sa menu.html
+                        window.location.href = 'menu.html';
+                    } else {
+                        alert("❌ Sayop nga Passcode o dili ka awtorisado nga Admin!");
                     }
                 }, 2500); // 2.5 segundos nga long-press
             };
