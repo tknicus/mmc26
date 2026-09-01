@@ -212,6 +212,51 @@
     <!-- 🎨 KATAPUSAN SA THEME 🎨 -->
 </head>
 <body>
+    <!-- ================= 1. LOGIN SCREEN CONTAINER ================= -->
+    <div id="loginScreenContainer" style="display: block; width: 100vw; height: 100vh; background: #000; position: fixed; top: 0; left: 0; z-index: 9999; display: flex; justify-content: center; align-items: center;">
+        <div style="width: 100%; max-width: 400px; padding: 20px; background: #111; color: white; border-radius: 8px; border: 1px solid #333;">
+            <h2 style="text-align: center;">MMC SCANNER LOGIN</h2>
+            <p style="text-align: center; color: #aaa;">Palihug isulod ang imong ID ug Passcode.</p>
+            
+            <div style="margin-bottom: 15px;">
+                <label>Rider ID#:</label><br>
+                <input type="text" id="riderIdInput" placeholder="Pananglitan: 0001" style="width: 100%; padding: 10px; margin-top: 5px; background: #222; color: white; border: 1px solid #444;">
+            </div>
+            
+            <div style="margin-bottom: 15px;">
+                <label>Passcode / PIN:</label><br>
+                <input type="password" id="riderPassInput" placeholder="Isulod ang passcode" style="width: 100%; padding: 10px; margin-top: 5px; background: #222; color: white; border: 1px solid #444;">
+            </div>
+            
+            <button onclick="verifyAndLogin()" style="width: 100%; background: #007BFF; color: white; padding: 12px; border: none; border-radius: 4px; font-weight: bold; cursor: pointer;">LOGIN SA SCANNER</button>
+        </div>
+    </div>
+
+    <!-- ================= 2. SCANNER SCREEN CONTAINER (Ang tibuok nimo nga app) ================= -->
+    <div id="scannerScreenContainer" style="display: none; width: 100%; min-height: 100vh; background: #000;">
+        <!-- Ibutang dinhi ang TIBUOK nimo nga scanner code gikan sa taas hangtod ubos -->
+        <div style="max-width: 600px; margin: 0 auto; color: white; padding: 15px;">
+            <h2>CHECKPOINT SCANNER</h2>
+            <p>Welcome, <span id="welcomeName">Rider</span>!</p>
+            <!-- ... ang uban pa nimong existing scanner fields ... -->
+            <button onclick="logoutRider()" style="background: #dc3545; color: white; padding: 8px 12px; border: none; border-radius: 4px; cursor: pointer;">LOGOUT</button>
+        </div>
+    </div>
+
+
+
+
+    <!-- KINI ANG SCANNER INTERFACE (Nakatago kini sa sinugdanan) -->
+    <div id="scannerWrapper" style="display: none; width: 100%; max-width: 600px; margin: 0 auto;">
+        <!-- Dinhi ibutang ang tibuok nimo nga Checkpoint Scanner design gikan sa tuo -->
+        <div style="background: #111; color: white; padding: 20px;">
+            <h2>CHECKPOINT SCANNER</h2>
+            <p>Welcome, <span id="welcomeName">Rider</span>!</p>
+            <!-- ... ang uban pa nimong scanner fields ug buttons ... -->
+            <button onclick="logoutRider()" style="background: #dc3545; color: white; padding: 8px 12px; border: none; border-radius: 4px; cursor: pointer;">LOGOUT</button>
+        </div>
+    </div>
+    
     <!-- LOGIN SCREEN (Pultahan) -->
     <div id="loginSection" style="max-width: 400px; margin: 50px auto; padding: 20px; border: 1px solid #ccc; border-radius: 8px; font-family: sans-serif;">
         <h2>MMC Scanner Login</h2>
@@ -334,30 +379,60 @@
     <script src="database.js"></script>
     <script>
         function grantAccess(rider) {
-            // 1. I-save sa localStorage
             localStorage.setItem("tourRiderID", rider.idNum);
             localStorage.setItem("tourRiderName", rider.fullname);
             localStorage.setItem("tourIsLoggedIn", "true");
 
-            // 2. Ibutang ang pangalan sa welcome display kung naa man gani
+            // Tago-a gyud ang tutok sa login screen
+            document.getElementById("loginScreenContainer").style.display = "none";
+            
+            // Ipakita ang scanner container
+            document.getElementById("scannerScreenContainer").style.display = "block";
+            
             let welcomeEl = document.getElementById("welcomeName");
             if (welcomeEl) {
                 welcomeEl.innerText = `${rider.fullname} (${rider.nickname})`;
             }
+        }
 
-            // 3. ANG PINAKAHINUNGDAN: Tago-a gyud ang Login Section aron dili na piot!
-            let loginSec = document.getElementById("loginSection");
-            if (loginSec) {
-                loginSec.style.display = "none";
-                loginSec.style.visibility = "hidden"; // Para masiguro nga matangtang gyud sa panan-aw
-            }
+        window.onload = function() {
+            let isLoggedIn = localStorage.getItem("tourIsLoggedIn");
+            let savedName = localStorage.getItem("tourRiderName");
 
-            // 4. Ipakita ang Scanner Section sa tibuok screen
-            let scannerSec = document.getElementById("scannerSection");
-            if (scannerSec) {
-                scannerSec.style.display = "block";
+            if (isLoggedIn === "true") {
+                document.getElementById("loginScreenContainer").style.display = "none";
+                document.getElementById("scannerScreenContainer").style.display = "block";
+                if (savedName && document.getElementById("welcomeName")) {
+                    document.getElementById("welcomeName").innerText = savedName;
+                }
+            } else {
+                document.getElementById("loginScreenContainer").style.display = "flex";
+                document.getElementById("scannerScreenContainer").style.display = "none";
             }
-        }    
+        };
+
+
+
+
+        // Inig abli sa pahina, i-check kung naka-login na daan
+        window.onload = function() {
+            let isLoggedIn = localStorage.getItem("tourIsLoggedIn");
+            let savedName = localStorage.getItem("tourRiderName");
+
+            if (isLoggedIn === "true") {
+                // Kung naka-login na daan, tago-a ang login ug ipakita ang scanner daan
+                document.getElementById("loginWrapper").style.display = "none";
+                document.getElementById("scannerWrapper").style.display = "block";
+                
+                if (savedName && document.getElementById("welcomeName")) {
+                    document.getElementById("welcomeName").innerText = savedName;
+                }
+            } else {
+                // Kung wala pa, login lang ang makita
+                document.getElementById("loginWrapper").style.display = "block";
+                document.getElementById("scannerWrapper").style.display = "display: none";
+            }
+        };   
         
         
         // Function para mag-generate og SHA-256 hash gikan sa gi-type sa rider
