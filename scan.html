@@ -212,6 +212,34 @@
     <!-- 🎨 KATAPUSAN SA THEME 🎨 -->
 </head>
 <body>
+<!-- ================= FULL-SCREEN LOGIN OVERLAY ================= -->
+<div id="loginScreenContainer" style="position: fixed; top: 0; left: 0; width: 100vw; height: 100vh; background: #000000; z-index: 999999; display: flex; justify-content: center; align-items: center; padding: 20px; box-sizing: border-box;">
+    <div style="width: 100%; max-width: 380px; background: #111; padding: 25px; border-radius: 12px; border: 1px solid #333; color: white; box-shadow: 0 10px 25px rgba(0,0,0,0.8);">
+        <h2 style="text-align: center; margin-bottom: 5px; font-size: 20px;">MMC SCANNER LOGIN</h2>
+        <p style="text-align: center; color: #aaa; font-size: 13px; margin-bottom: 20px;">Palihug isulod ang imong ID ug Passcode.</p>
+        
+        <div style="margin-bottom: 15px;">
+            <label style="font-size: 13px; color: #ccc;">Rider ID#:</label><br>
+            <input type="text" id="riderIdInput" placeholder="Pananglitan: 0001" style="width: 100%; padding: 12px; margin-top: 5px; background: #222; color: white; border: 1px solid #444; border-radius: 6px; box-sizing: border-box;">
+        </div>
+        
+        <div style="margin-bottom: 20px;">
+            <label style="font-size: 13px; color: #ccc;">Passcode / PIN:</label><br>
+            <input type="password" id="riderPassInput" placeholder="Isulod ang passcode" style="width: 100%; padding: 12px; margin-top: 5px; background: #222; color: white; border: 1px solid #444; border-radius: 6px; box-sizing: border-box;">
+        </div>
+        
+        <button onclick="verifyAndLogin()" style="width: 100%; background: #007BFF; color: white; padding: 12px; border: none; border-radius: 6px; font-weight: bold; cursor: pointer; font-size: 15px;">LOGIN SA SCANNER</button>
+    </div>
+</div>
+
+<!-- ================= TIBUOK NIMO NGA MAIN SCANNER SCREEN ================= -->
+<div id="scannerScreenContainer" style="display: none; width: 100%; min-height: 100vh; background: #000;">
+    <!-- Ibutang dinhi ang TIBUOK nimo nga daang design sa scanner gikan sa taas hangtod ubos -->
+</div>
+
+
+
+
     <!-- ================= 1. LOGIN SCREEN CONTAINER ================= -->
     <div id="loginScreenContainer" style="display: block; width: 100vw; height: 100vh; background: #000; position: fixed; top: 0; left: 0; z-index: 9999; display: flex; justify-content: center; align-items: center;">
         <div style="width: 100%; max-width: 400px; padding: 20px; background: #111; color: white; border-radius: 8px; border: 1px solid #333;">
@@ -378,38 +406,98 @@
 
     <script src="database.js"></script>
     <script>
-        function grantAccess(rider) {
-            localStorage.setItem("tourRiderID", rider.idNum);
-            localStorage.setItem("tourRiderName", rider.fullname);
-            localStorage.setItem("tourIsLoggedIn", "true");
 
-            // Tago-a gyud ang tutok sa login screen
-            document.getElementById("loginScreenContainer").style.display = "none";
-            
-            // Ipakita ang scanner container
-            document.getElementById("scannerScreenContainer").style.display = "block";
-            
-            let welcomeEl = document.getElementById("welcomeName");
-            if (welcomeEl) {
-                welcomeEl.innerText = `${rider.fullname} (${rider.nickname})`;
-            }
+function verifyAndLogin() {
+    let inputtedID = document.getElementById("riderIdInput").value.trim();
+    let inputtedPass = document.getElementById("riderPassInput").value.trim();
+
+    // 1. Susiha kung na-load ba ang database.js
+    if (typeof riderDatabase === 'undefined') {
+        alert("CRITICAL ERROR: Ang database.js wala makita o wala nauna og load sa script!");
+        return;
+    }
+
+    if (!inputtedID) {
+        alert("Palihug isulod ang Rider ID#!");
+        return;
+    }
+
+    // 2. Pangitaa sa database kung naa ba ang ID
+    let rider = riderDatabase.find(r => r.idNum === inputtedID);
+
+    if (rider) {
+        // PASAR! Tago-a dayon ang itom nga overlay sa login
+        let loginOverlay = document.getElementById("loginScreenContainer");
+        if (loginOverlay) {
+            loginOverlay.style.display = "none";
         }
 
-        window.onload = function() {
-            let isLoggedIn = localStorage.getItem("tourIsLoggedIn");
-            let savedName = localStorage.getItem("tourRiderName");
+        // Ipakita ang main scanner screen
+        let scannerScreen = document.getElementById("scannerScreenContainer");
+        if (scannerScreen) {
+            scannerScreen.style.display = "block";
+        }
 
-            if (isLoggedIn === "true") {
-                document.getElementById("loginScreenContainer").style.display = "none";
-                document.getElementById("scannerScreenContainer").style.display = "block";
-                if (savedName && document.getElementById("welcomeName")) {
-                    document.getElementById("welcomeName").innerText = savedName;
-                }
-            } else {
-                document.getElementById("loginScreenContainer").style.display = "flex";
-                document.getElementById("scannerScreenContainer").style.display = "none";
-            }
-        };
+        // I-save sa localStorage
+        localStorage.setItem("tourRiderID", rider.idNum);
+        localStorage.setItem("tourRiderName", rider.fullname);
+        localStorage.setItem("tourIsLoggedIn", "true");
+
+        // Ibutang ang pangalan sa welcome display
+        let welcomeEl = document.getElementById("welcomeName");
+        if (welcomeEl) {
+            welcomeEl.innerText = `${rider.fullname} (${rider.nickname})`;
+        }
+
+        console.log("Login Successful for: ", rider.fullname);
+
+    } else {
+        alert("ACCESS DENIED: Ang ID# " + inputtedID + " kay walay labot o wala sa database.");
+        document.getElementById("riderIdInput").value = "";
+    }
+}
+
+function grantAccess(rider) {
+    localStorage.setItem("tourRiderID", rider.idNum);
+    localStorage.setItem("tourRiderName", rider.fullname);
+    localStorage.setItem("tourIsLoggedIn", "true");
+
+    // 1. Tago-a ug tangtanga ang itom nga login overlay
+    let loginOverlay = document.getElementById("loginScreenContainer");
+    if (loginOverlay) {
+        loginOverlay.style.display = "none";
+    }
+
+    // 2. Ipakita ang tibuok scanner screen nga hapsay
+    let scannerScreen = document.getElementById("scannerScreenContainer");
+    if (scannerScreen) {
+        scannerScreen.style.display = "block";
+    }
+
+    let welcomeEl = document.getElementById("welcomeName");
+    if (welcomeEl) {
+        welcomeEl.innerText = `${rider.fullname} (${rider.nickname})`;
+    }
+}
+
+// Automatic check inig-load sa pahina
+window.onload = function() {
+    let isLoggedIn = localStorage.getItem("tourIsLoggedIn");
+    let savedName = localStorage.getItem("tourRiderName");
+
+    if (isLoggedIn === "true") {
+        document.getElementById("loginScreenContainer").style.display = "none";
+        document.getElementById("scannerScreenContainer").style.display = "block";
+        
+        if (savedName && document.getElementById("welcomeName")) {
+            document.getElementById("welcomeName").innerText = savedName;
+        }
+    } else {
+        document.getElementById("loginScreenContainer").style.display = "flex";
+        document.getElementById("scannerScreenContainer").style.display = "none";
+    }
+};
+
 
 
 
@@ -509,35 +597,7 @@
         };
         
 
-        function verifyAndLogin() {
-            let inputtedID = document.getElementById("riderIdInput").value.trim();
-            let inputtedPass = document.getElementById("riderPassInput").value.trim();
 
-            if (!inputtedID) {
-                alert("Palihug isulod ang ID#!");
-                return;
-            }
-
-            // Pangitaa sa database.js
-            let rider = riderDatabase.find(r => r.idNum === inputtedID);
-
-            if (rider) {
-                // PASAR! Tago-a ang login container, ipakita ang scanner
-                document.getElementById("loginScreenContainer").style.display = "none";
-                document.getElementById("scannerScreenContainer").style.display = "block";
-                
-                localStorage.setItem("tourRiderID", rider.idNum);
-                localStorage.setItem("tourRiderName", rider.fullname);
-                localStorage.setItem("tourIsLoggedIn", "true");
-                
-                let welcomeEl = document.getElementById("welcomeName");
-                if (welcomeEl) {
-                    welcomeEl.innerText = `${rider.fullname} (${rider.nickname})`;
-                }
-            } else {
-                alert("ACCESS DENIED: Wala sa database ang ID# nga ⁠" + inputtedID);
-            }
-        }
 
 
 
