@@ -333,76 +333,78 @@
 
     <script src="database.js"></script>
     <script>
-        // Function para i-verify ang ID ug Passcode batok sa database.js
-        function verifyAndLogin() {
-            let inputtedID = document.getElementById("riderIdInput").value.trim();
-            let inputtedPass = document.getElementById("riderPassInput").value.trim();
+        // Function para mag-generate og SHA-256 hash gikan sa gi-type sa rider
+async function sha256(message) {
+    const msgBuffer = new TextEncoder().encode(message);
+    const hashBuffer = await crypto.subtle.digest('SHA-256', msgBuffer);
+    const hashArray = Array.from(new Uint8Array(hashBuffer));
+    const hashHex = hashArray.map(b => b.toString(16).padStart(2, '0')).join('');
+    return hashHex;
+}
 
-            if (!inputtedID || !inputtedPass) {
-                alert("Palihug i-fill up ang ID ug Passcode!");
-                return;
-            }
+// Gi-update nga Login Function nga mo-support sa Hash Passcode
+async function verifyAndLogin() {
+    let inputtedID = document.getElementById("riderIdInput").value.trim();
+    let inputtedPass = document.getElementById("riderPassInput").value.trim();
 
-            // Siguroha nga ang riderDatabase gikan sa imong database.js naa bay sulod
-            if (typeof riderDatabase === 'undefined') {
-                alert("Error: Wala makit-an ang database.js!");
-                return;
-            }
+    if (!inputtedID || !inputtedPass) {
+        alert("Palihug i-fill up ang ID ug Passcode!");
+        return;
+    }
 
-            // Pangitaa ang rider sa database
-            let rider = riderDatabase.find(r => r.idNum === inputtedID);
+    if (typeof riderDatabase === 'undefined') {
+        alert("Error: Wala makit-an ang database.js!");
+        return;
+    }
 
-            if (rider) {
-                // Tan-awon nato kung naay passcode ang rider sa database
-                if (rider.passcode) {
-                    // Nota: Kung nag-gamit kag plain text pass o hash, ari nato i-match.
-                    // Para sa kasayon, kung plain text o hashed string ang naa sa database.js:
-                    if (rider.passcode === inputtedPass) {
-                        grantAccess(rider);
-                    } else {
-                        alert("ACCESS DENIED: Sayop ang imong Passcode!");
-                    }
-                } else {
-                    // Kung ang maong ID kay walay passcode nga gikinahanglan sa database.js
-                    grantAccess(rider);
-                }
+    let rider = riderDatabase.find(r => r.idNum === inputtedID);
+
+    if (rider) {
+        if (rider.passcode) {
+            // I-hash nato ang gi-type sa rider para ma-match sa naa sa database.js
+            let hashedInputPass = await sha256(inputtedPass);
+
+            if (hashedInputPass === rider.passcode) {
+                grantAccess(rider);
             } else {
-                alert("ACCESS DENIED: Ang maong ID# kay walay labot o dili rehistrado.");
-                document.getElementById("riderIdInput").value = "";
-                document.getElementById("riderPassInput").value = "";
+                alert("ACCESS DENIED: Sayop ang imong Passcode!");
             }
+        } else {
+            // Kung walay passcode ang rider sa database
+            grantAccess(rider);
         }
+    } else {
+        alert("ACCESS DENIED: Ang maong ID# kay walay labot o dili rehistrado.");
+        document.getElementById("riderIdInput").value = "";
+        document.getElementById("riderPassInput").value = "";
+    }
+}
 
-        function grantAccess(rider) {
-            // I-save sa localStorage para dili na magsigeg login
-            localStorage.setItem("tourRiderID", rider.idNum);
-            localStorage.setItem("tourRiderName", rider.fullname);
-            localStorage.setItem("tourIsLoggedIn", "true");
+function grantAccess(rider) {
+    localStorage.setItem("tourRiderID", rider.idNum);
+    localStorage.setItem("tourRiderName", rider.fullname);
+    localStorage.setItem("tourIsLoggedIn", "true");
 
-            // Ipakita ang pangalan sa dashboard
-            document.getElementById("welcomeName").innerText = `${rider.fullname} (${rider.nickname})`;
+    document.getElementById("welcomeName").innerText = `${rider.fullname} (${rider.nickname})`;
+    document.getElementById("loginSection").style.display = "none";
+    document.getElementById("scannerSection").style.display = "block";
+}
 
-            // Ilisan ang interface: Tago-a ang login, ipakita ang scanner
-            document.getElementById("loginSection").style.display = "none";
-            document.getElementById("scannerSection").style.display = "block";
-        }
+function logoutRider() {
+    localStorage.clear();
+    location.reload();
+}
 
-        function logoutRider() {
-            localStorage.clear();
-            location.reload(); // I-refresh ang page para mobalik sa login
-        }
+window.onload = function() {
+    let isLoggedIn = localStorage.getItem("tourIsLoggedIn");
+    let savedName = localStorage.getItem("tourRiderName");
 
-        // Auto-check kung naka-login na daan ang rider kaniadto sa maong selpon
-        window.onload = function() {
-            let isLoggedIn = localStorage.getItem("tourIsLoggedIn");
-            let savedName = localStorage.getItem("tourRiderName");
-
-            if (isLoggedIn === "true" && savedName) {
-                document.getElementById("welcomeName").innerText = savedName;
-                document.getElementById("loginSection").style.display = "none";
-                document.getElementById("scannerSection").style.display = "block";
-            }
-        };
+    if (isLoggedIn === "true" && savedName) {
+        document.getElementById("welcomeName").innerText = savedName;
+        document.getElementById("loginSection").style.display = "none";
+        document.getElementById("scannerSection").style.display = "block";
+    }
+};
         
         ////////////////////////////////////////////////////////////////////////////////////////////////////
         // 🔒 PERMANENT STATUS & EXPIRY CHECKER (T or F)
