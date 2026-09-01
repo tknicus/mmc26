@@ -80,7 +80,7 @@
     <div id="loginScreenContainer" style="display: flex; position: fixed; top: 0; left: 0; width: 100vw; height: 100vh; background: #000000; z-index: 999999; justify-content: center; align-items: center; padding: 20px; box-sizing: border-box;">
         <div style="width: 100%; max-width: 380px; background: #111; padding: 25px; border-radius: 12px; border: 1px solid #333; color: white; box-shadow: 0 10px 25px rgba(0,0,0,0.8);">
             <h2 style="text-align: center; margin-bottom: 5px; font-size: 20px;">MMC SCANNER LOGIN</h2>
-            <p style="text-align: center; color: #aaa; font-size: 13px; margin-bottom: 20px;">Para lamang sa mga Registered Rider.</p>
+            <p style="text-align: center; color: #aaa; font-size: 13px; margin-bottom: 20px;">Para lamang sa mga Registered Riders.</p>
             
             <div style="margin-bottom: 15px;">
                 <label style="font-size: 13px; color: #ccc;">Rider ID#:</label><br>
@@ -1245,19 +1245,6 @@
                 this.focus(); 
                 this.style.border = "3px solid #ffcc00"; 
             });
-
-            idNumBox.addEventListener('input', function() {
-                this.value = this.value.replace(/[^0-9]/g, ''); 
-                updateCheckpointCheckmarks(this.value.trim());
-                if (this.value.length === 4) {
-                    this.setAttribute('readonly', true); 
-                    this.style.border = "1px solid #444"; 
-                    this.blur(); 
-                    searchDatabase(this.value); 
-                    localStorage.setItem('defaultRiderID', this.value); 
-                }
-            });
-        }
 
             idNumBox.addEventListener('input', function() {
                 this.value = this.value.replace(/[^0-9]/g, ''); 
