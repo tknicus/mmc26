@@ -1380,9 +1380,9 @@
 
 
 
-                // ==========================================================
-        // 👑 SECRET LONG-PRESS SA LOGO PARA SA ADMIN MENU (Gamit ang Admin ID Filter)
-        // ==========================================================
+        // ==========================================
+        // 👑 SECRET LONG-PRESS SA LOGO PARA SA ADMIN MENU
+        // ==========================================
         let pressTimer;
         const adminLogo = document.getElementById('masterMindsLogo');
 
@@ -1393,7 +1393,6 @@
 
             const startPress = (e) => {
                 pressTimer = setTimeout(async () => {
-                    // Gamiton ang imong customPinPrompt
                     let passcode = await customPinPrompt("👑 ADMIN PANEL", "Pagsulod og Admin Passcode:");
                     if (!passcode) return;
 
@@ -1402,14 +1401,10 @@
                         return;
                     }
 
-                    // I-hash ang gisulod nga PIN
-                    const encoder = new TextEncoder();
-                    const data = encoder.encode(passcode);
-                    const hashBuffer = await crypto.subtle.digest('SHA-256', data);
-                    const hashArray = Array.from(new Uint8Array(hashBuffer));
-                    const hashedInput = hashArray.map(b => b.toString(16).padStart(2, '0')).join('');
+                    // I-hash ang gisulod nga PIN gamit ang atong sha256Hash function
+                    const hashedInput = await sha256Hash(passcode);
 
-                    // 🔒 GIAKOP NIYA ANG ID FILTER PARA SA ADMIN RA GYUD (Ilisi ang ID kon kinahanglan)
+                    // 🔒 GIAKOP NIYA ANG ID FILTER PARA SA ADMIN RA GYUD
                     let validAdmin = riderDatabase.find(r => r.passcode === hashedInput && (r.idNum === "0000" || r.idNum === "0001" || r.idNum === "0003"));
 
                     if (validAdmin) {
