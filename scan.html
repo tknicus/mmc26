@@ -212,7 +212,35 @@
     <!-- 🎨 KATAPUSAN SA THEME 🎨 -->
 </head>
 <body>
+    <!-- LOGIN SCREEN (Pultahan) -->
+    <div id="loginSection" style="max-width: 400px; margin: 50px auto; padding: 20px; border: 1px solid #ccc; border-radius: 8px; font-family: sans-serif;">
+        <h2>MMC Scanner Login</h2>
+        <p>Palihug isulod ang imong ID ug Passcode para makasulod.</p>
+        
+        <div style="margin-bottom: 15px;">
+            <label>Rider ID#:</label><br>
+            <input type="text" id="riderIdInput" placeholder="Pananglitan: 0001" style="width: 100%; padding: 8px; margin-top: 5px;">
+        </div>
+        
+        <div style="margin-bottom: 15px;">
+            <label>Passcode / PIN:</label><br>
+            <input type="password" id="riderPassInput" placeholder="Isulod ang passcode" style="width: 100%; padding: 8px; margin-top: 5px;">
+        </div>
+        
+        <button onclick="verifyAndLogin()" style="width: 100%; background: #007BFF; color: white; padding: 10px; border: none; border-radius: 4px; cursor: pointer;">Login sa Scanner</button>
+    </div>
 
+    <!-- SCANNER SCREEN (Nakatago sa una hangtod makasulod) -->
+    <div id="scannerSection" style="display: none; max-width: 600px; margin: 30px auto; font-family: sans-serif; padding: 20px;">
+        <h2>Welcome, <span id="welcomeName">Rider</span>! 🏍️</h2>
+        <p>Status: <span style="color: green; font-weight: bold;">Authorized & Verified</span></p>
+        <hr>
+        <!-- Dinhi ibutang ang imong tinuod nga scanner interface o checkpoint buttons -->
+        <p>Adto na dinhi ang camera scanner o ang mga checkpoint buttons nimo...</p>
+        <button onclick="logoutRider()" style="background: #dc3545; color: white; padding: 8px 12px; border: none; border-radius: 4px; cursor: pointer;">Logout</button>
+    </div>
+
+    
     <div class="container">
         <img src="mmc.png" alt="MasterMinds CUP Logo" class="app-logo" id="masterMindsLogo">
         <h4>" never say never "</h4>
@@ -305,6 +333,77 @@
 
     <script src="database.js"></script>
     <script>
+        // Function para i-verify ang ID ug Passcode batok sa database.js
+        function verifyAndLogin() {
+            let inputtedID = document.getElementById("riderIdInput").value.trim();
+            let inputtedPass = document.getElementById("riderPassInput").value.trim();
+
+            if (!inputtedID || !inputtedPass) {
+                alert("Palihug i-fill up ang ID ug Passcode!");
+                return;
+            }
+
+            // Siguroha nga ang riderDatabase gikan sa imong database.js naa bay sulod
+            if (typeof riderDatabase === 'undefined') {
+                alert("Error: Wala makit-an ang database.js!");
+                return;
+            }
+
+            // Pangitaa ang rider sa database
+            let rider = riderDatabase.find(r => r.idNum === inputtedID);
+
+            if (rider) {
+                // Tan-awon nato kung naay passcode ang rider sa database
+                if (rider.passcode) {
+                    // Nota: Kung nag-gamit kag plain text pass o hash, ari nato i-match.
+                    // Para sa kasayon, kung plain text o hashed string ang naa sa database.js:
+                    if (rider.passcode === inputtedPass) {
+                        grantAccess(rider);
+                    } else {
+                        alert("ACCESS DENIED: Sayop ang imong Passcode!");
+                    }
+                } else {
+                    // Kung ang maong ID kay walay passcode nga gikinahanglan sa database.js
+                    grantAccess(rider);
+                }
+            } else {
+                alert("ACCESS DENIED: Ang maong ID# kay walay labot o dili rehistrado.");
+                document.getElementById("riderIdInput").value = "";
+                document.getElementById("riderPassInput").value = "";
+            }
+        }
+
+        function grantAccess(rider) {
+            // I-save sa localStorage para dili na magsigeg login
+            localStorage.setItem("tourRiderID", rider.idNum);
+            localStorage.setItem("tourRiderName", rider.fullname);
+            localStorage.setItem("tourIsLoggedIn", "true");
+
+            // Ipakita ang pangalan sa dashboard
+            document.getElementById("welcomeName").innerText = `${rider.fullname} (${rider.nickname})`;
+
+            // Ilisan ang interface: Tago-a ang login, ipakita ang scanner
+            document.getElementById("loginSection").style.display = "none";
+            document.getElementById("scannerSection").style.display = "block";
+        }
+
+        function logoutRider() {
+            localStorage.clear();
+            location.reload(); // I-refresh ang page para mobalik sa login
+        }
+
+        // Auto-check kung naka-login na daan ang rider kaniadto sa maong selpon
+        window.onload = function() {
+            let isLoggedIn = localStorage.getItem("tourIsLoggedIn");
+            let savedName = localStorage.getItem("tourRiderName");
+
+            if (isLoggedIn === "true" && savedName) {
+                document.getElementById("welcomeName").innerText = savedName;
+                document.getElementById("loginSection").style.display = "none";
+                document.getElementById("scannerSection").style.display = "block";
+            }
+        };
+        
         ////////////////////////////////////////////////////////////////////////////////////////////////////
         // 🔒 PERMANENT STATUS & EXPIRY CHECKER (T or F)
         let appStatus = localStorage.getItem('mmc_app_status');
