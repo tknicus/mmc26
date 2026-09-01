@@ -320,39 +320,59 @@
             return hashArray.map(b => b.toString(16).padStart(2, '0')).join('');
         }
 
-        async function verifyAndLogin() {
-            let inputtedID = document.getElementById("riderIdInput").value.trim();
-            let inputtedPass = document.getElementById("riderPassInput").value.trim();
 
-            if (!inputtedID || !inputtedPass) {
-                alert("Palihug i-fill up ang ID ug Passcode!");
-                return;
-            }
+async function verifyAndLogin() {
+    let inputtedID = document.getElementById("riderIdInput").value.trim();
+    let inputtedPass = document.getElementById("riderPassInput").value.trim();
 
-            if (typeof riderDatabase === 'undefined') {
-                alert("Error: Wala makit-an ang database.js!");
-                return;
-            }
+    if (!inputtedID || !inputtedPass) {
+        alert("Palihug i-fill up ang ID ug Passcode!");
+        return;
+    }
 
-            let rider = riderDatabase.find(r => r.idNum === inputtedID);
+    if (typeof riderDatabase === 'undefined') {
+        alert("Error: Wala makit-an ang database.js!");
+        return;
+    }
 
-            if (rider) {
-                if (rider.passcode) {
-                    let hashedInputPass = await sha256Hash(inputtedPass);
-                    if (hashedInputPass === rider.passcode) {
-                        grantAccess(rider);
-                    } else {
-                        alert("ACCESS DENIED: Sayop ang imong Passcode!");
-                    }
-                } else {
-                    grantAccess(rider);
-                }
+    let rider = riderDatabase.find(r => r.idNum === inputtedID);
+
+    if (rider) {
+        let isPasscodeValid = false;
+
+        // 1. Susiha ang Passcode gamit ang imong SHA-256 hash
+        if (rider.passcode) {
+            let hashedInputPass = await sha256Hash(inputtedPass);
+            if (hashedInputPass === rider.passcode) {
+                isPasscodeValid = true;
             } else {
-                alert("ACCESS DENIED: Ang maong ID# kay walay labot o dili rehistrado.");
+                alert("ACCESS DENIED: Sayop ang imong Passcode!");
+                return;
+            }
+        } else {
+            isPasscodeValid = true; // Kung walay passcode nga gikinahanglan
+        }
+
+        // 2. Kung sakto ang passcode, i-check sunod kung Marshal ba siya
+        if (isPasscodeValid) {
+            if (rider.isMarshal === true) {
+                // PASAR: Marshal / Admin kini! Pasudlon sa scanner.
+                grantAccess(rider);
+            } else {
+                // BABAGAN: Ordinaryong rider ra kini, dili pwede makita ang scanner!
+                alert("ACCESS DENIED: Sorry, ang Scanner app kay para ra sa mga Marshal ug Admin!");
                 document.getElementById("riderIdInput").value = "";
                 document.getElementById("riderPassInput").value = "";
             }
         }
+
+    } else {
+        alert("ACCESS DENIED: Ang maong ID# kay walay labot o dili rehistrado.");
+        document.getElementById("riderIdInput").value = "";
+        document.getElementById("riderPassInput").value = "";
+    }
+}
+
 
         function grantAccess(rider) {
             localStorage.setItem("tourRiderID", rider.idNum);
