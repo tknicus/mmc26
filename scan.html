@@ -80,10 +80,10 @@
     <div id="loginScreenContainer" style="display: flex; position: fixed; top: 0; left: 0; width: 100vw; height: 100vh; background: #000000; z-index: 999999; justify-content: center; align-items: center; padding: 20px; box-sizing: border-box;">
         <div style="width: 100%; max-width: 380px; background: #111; padding: 25px; border-radius: 12px; border: 1px solid #333; color: white; box-shadow: 0 10px 25px rgba(0,0,0,0.8);">
             <h2 style="text-align: center; margin-bottom: 5px; font-size: 20px;">MMC SCANNER LOGIN</h2>
-            <p style="text-align: center; color: #aaa; font-size: 13px; margin-bottom: 20px;">Para lamang sa mga MARSHAL ug ADMIN.</p>
+            <p style="text-align: center; color: #aaa; font-size: 13px; margin-bottom: 20px;">Para lamang sa mga Registered Rider.</p>
             
             <div style="margin-bottom: 15px;">
-                <label style="font-size: 13px; color: #ccc;">Marshal ID#:</label><br>
+                <label style="font-size: 13px; color: #ccc;">Rider ID#:</label><br>
                 <input type="text" id="riderIdInput" placeholder="Pananglitan: 0001" style="width: 100%; padding: 12px; margin-top: 5px; background: #222; color: white; border: 1px solid #444; border-radius: 6px; box-sizing: border-box;">
             </div>
             
@@ -102,7 +102,7 @@
             
             <!-- LOGOUT BUTTON PARA SA MARSHAL -->
             <div style="text-align: right; margin-bottom: 10px;">
-                <button onclick="logoutMarshal()" style="background: #dc3545; color: white; padding: 6px 12px; border: none; border-radius: 4px; font-size: 11px; cursor: pointer; font-weight: bold; width: auto; box-shadow: 0 2px 4px rgba(0,0,0,0.5);">LOGOUT MARSHAL 🔒</button>
+                <button onclick="logoutMarshal()" style="background: #dc3545; color: white; padding: 6px 12px; border: none; border-radius: 4px; font-size: 11px; cursor: pointer; font-weight: bold; width: auto; box-shadow: 0 2px 4px rgba(0,0,0,0.5);">LOGOUT RIDER 🔒</button>
             </div>
 
             <img src="mmc.png" alt="MasterMinds CUP Logo" class="app-logo" id="masterMindsLogo">
@@ -596,7 +596,7 @@
                         <div style="background: linear-gradient(145deg, #1a1a1a, #2a2a2a); border: 2px solid ${borderGlow}; border-radius: 12px; padding: 20px; margin: 20px 0; text-align: center; box-shadow: 0 0 15px rgba(255,204,0,0.2);">
                             <div style="font-size: 12px; color: #aaa; text-transform: uppercase; letter-spacing: 2px;">Gisertipikahan si</div>
                             <h1 style="color: #ffffff; font-size: 24px; margin: 10px 0; text-transform: uppercase; text-shadow: 0 2px 4px rgba(0,0,0,0.5);">${riderName}</h1>
-                            <div style="font-size: 13px; color: #ff9900; font-weight: bold; margin-bottom: 15px;">Marshal ID: #${riderID} | Level: ${riderLevel}</div>
+                            <div style="font-size: 13px; color: #ff9900; font-weight: bold; margin-bottom: 15px;">Riders ID: #${riderID} | Level: ${riderLevel}</div>
                             
                             <hr style="border: 0; border-top: 1px solid #444; margin: 15px 0;">
                             
@@ -622,7 +622,7 @@
                         </button>
                         
                         <div style="text-align: center; margin-top: 15px;">
-                            <button onclick="logoutMarshal()" style="background: #444; color: white; padding: 10px; border: none; border-radius: 4px; font-size: 12px; cursor: pointer; font-weight: bold; width: 100%;">LOGOUT MARSHAL</button>
+                            <button onclick="logoutMarshal()" style="background: #444; color: white; padding: 10px; border: none; border-radius: 4px; font-size: 12px; cursor: pointer; font-weight: bold; width: 100%;">LOGOUT RIDER</button>
                         </div>
 
                         <div style="text-align: center; margin-top: 25px; font-size: 12px; color: #777;">
