@@ -292,6 +292,69 @@
 
 
 
+        // ==========================================
+        // 🕵️‍♂️ SECRET TRIPLE-TAP SA SIGNAL STATUS (MARSHAL OVERRIDE)
+        // ==========================================
+        let tapCount = 0;
+        let tapTimeout;
+        
+        document.addEventListener("DOMContentLoaded", function() {
+            const secretButton = document.getElementById('signalStatus'); 
+            const scanQrBtn = document.getElementById('scanQrBtn');
+            let isMarshalMode = localStorage.getItem('marshalMode') === 'true';
+
+            // Susiha ang inisyal nga kahimtang sa QR button
+            if (scanQrBtn) {
+                scanQrBtn.style.display = isMarshalMode ? "block" : "none";
+            }
+
+            if (secretButton) {
+                secretButton.addEventListener('click', async function() {
+                    tapCount++;
+                    clearTimeout(tapTimeout);
+                    tapTimeout = setTimeout(() => { tapCount = 0; }, 1500);
+                    
+                    if (tapCount === 3) {
+                        tapCount = 0; 
+                        let currentMarshalStatus = localStorage.getItem('tourIsMarshal') === "true";
+
+                        // KUNG RIDER PA TO UG GUSTO I-UNLOCK SA MARSHAL:
+                        if (!currentMarshalStatus && !isMarshalMode) {
+                            let passcode = await customPinPrompt("🕵️‍♂️ MARSHAL OVERRIDE", "Pagsulod og Marshal Passcode (PIN):");
+                            if (!passcode) return;
+
+                            if (typeof riderDatabase !== 'undefined') {
+                                let hashedInput = await sha256Hash(passcode); 
+                                let validMarshal = riderDatabase.find(r => r.passcode === hashedInput && r.isMarshal === true);     
+                                
+                                if (validMarshal) {
+                                    localStorage.setItem('marshalMode', 'true'); 
+                                    localStorage.setItem('tourIsMarshal', 'true');
+                                    if (scanQrBtn) scanQrBtn.style.display = "block"; 
+                                    alert(`🔓 MARSHAL OVERRIDE ON! Welcome, Master ${validMarshal.fullname}! Naabli na ang QR Scanner.`);
+                                } else { 
+                                    alert("❌ Sayop nga Passcode!"); 
+                                }
+                            } else { 
+                                alert("⚠️ Error: Wala nabasa ang database."); 
+                            }
+                        } else {
+                            // KUNG GUSTO I-LOCK BALIK SA RIDER MODE
+                            if (confirm("🔒 Gusto nimo i-lock ug ibalik sa Regular Rider Mode?")) {
+                                localStorage.setItem('marshalMode', 'false');
+                                localStorage.setItem('tourIsMarshal', 'false');
+                                if (scanQrBtn) scanQrBtn.style.display = "none"; 
+                                alert("🔒 Naka-Rider Mode na ang app.");
+                            }
+                        }
+                    }
+                });
+            }
+        });
+
+
+
+
 
 
         // ==========================================
@@ -531,6 +594,9 @@
             ]
         };
 
+
+
+        
         // ==========================================
         // 🚀 DOM INITIALIZATION UG LOGIC
         // ==========================================
@@ -540,22 +606,31 @@
             if (loginBtn) { loginBtn.addEventListener("click", verifyAndLogin); }
 
             let isLoggedIn = localStorage.getItem("tourIsLoggedIn");
-            let isMarshal = localStorage.getItem("tourIsMarshal");
             let savedRiderID = localStorage.getItem("tourRiderID");
+            let isMarshal = localStorage.getItem("tourIsMarshal") === "true";
 
-            if (isLoggedIn === "true" && isMarshal === "true" && savedRiderID) {
-                // Kon nakasulod na daan ang Marshal
+            // KUNG NAKA-LOGIN NA DAAN SA MIAGING PANAHON (Bisan Rider o Marshal pa na)
+            if (isLoggedIn === "true" && savedRiderID) {
                 document.getElementById("loginScreenContainer").style.display = "none";
                 document.getElementById("scannerScreenContainer").style.display = "flex";
                 
                 checkEventStatus(savedRiderID);
                 initScannerApp(savedRiderID);
+
+                // I-hide o Ipakita ang QR Scanner button base sa ilang role
+                const scanQrBtn = document.getElementById('scanQrBtn');
+                if (scanQrBtn) {
+                    scanQrBtn.style.display = isMarshal ? "block" : "none";
+                }
             } else {
-                // Kon bag-ong abli pa o dili log-in
+                // KUNG PRIMERONG ABLI PA LANG O GIKAN SA LOGOUT
                 document.getElementById("loginScreenContainer").style.display = "flex";
                 document.getElementById("scannerScreenContainer").style.display = "none";
             }
         });
+
+
+
 
         // 🌟 CHECK FINISHER / EVENT STATUS
         function checkEventStatus(riderID) {
