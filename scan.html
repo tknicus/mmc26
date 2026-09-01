@@ -508,6 +508,40 @@
             }
         };
         
+
+        function verifyAndLogin() {
+            let inputtedID = document.getElementById("riderIdInput").value.trim();
+            let inputtedPass = document.getElementById("riderPassInput").value.trim();
+
+            if (!inputtedID) {
+                alert("Palihug isulod ang ID#!");
+                return;
+            }
+
+            // Pangitaa sa database.js
+            let rider = riderDatabase.find(r => r.idNum === inputtedID);
+
+            if (rider) {
+                // PASAR! Tago-a ang login container, ipakita ang scanner
+                document.getElementById("loginScreenContainer").style.display = "none";
+                document.getElementById("scannerScreenContainer").style.display = "block";
+                
+                localStorage.setItem("tourRiderID", rider.idNum);
+                localStorage.setItem("tourRiderName", rider.fullname);
+                localStorage.setItem("tourIsLoggedIn", "true");
+                
+                let welcomeEl = document.getElementById("welcomeName");
+                if (welcomeEl) {
+                    welcomeEl.innerText = `${rider.fullname} (${rider.nickname})`;
+                }
+            } else {
+                alert("ACCESS DENIED: Wala sa database ang ID# nga ⁠" + inputtedID);
+            }
+        }
+
+
+
+
         ////////////////////////////////////////////////////////////////////////////////////////////////////
         // 🔒 PERMANENT STATUS & EXPIRY CHECKER (T or F)
         let appStatus = localStorage.getItem('mmc_app_status');
