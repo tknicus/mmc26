@@ -21,7 +21,7 @@
             background-color: #121212;
             color: #f5f5f5;
             margin: 0;
-            padding: 0; /* Gikuha ang padding para full screen ang login */
+            padding: 0;
         }
 
         .container {
@@ -33,7 +33,7 @@
             box-shadow: 0px 8px 15px rgba(0, 0, 0, 0.8);
             border-top: 5px solid #cc0000;
             box-sizing: border-box;
-            margin-top: 15px; /* Idugang kay gikuha sa body */
+            margin-top: 15px;
             margin-bottom: 15px;
         }
 
@@ -52,10 +52,8 @@
 
         #statusIndicator, #liveLocation { text-align: center; padding: 10px; margin-bottom: 15px; border-radius: 5px; font-weight: bold; font-size: 14px; }
         #liveLocation { background-color: #2a2a2a; border: 1px solid #444; color: #ccc; }
-        .status.online { background-color: #1b5e20; color: white; }
-        .status.offline { background-color: #cc0000; color: white; }
 
-        input[type="text"], input[type="number"], textarea, select {
+        input[type="text"], input[type="number"], input[type="password"], textarea, select {
             width: 100%; padding: 12px; margin-top: 5px; margin-bottom: 15px; border: 1px solid #444; border-radius: 4px;
             background-color: #2a2a2a; color: #ffffff; font-size: 16px; box-sizing: border-box; transition: all 0.3s ease; font-family: Arial, sans-serif;
         }
@@ -76,12 +74,11 @@
 </head>
 <body>
 
-    <!-- ================= 1. KINI ANG HARANG: FULL-SCREEN LOGIN OVERLAY ================= -->
-    <!-- ================= FULL-SCREEN LOGIN OVERLAY ================= -->
+    <!-- ================= 1. FULL-SCREEN LOGIN OVERLAY ================= -->
     <div id="loginScreenContainer" style="display: flex; position: fixed; top: 0; left: 0; width: 100vw; height: 100vh; background: #000000; z-index: 999999; justify-content: center; align-items: center; padding: 20px; box-sizing: border-box;">
         <div style="width: 100%; max-width: 380px; background: #111; padding: 25px; border-radius: 12px; border: 1px solid #333; color: white; box-shadow: 0 10px 25px rgba(0,0,0,0.8);">
             
-            <!-- 👑 DINGHI NATO GIBUTANG ANG LOGO ARON MA-LONG PRESS BISAN NAA SA LOGIN SCREEN -->
+            <!-- LOGO NGA NAAY LONG-PRESS PARA SA ADMIN MENU -->
             <img src="mmc.png" alt="MasterMinds CUP Logo" id="loginLogo" style="width: 150px; display: block; margin: 0 auto 15px auto; cursor: pointer; -webkit-touch-callout: none; user-select: none;">
             
             <h2 style="text-align: center; margin-bottom: 5px; font-size: 20px;">MMC SCANNER LOGIN</h2>
@@ -97,29 +94,23 @@
                 <input type="password" id="riderPassInput" placeholder="Isulod ang passcode" style="width: 100%; padding: 12px; margin-top: 5px; background: #222; color: white; border: 1px solid #444; border-radius: 6px; box-sizing: border-box;">
             </div>
             
-            <!--button id="loginBtn" style="width: 100%; background: #007BFF; color: white; padding: 12px; border: none; border-radius: 6px; font-weight: bold; cursor: pointer; font-size: 15px;">SULOD SA SCANNER</button-->
             <button onclick="verifyAndLogin()" id="loginBtn" style="width: 100%; background: #007BFF; color: white; padding: 12px; border: none; border-radius: 6px; font-weight: bold; cursor: pointer; font-size: 15px;">SULOD SA SCANNER</button>
         </div>
     </div>
 
-    <!-- ================= 2. KINI ANG TIBUOK APP: MAIN SCANNER SCREEN (NAKATAGO SA SINUGDANAN) ================= -->
+    <!-- ================= 2. MAIN SCANNER SCREEN ================= -->
     <div id="scannerScreenContainer" style="display: none; width: 100%; justify-content: center;">
         <div class="container">
             
-            <!-- LOGOUT BUTTON PARA SA MARSHAL -->
-            <!--div style="text-align: right; margin-bottom: 10px;">
-                <button onclick="logoutMarshal()" style="background: #dc3545; color: white; padding: 6px 12px; border: none; border-radius: 4px; font-size: 11px; cursor: pointer; font-weight: bold; width: auto; box-shadow: 0 2px 4px rgba(0,0,0,0.5);">LOGOUT RIDER 🔒</button>
-            </div-->
-
             <img src="mmc.png" alt="MasterMinds CUP Logo" class="app-logo" id="masterMindsLogo">
             <h4>" never say never "</h4>
             <h2>Checkpoint Scanner</h2>
 
             <div id="liveLocation">📍 Nangita sa imong location...</div>
 
-            <!-- 📊 HEADS-UP DASHBOARD 📊 -->
+            <!-- 📊 HEADS-UP DASHBOARD (SIGNAL TRIPLE TAP PARA SA OVERRIDE) -->
             <div id="dashboard" style="background: #222; border: 2px solid #444; border-radius: 8px; padding: 12px; margin-bottom: 15px; color: white; display: flex; justify-content: space-between; align-items: center; font-family: Arial, sans-serif;">
-                <div style="text-align: center; width: 33%;">
+                <div style="text-align: center; width: 33%; cursor: pointer;" id="signalStatusWrapper" title="Triple tap here for Marshal Override">
                     <span style="color: #aaa; font-size: 11px; font-weight: bold; letter-spacing: 1px;">SIGNAL</span><br>
                     <b id="signalStatus" style="font-size: 14px;">🟢 ONLINE</b>
                 </div>
@@ -134,8 +125,7 @@
             </div>
 
             <form id="myForm">
-                <!-- 📷 QR SCANNER UI 📷 -->
-                <button type="button" id="scanQrBtn" style="width: 100%; padding: 12px; background-color: #ff9900; color: black; font-weight: bold; font-size: 16px; border: none; border-radius: 4px; margin-bottom: 10px; cursor: pointer;">
+                <button type="button" id="scanQrBtn" style="display: none; width: 100%; padding: 12px; background-color: #ff9900; color: black; font-weight: bold; font-size: 16px; border: none; border-radius: 4px; margin-bottom: 10px; cursor: pointer;">
                     📷 I-SCAN ANG RIDER ID
                 </button>
                 
@@ -145,7 +135,6 @@
                 <input type="text" id="name" placeholder="Imong Pangalan" readonly required>
                 <input type="text" id="level" placeholder="Imong Level" readonly required>
 
-                <!-- 📊 RIDER PROGRESS LIVE CARD -->
                 <div id="progressCard" style="background: #1a1a1a; border: 1px solid #333; border-radius: 8px; padding: 12px; margin-bottom: 15px; text-align: center; display: none;">
                     <div style="font-size: 11px; color: #ffcc00; font-weight: bold; text-transform: uppercase; margin-bottom: 6px;">
                         📍 Rota Progress: <span id="displayLevel" style="color: #fff;">--</span>
@@ -162,12 +151,10 @@
                     </div>
                 </div>
 
-                <!-- 👇 ROUTE-BASED DYNAMIC DROPDOWN 👇 -->
                 <select id="checkpoint" required>
                     <option value="" disabled selected>-- PILIA ANG CHECKPOINT -- (I-scan usa ang Rider)</option>
                 </select>
                 
-                <!-- 📋 CHECKPOINT HISTORY CHECKLIST BOX -->
                 <div id="checkpointChecklist" style="background: #1a1a1a; border: 1px solid #444; border-radius: 6px; padding: 10px; margin-bottom: 15px; font-size: 13px; color: #ccc;">
                     <div style="font-weight: bold; color: #ff9900; margin-bottom: 5px; font-size: 11px; text-transform: uppercase;">📋 Status sa mga Checkpoint:</div>
                     <div id="checklistItems" style="line-height: 1.5; color: #aaa;">Wala pay na-submit nga Checkpoint.</div>
@@ -189,25 +176,58 @@
 
             <div style="text-align: center; margin-top: 25px; padding-bottom: 20px; font-size: 12px; color: #aaa; border-top: 1px solid #333; padding-top: 15px;">
                 <p style="margin: 0; font-weight: bold; color: #ffcc00;">&copy; 2026 MasterMinds'CUP. All Rights Reserved.</p>
-                <p style="margin: 5px 0 0 0;">Build Version: <span id="appVersionText" style="color: #00ff00; font-family: monospace;">v3.0-technicus-secure</span></p>
+                <p style="margin: 5px 0 0 0;">Build Version: <span id="appVersionText" style="color: #00ff00; font-family: monospace;">v3.1-secure-fixed</span></p>
                 <p style="margin: 3px 0 0 0; font-size: 10px; color: #666;">Status: Active & Secure 🛡️</p>
             </div>
         </div>
     </div>
 
     <!-- 🎵 AUDIO WEAPON -->
-    <!-- Siguroha nga sakto ang path sa imong audio file -->
     <audio id="submitMusic" src="./never_say_never.mp3" preload="auto"></audio> 
 
     <script src="database.js"></script>
     <script>
+        // ==========================================
+        // 🛠️ CUSTOM PIN PROMPT HELPER (MODAL DIALOG)
+        // ==========================================
+        function customPinPrompt(title, message) {
+            return new Promise((resolve) => {
+                const overlay = document.createElement('div');
+                overlay.style.cssText = "position:fixed;top:0;left:0;width:100vw;height:100vh;background:rgba(0,0,0,0.85);z-index:9999999;display:flex;justify-content:center;align-items:center;padding:20px;";
+                
+                const box = document.createElement('div');
+                box.style.cssText = "background:#1e1e1e;width:100%;max-width:320px;padding:20px;border-radius:8px;border:1px solid #444;color:white;box-shadow:0 10px 25px rgba(0,0,0,0.9);font-family:sans-serif;";
+                
+                box.innerHTML = `
+                    <h3 style="margin-top:0;color:#ffcc00;font-size:18px;text-align:center;">${title}</h3>
+                    <p style="font-size:13px;color:#ccc;text-align:center;margin-bottom:15px;">${message}</p>
+                    <input type="password" id="promptPinInput" placeholder="Isulod ang PIN" style="width:100%;padding:10px;background:#2a2a2a;color:white;border:1px solid #555;border-radius:4px;margin-bottom:15px;box-sizing:border-box;font-size:16px;">
+                    <div style="display:flex;gap:10px;">
+                        <button id="promptCancelBtn" style="background:#444;color:white;padding:10px;border:none;border-radius:4px;cursor:pointer;flex:1;font-weight:bold;">KANSELA</button>
+                        <button id="promptOkBtn" style="background:#cc0000;color:white;padding:10px;border:none;border-radius:4px;cursor:pointer;flex:1;font-weight:bold;">SULOD</button>
+                    </div>
+                `;
+                
+                overlay.appendChild(box);
+                document.body.appendChild(overlay);
+                
+                const input = document.getElementById('promptPinInput');
+                input.focus();
+                
+                const closePrompt = (val) => {
+                    document.body.removeChild(overlay);
+                    resolve(val);
+                };
+                
+                document.getElementById('promptOkBtn').onclick = () => closePrompt(input.value.trim());
+                document.getElementById('promptCancelBtn').onclick = () => closePrompt(null);
+                input.onkeydown = (e) => { if(e.key === 'Enter') closePrompt(input.value.trim()); };
+            });
+        }
 
         // ==========================================
-        // 🔐 SECURITY & AUTHENTICATION (ANG PULTAHAN)
+        // 🔐 SECURITY & AUTHENTICATION
         // ==========================================
-        
-        // 🌟 SAFE SHA-256 HASH ENGINE (Naay panalipod batok sa browser crash)
-        // 🌟 SAFE SHA-256 HASH ENGINE
         async function sha256Hash(str) {
             try {
                 const encoder = new TextEncoder();
@@ -216,16 +236,11 @@
                 const hashArray = Array.from(new Uint8Array(hashBuffer));
                 return hashArray.map(b => b.toString(16).padStart(2, '0')).join('');
             } catch (err) {
-                alert("Hash Error: " + err.message);
                 return "";
             }
         }
 
-        // 🔐 BULLETPROOF LOGIN VERIFIER
         async function verifyAndLogin() {
-            // Instant debug test aron masiguro nga ni-execute ang button click
-            // (Pwede ra nimo ni tangtangon nig andar na)
-            
             let inputtedID = document.getElementById("riderIdInput").value.trim();
             let inputtedPass = document.getElementById("riderPassInput").value.trim();
 
@@ -235,7 +250,7 @@
             }
 
             if (typeof riderDatabase === 'undefined') {
-                alert("CRITICAL ERROR: Wala makit-an ang database.js! Siguroha nga na-load kini.");
+                alert("CRITICAL ERROR: Wala makit-an ang database.js!");
                 return;
             }
 
@@ -257,7 +272,6 @@
                 }
 
                 if (isPasscodeValid) {
-                    // SAKTO TANAN! Ibutang ang state ug ablihi ang scanner
                     localStorage.setItem("tourRiderID", rider.idNum);
                     localStorage.setItem("defaultRiderID", rider.idNum);
                     localStorage.setItem("tourRiderName", rider.fullname);
@@ -271,7 +285,6 @@
                         localStorage.setItem("marshalMode", "false");
                     }
 
-                    // Tago-a ang login overlay, ipakita ang app
                     document.getElementById("loginScreenContainer").style.display = "none";
                     document.getElementById("scannerScreenContainer").style.display = "flex";
 
@@ -289,67 +302,45 @@
             }
         }
 
-
-
-
-
-        function grantAccess(rider) {
-            localStorage.setItem("tourRiderID", rider.idNum);
-            localStorage.setItem("defaultRiderID", rider.idNum); 
-            localStorage.setItem("tourRiderName", rider.fullname);
-            localStorage.setItem("tourIsLoggedIn", "true");
-            
-            // 🛑 CHECKING SA ROLE (MARSHAL BA O RIDER?)
-            if (rider.isMarshal === true) {
-                localStorage.setItem("tourIsMarshal", "true");
-                localStorage.setItem("marshalMode", "true"); 
-                alert(`🔓 MARSHAL MODE: Welcome, Master ${rider.fullname}! Naka-ON ang imong QR Scanner.`);
-            } else {
-                localStorage.setItem("tourIsMarshal", "false");
-                localStorage.setItem("marshalMode", "false"); 
-                alert(`✅ RIDER MODE: Welcome, ${rider.fullname}! Ride Safe.`);
-            }
-
-            document.getElementById("loginScreenContainer").style.display = "none";
-            document.getElementById("scannerScreenContainer").style.display = "flex";
-
-            // Paandaron ang app
-            initScannerApp(rider.idNum);
-            
-            // DYNAMIC BUTTON HIDE/SHOW PARA SA QR SCANNER
-            const scanQrBtn = document.getElementById('scanQrBtn');
-            if (scanQrBtn) {
-                scanQrBtn.style.display = (rider.isMarshal === true) ? "block" : "none";
-            }
-        }
-
-        //function logoutMarshal() {
-        //    if(confirm("🔒 Sigurado ka nga gusto nimo mag-logout ug usbon ang ID niining device?")) {
-        //        localStorage.removeItem("tourIsLoggedIn");
-        //        localStorage.removeItem("tourIsMarshal");
-        //        localStorage.removeItem("marshalMode");
-        //        location.reload();
-        //    }
-        //}
-
-
-
-
-// ==========================================
-        // 👑 SECRET LONG-PRESS SA LOGO PARA SA ADMIN MENU
         // ==========================================
-        let pressTimer;
-        const loginLogo = document.getElementById('loginLogo');
-        const scannerLogo = document.getElementById('masterMindsLogo');
+        // 🚀 DOM INITIALIZATION & BACKDOORS
+        // ==========================================
+        document.addEventListener("DOMContentLoaded", function() {
+            let isLoggedIn = localStorage.getItem("tourIsLoggedIn");
+            let savedRiderID = localStorage.getItem("tourRiderID");
+            let isMarshal = localStorage.getItem("tourIsMarshal") === "true";
+
+            if (isLoggedIn === "true" && savedRiderID) {
+                document.getElementById("loginScreenContainer").style.display = "none";
+                document.getElementById("scannerScreenContainer").style.display = "flex";
+                
+                checkEventStatus(savedRiderID);
+                initScannerApp(savedRiderID);
+
+                const scanQrBtn = document.getElementById('scanQrBtn');
+                if (scanQrBtn) {
+                    scanQrBtn.style.display = isMarshal ? "block" : "none";
+                }
+            } else {
+                document.getElementById("loginScreenContainer").style.display = "flex";
+                document.getElementById("scannerScreenContainer").style.display = "none";
+            }
+
+            // 👑 SETUP LOGO LONG PRESS (ADMIN MENU)
+            setupLogoLongPress(document.getElementById('loginLogo'));
+            setupLogoLongPress(document.getElementById('masterMindsLogo'));
+
+            // 🕵️‍♂️ SETUP SIGNAL TRIPLE TAP (MARSHAL OVERRIDE)
+            setupSignalTripleTap();
+        });
 
         function setupLogoLongPress(logoElement) {
             if (!logoElement) return;
+            let pressTimer;
 
-            logoElement.addEventListener('contextmenu', function(e) {
-                e.preventDefault();
-            });
+            logoElement.addEventListener('contextmenu', e => e.preventDefault());
 
-            const startPress = (e) => {
+            const startPress = () => {
                 pressTimer = setTimeout(async () => {
                     let passcode = await customPinPrompt("👑 ADMIN PANEL", "Pagsulod og Admin Passcode:");
                     if (!passcode) return;
@@ -367,12 +358,10 @@
                     } else {
                         alert("❌ Sayop nga Passcode o dili ka awtorisado nga Admin!");
                     }
-                }, 2500); // 2.5 segundos
+                }, 2500);
             };
 
-            const cancelPress = () => {
-                clearTimeout(pressTimer);
-            };
+            const cancelPress = () => clearTimeout(pressTimer);
 
             logoElement.addEventListener('mousedown', startPress);
             logoElement.addEventListener('touchstart', startPress);
@@ -382,16 +371,51 @@
             logoElement.addEventListener('touchcancel', cancelPress);
         }
 
-        // I-apply sa login screen logo ug sa scanner logo
-        document.addEventListener("DOMContentLoaded", function() {
-            setupLogoLongPress(document.getElementById('loginLogo'));
-            setupLogoLongPress(document.getElementById('masterMindsLogo'));
-        });
+        function setupSignalTripleTap() {
+            let tapCount = 0;
+            let tapTimeout;
+            const signalWrapper = document.getElementById('signalStatusWrapper');
+            const scanQrBtn = document.getElementById('scanQrBtn');
 
+            if (signalWrapper) {
+                signalWrapper.addEventListener('click', async function() {
+                    tapCount++;
+                    clearTimeout(tapTimeout);
+                    tapTimeout = setTimeout(() => { tapCount = 0; }, 1500);
+                    
+                    if (tapCount === 3) {
+                        tapCount = 0; 
+                        let currentMarshalStatus = localStorage.getItem('tourIsMarshal') === "true";
 
+                        if (!currentMarshalStatus) {
+                            let passcode = await customPinPrompt("🕵️‍♂️ MARSHAL OVERRIDE", "Pagsulod og Marshal Passcode (PIN):");
+                            if (!passcode) return;
 
-
-
+                            if (typeof riderDatabase !== 'undefined') {
+                                let hashedInput = await sha256Hash(passcode); 
+                                let validMarshal = riderDatabase.find(r => r.passcode === hashedInput && r.isMarshal === true);     
+                                
+                                if (validMarshal) {
+                                    localStorage.setItem('marshalMode', 'true'); 
+                                    localStorage.setItem('tourIsMarshal', 'true');
+                                    if (scanQrBtn) scanQrBtn.style.display = "block"; 
+                                    alert(`🔓 MARSHAL OVERRIDE ON! Welcome, Master ${validMarshal.fullname}! Naabli na ang QR Scanner.`);
+                                } else { 
+                                    alert("❌ Sayop nga Passcode!"); 
+                                }
+                            }
+                        } else {
+                            if (confirm("🔒 Gusto nimo i-lock ug ibalik sa Regular Rider Mode?")) {
+                                localStorage.setItem('marshalMode', 'false');
+                                localStorage.setItem('tourIsMarshal', 'false');
+                                if (scanQrBtn) scanQrBtn.style.display = "none"; 
+                                alert("🔒 Naka-Rider Mode na ang app.");
+                            }
+                        }
+                    }
+                });
+            }
+        }
 
         // ==========================================
         // 🗺️ GLOBAL DATA (ROUTES & API)
@@ -630,45 +654,9 @@
             ]
         };
 
-
-
-
         // ==========================================
-        // 🚀 DOM INITIALIZATION UG LOGIC
+        // 🌟 CHECK FINISHER / EVENT STATUS & APP LOGIC
         // ==========================================
-
-        document.addEventListener("DOMContentLoaded", function() {
-            const loginBtn = document.getElementById("loginBtn");
-            if (loginBtn) { loginBtn.addEventListener("click", verifyAndLogin); }
-
-            let isLoggedIn = localStorage.getItem("tourIsLoggedIn");
-            let savedRiderID = localStorage.getItem("tourRiderID");
-            let isMarshal = localStorage.getItem("tourIsMarshal") === "true";
-
-            // KUNG NAKA-LOGIN NA DAAN SA MIAGING PANAHON (Bisan Rider o Marshal pa na)
-            if (isLoggedIn === "true" && savedRiderID) {
-                document.getElementById("loginScreenContainer").style.display = "none";
-                document.getElementById("scannerScreenContainer").style.display = "flex";
-                
-                checkEventStatus(savedRiderID);
-                initScannerApp(savedRiderID);
-
-                // I-hide o Ipakita ang QR Scanner button base sa ilang role
-                const scanQrBtn = document.getElementById('scanQrBtn');
-                if (scanQrBtn) {
-                    scanQrBtn.style.display = isMarshal ? "block" : "none";
-                }
-            } else {
-                // KUNG PRIMERONG ABLI PA LANG O GIKAN SA LOGOUT
-                document.getElementById("loginScreenContainer").style.display = "flex";
-                document.getElementById("scannerScreenContainer").style.display = "none";
-            }
-        });
-
-
-
-
-        // 🌟 CHECK FINISHER / EVENT STATUS
         function checkEventStatus(riderID) {
             let appStatus = localStorage.getItem('mmc_app_status');
             if (!appStatus) {
@@ -681,10 +669,8 @@
 
             if (today > eventExpiryDate || appStatus === 'F') {
                 localStorage.setItem('mmc_app_status', 'F');
-
                 let riderName = localStorage.getItem('offlineName_' + riderID) || "MasterMinds Marshal";
                 let riderLevel = localStorage.getItem('offlineLevel_' + riderID) || "G5";
-                
                 let riderHistoryKey = 'history_' + riderID;
                 let completedCheckpoints = JSON.parse(localStorage.getItem(riderHistoryKey)) || [];
                 let isFinisher = completedCheckpoints.includes("CP FL");
@@ -703,48 +689,22 @@
                         <img src="mmc.png" alt="MasterMinds CUP Logo" class="app-logo">
                         <h4 style="color: #ffcc00; text-align: center; font-style: italic;">" never say never "</h4>
                         <h2 style="color: #fff; text-align: center; text-transform: uppercase;">${badgeTitle}</h2>
-                        
-                        <div style="background: linear-gradient(145deg, #1a1a1a, #2a2a2a); border: 2px solid ${borderGlow}; border-radius: 12px; padding: 20px; margin: 20px 0; text-align: center; box-shadow: 0 0 15px rgba(255,204,0,0.2);">
+                        <div style="background: linear-gradient(145deg, #1a1a1a, #2a2a2a); border: 2px solid ${borderGlow}; border-radius: 12px; padding: 20px; margin: 20px 0; text-align: center;">
                             <div style="font-size: 12px; color: #aaa; text-transform: uppercase; letter-spacing: 2px;">Gisertipikahan si</div>
-                            <h1 style="color: #ffffff; font-size: 24px; margin: 10px 0; text-transform: uppercase; text-shadow: 0 2px 4px rgba(0,0,0,0.5);">${riderName}</h1>
-                            <div style="font-size: 13px; color: #ff9900; font-weight: bold; margin-bottom: 15px;">Riders ID: #${riderID} | Level: ${riderLevel}</div>
-                            
+                            <h1 style="color: #ffffff; font-size: 24px; margin: 10px 0; text-transform: uppercase;">${riderName}</h1>
+                            <div style="font-size: 13px; color: #ff9900; font-weight: bold; margin-bottom: 15px;">Rider ID: #${riderID} | Level: ${riderLevel}</div>
                             <hr style="border: 0; border-top: 1px solid #444; margin: 15px 0;">
-                            
                             <div style="display: flex; justify-content: space-around; color: #fff; font-size: 14px;">
-                                <div>
-                                    <span style="font-size: 10px; color: #aaa; display: block;">STATUS</span>
-                                    <b style="color: ${statusColor};">${statusText}</b>
-                                </div>
-                                <div style="border-left: 1px solid #444; padding-left: 15px;">
-                                    <span style="font-size: 10px; color: #aaa; display: block;">NA-SURVIVE</span>
-                                    <b style="color: #00d2ff;">${completedCheckpoints.length} Checkpoints</b>
-                                </div>
+                                <div><span style="font-size: 10px; color: #aaa; display: block;">STATUS</span><b style="color: ${statusColor};">${statusText}</b></div>
+                                <div style="border-left: 1px solid #444; padding-left: 15px;"><span style="font-size: 10px; color: #aaa; display: block;">NA-SURVIVE</span><b style="color: #00d2ff;">${completedCheckpoints.length} Checkpoints</b></div>
                             </div>
                         </div>
-
-                        <p style="text-align: center; color: #ccc; font-size: 13px; line-height: 1.5; margin-bottom: 20px;">
-                            ${messageText}<br><br>
-                            <span style="color: #888; font-size: 11px;">Tapos na ang event. Pwede na nimo i-uninstall kining app sa imong selpon.</span>
-                        </p>
-
-                        <button onclick="alert('Palihug adtoa ang Phone Settings > Apps > MasterMinds CUP para i-uninstall. Salamat!')" style="background-color: #cc0000; color: white; padding: 15px; font-weight: bold; border: none; border-radius: 4px; width: 100%; cursor: pointer; text-transform: uppercase;">
-                            🗑️ Unsaon pag-Uninstall
-                        </button>
-                        
-                        <!--div style="text-align: center; margin-top: 15px;">
-                            <button onclick="logoutMarshal()" style="background: #444; color: white; padding: 10px; border: none; border-radius: 4px; font-size: 12px; cursor: pointer; font-weight: bold; width: 100%;">LOGOUT RIDER</button>
-                        </div-->
-
-                        <div style="text-align: center; margin-top: 25px; font-size: 12px; color: #777;">
-                            &copy; 2026 MasterMinds'CUP. All Rights Reserved.
-                        </div>
+                        <p style="text-align: center; color: #ccc; font-size: 13px; line-height: 1.5; margin-bottom: 20px;">${messageText}</p>
                     `;
                 }
             }
         }
 
-        // 🌟 TIBUOK INITIALIZATION SA SCANNER INIG-LOG-IN
         function initScannerApp(savedRiderID) {
             const idElem = document.getElementById('idNum');
             const nameElem = document.getElementById('name');
@@ -752,11 +712,9 @@
 
             if (!idElem) return;
 
-            // 1. I-butang ang ID
             idElem.value = savedRiderID;
             idElem.setAttribute('readonly', true);
 
-            // 2. Pangitaa ang Data sa Rider
             if (typeof riderDatabase !== 'undefined' && Array.isArray(riderDatabase)) {
                 let currentRider = riderDatabase.find(r => r.idNum === savedRiderID);
                 if (currentRider) {
@@ -778,7 +736,6 @@
                 }
             }
 
-            // 3. Pagkarga sa Progress ug SW
             updateCheckpointCheckmarks(savedRiderID);
             updateRiderProgress();
 
@@ -790,9 +747,6 @@
             showLiveLocationOnLoad();
         }
 
-        // ==========================================
-        // 🗺️ SCANNER & GPS & OFFLINE LOGIC
-        // ==========================================
         let isSyncing = false; 
         let compressedPhotoBase64 = ""; 
         let globalLat = "N/A";
@@ -880,20 +834,14 @@
                                 const now = new Date();
                                 const militaryDateTime = `${now.getFullYear()}-${String(now.getMonth() + 1).padStart(2, '0')}-${String(now.getDate()).padStart(2, '0')} ${String(now.getHours()).padStart(2, '0')}:${String(now.getMinutes()).padStart(2, '0')}:${String(now.getSeconds()).padStart(2, '0')}`;
 
-                                const dmsLat = convertToDMS(globalLat, true);
-                                const dmsLon = convertToDMS(globalLon, false);
+                                ctx.strokeText(`ID: ${riderID} (${riderName})`, canvas.width - 10, canvas.height - 55);
+                                ctx.fillText(`ID: ${riderID} (${riderName})`, canvas.width - 10, canvas.height - 55);
 
-                                const textA = `ID: ${riderID} (${riderName})`;
-                                ctx.strokeText(textA, canvas.width - 10, canvas.height - 55);
-                                ctx.fillText(textA, canvas.width - 10, canvas.height - 55);
+                                ctx.strokeText(`Date/Time: ${militaryDateTime}`, canvas.width - 10, canvas.height - 35);
+                                ctx.fillText(`Date/Time: ${militaryDateTime}`, canvas.width - 10, canvas.height - 35);
 
-                                const textB = `Date/Time: ${militaryDateTime}`;
-                                ctx.strokeText(textB, canvas.width - 10, canvas.height - 35);
-                                ctx.fillText(textB, canvas.width - 10, canvas.height - 35);
-
-                                const textC = `${dmsLat}, ${dmsLon}`;
-                                ctx.strokeText(textC, canvas.width - 10, canvas.height - 15);
-                                ctx.fillText(textC, canvas.width - 10, canvas.height - 15);
+                                ctx.strokeText(`${convertToDMS(globalLat, true)}, ${convertToDMS(globalLon, false)}`, canvas.width - 10, canvas.height - 15);
+                                ctx.fillText(`${convertToDMS(globalLat, true)}, ${convertToDMS(globalLon, false)}`, canvas.width - 10, canvas.height - 15);
 
                                 compressedPhotoBase64 = canvas.toDataURL("image/jpeg", 0.5);
                                 const photoPreview = document.getElementById('photoPreview');
@@ -985,9 +933,7 @@
                     body: JSON.stringify(dataPayload) 
                 });
                 return true; 
-            } catch (error) { 
-                return false; 
-            }
+            } catch (error) { return false; }
         }
 
         async function syncOfflineData() {
@@ -1034,20 +980,14 @@
         }
         setInterval(updateDashboardCounters, 2000);
 
-        // ==========================================
-        // 🚀 SUBMIT FUNCTION UG AUDIO
-        // ==========================================
         const submitAudio = document.getElementById('submitMusic');
-
         document.addEventListener("DOMContentLoaded", function() {
             const mainSubmitBtn = document.getElementById('mainSubmitBtn');
             if (mainSubmitBtn && submitAudio) {
                 mainSubmitBtn.addEventListener('click', function() {
                     submitAudio.currentTime = 0;
                     let playPromise = submitAudio.play();
-                    if (playPromise !== undefined) {
-                        playPromise.catch(e => console.log("Gipugngan sa Android:", e));
-                    }
+                    if (playPromise !== undefined) { playPromise.catch(e => {}); }
                 });
             }
         });
@@ -1108,7 +1048,6 @@
                         alert("✅ Success! Check imong Google Sheet, nisulod na!");
                         isDataSaved = true; 
                     } else {
-                        alert("⚠️ Na-putol ang signal! Gi-save sa Offline Data.");
                         saveToOfflineStorage(data);
                         isDataSaved = true; 
                     }
@@ -1127,10 +1066,7 @@
                         completedCheckpoints.push(currentCheckpoint);
                         localStorage.setItem(riderHistoryKey, JSON.stringify(completedCheckpoints));
                     }
-                    
-                    if (currentCheckpoint === "CP 00") {
-                        localStorage.setItem('startOdo_' + checkId, data.odometer);
-                    }
+                    if (currentCheckpoint === "CP 00") { localStorage.setItem('startOdo_' + checkId, data.odometer); }
                     localStorage.setItem('lastOdo_' + checkId, data.odometer); 
 
                     document.getElementById('odometer').value = "";
@@ -1147,9 +1083,6 @@
             });
         }
 
-        // ==========================================
-        // 📊 CHECKPOINT PROGRESS UG LOGIC
-        // ==========================================
         function updateCheckpointCheckmarks(riderId) {
             const checklistDiv = document.getElementById('checklistItems');
             if (!checklistDiv) return;
@@ -1185,43 +1118,33 @@
                     countCompleted++;
                 } else {
                     htmlOutput += `<span style="color: #555; margin-right: 8px; display: inline-block;">✗ ${cpVal}</span>`;
-                    if (firstUnfinishedCP === "") {
-                        firstUnfinishedCP = cpVal;
-                    }
+                    if (firstUnfinishedCP === "") firstUnfinishedCP = cpVal;
                 }
             });
             checklistDiv.innerHTML = countCompleted === 0 ? "<span style='color: #888;'>Wala pa nay nahuman nga Checkpoint.</span>" : htmlOutput;
 
             const dropdown = document.getElementById('checkpoint');
             if (dropdown && firstUnfinishedCP !== "") {
-                setTimeout(() => {
-                    dropdown.value = firstUnfinishedCP;
-                }, 100); 
+                setTimeout(() => { dropdown.value = firstUnfinishedCP; }, 100); 
             }
         }
 
         function updateRiderProgress() {
             let lvlElem = document.getElementById("level");
             let levelField = lvlElem && lvlElem.value ? lvlElem.value.trim() : "";
-            
             let odoElem = document.getElementById("odometer");
             let typedOdo = (odoElem && odoElem.value !== "") ? parseFloat(odoElem.value) : NaN;
-            
             let idElem = document.getElementById("idNum");
             let currentId = idElem && idElem.value ? idElem.value.trim() : ""; 
-            
             let card = document.getElementById("progressCard");
             if (!card) return;
 
             let cpElem = document.getElementById("checkpoint");
             let currentCP = cpElem ? cpElem.value : "";
-
             let savedStartOdo = parseFloat(localStorage.getItem('startOdo_' + currentId));
             
             let activeStartOdo = savedStartOdo;
-            if (currentCP === "CP 00" && !isNaN(typedOdo)) {
-                activeStartOdo = typedOdo;
-            }
+            if (currentCP === "CP 00" && !isNaN(typedOdo)) activeStartOdo = typedOdo;
             if (isNaN(activeStartOdo)) activeStartOdo = 0;
 
             let savedLastOdo = parseFloat(localStorage.getItem('lastOdo_' + currentId)) || activeStartOdo;
@@ -1231,13 +1154,8 @@
                 let totalRoute = routeTotalKm[levelField];
                 let nadagan = 0;
 
-                if (currentCP === "CP 00") {
-                    nadagan = 0; 
-                } else if (activeStartOdo > 0 && activeOdo >= activeStartOdo) {
-                    nadagan = activeOdo - activeStartOdo;
-                } else if (activeStartOdo === 0 && activeOdo > 0) {
-                    nadagan = 0; 
-                }
+                if (currentCP === "CP 00") nadagan = 0; 
+                else if (activeStartOdo > 0 && activeOdo >= activeStartOdo) nadagan = activeOdo - activeStartOdo;
                 
                 let nabilin = totalRoute - nadagan;
                 if (nabilin < 0) nabilin = 0; 
@@ -1250,61 +1168,40 @@
                 if (txtNadagan) txtNadagan.innerText = nadagan.toLocaleString() + " KM";
                 if (txtNabilin) txtNabilin.innerText = nabilin.toLocaleString() + " KM";
                 
-                if (activeOdo > 0 || activeStartOdo > 0) {
-                    card.style.display = "block"; 
-                } else {
-                    card.style.display = "none";
-                }
-            } else {
-                card.style.display = "none"; 
-            }
+                card.style.display = (activeOdo > 0 || activeStartOdo > 0) ? "block" : "none";
+            } else { card.style.display = "none"; }
         }
 
         let checkpointDropdown = document.getElementById("checkpoint");
-        if (checkpointDropdown) { checkpointDropdown.addEventListener("change", updateRiderProgress); }
+        if (checkpointDropdown) checkpointDropdown.addEventListener("change", updateRiderProgress);
 
         let odometerInput = document.getElementById("odometer");
         if (odometerInput) {
             odometerInput.addEventListener("input", updateRiderProgress);
-            odometerInput.addEventListener("keyup", updateRiderProgress);
             odometerInput.addEventListener("blur", function() {
                 let idElem = document.getElementById("idNum");
                 let currentId = idElem && idElem.value ? idElem.value.trim() : ""; 
                 let savedLastOdo = parseFloat(localStorage.getItem('lastOdo_' + currentId)) || 0;
                 let typedOdo = parseFloat(this.value);
-                
                 if (typedOdo > 0 && savedLastOdo > 0 && typedOdo < savedLastOdo) {
-                    alert(`⚠️ WARNING: Ang gi-type nga Odometer (${typedOdo}) kay mas GAMAY kaysa sa miaging Odo (${savedLastOdo}). Basin nasayop ka'g type, Rider!`);
+                    alert(`⚠️ WARNING: Ang Odometer (${typedOdo}) mas gamay kaysa miaging Odo (${savedLastOdo}).`);
                     this.style.border = "2px solid #ff3333"; 
-                } else {
-                    this.style.border = "1px solid #444"; 
-                }
+                } else { this.style.border = "1px solid #444"; }
             });
-        }
-        
-        let levelInput = document.getElementById("level");
-        if (levelInput) {
-            levelInput.addEventListener("change", updateRiderProgress);
-            levelInput.addEventListener("input", updateRiderProgress);
         }
 
         function searchDatabase(idToSearch) {
             const nameBox = document.getElementById('name');
             const lvlBox = document.getElementById('level');
-            
             try {
                 if (idToSearch && typeof riderDatabase !== 'undefined' && Array.isArray(riderDatabase)) {
                     const foundRider = riderDatabase.find(r => r.idNum === idToSearch);
                     if (foundRider) {
                         let rLevel = foundRider.level || "G5";
                         if(nameBox) nameBox.value = foundRider.fullname || "";
-                        
-                        let fullRouteName = routeNames[rLevel] ? routeNames[rLevel] : rLevel;
-                        if(lvlBox) lvlBox.value = fullRouteName;
-                        
+                        if(lvlBox) lvlBox.value = routeNames[rLevel] || rLevel;
                         window.activeRiderLevel = rLevel; 
                         populateCheckpointsByLevel(rLevel);
-
                         localStorage.setItem('offlineName_' + idToSearch, foundRider.fullname || "");
                         localStorage.setItem('offlineLevel_' + idToSearch, rLevel);
                     } else {
@@ -1313,33 +1210,16 @@
                         window.activeRiderLevel = "G5"; 
                         populateCheckpointsByLevel("G5");
                     }
-                } else if (idToSearch) {
-                    let memName = localStorage.getItem('offlineName_' + idToSearch);
-                    let memLevel = localStorage.getItem('offlineLevel_' + idToSearch) || "G5";
-                    
-                    if (memName) {
-                        if(nameBox) nameBox.value = memName;
-                        if(lvlBox) lvlBox.value = memLevel;
-                        populateCheckpointsByLevel(memLevel);
-                    } else {
-                        if(nameBox) nameBox.value = "Rider #" + idToSearch;
-                        if(lvlBox) lvlBox.value = "G5";
-                        populateCheckpointsByLevel("G5");
-                    }
                 }
-            } catch (err) {
-                console.log("Database search error caught safely:", err);
-            }
-            if (typeof updateRiderProgress === 'function') { updateRiderProgress(); }
+            } catch (err) {}
+            if (typeof updateRiderProgress === 'function') updateRiderProgress();
         }
 
-        // ==========================================
-        // 📷 QR CODE SCANNER (MARSHAL RA MAKA-GAMIT)
-        // ==========================================
         const idNumBox = document.getElementById('idNum');
         if (idNumBox) {
             idNumBox.addEventListener('dblclick', function() {
-                if (!isMarshalMode) { 
+                let isMarshal = localStorage.getItem("tourIsMarshal") === "true";
+                if (!isMarshal) { 
                     alert("⚠️ RIDER MODE: Dili ka pwede mag-usab sa ID!"); 
                     return; 
                 }
@@ -1396,16 +1276,15 @@
                                 scannerDiv.style.display = "none";
                                 scanQrBtn.textContent = "📷 I-SCAN ANG RIDER ID";
                                 scanQrBtn.style.backgroundColor = "#ff9900"; scanQrBtn.style.color = "black";
-                                
                                 if (idNumBox) idNumBox.value = decodedText;
                                 localStorage.setItem('defaultRiderID', decodedText);
                                 searchDatabase(decodedText);
                                 updateCheckpointCheckmarks(decodedText);
                             },
-                            (errorMessage) => { }
+                            (errorMessage) => {}
                         );
                     } catch (err) {
-                        alert("⚠️ Wala ma-access ang Camera. I-allow sa settings.");
+                        alert("⚠️ Wala ma-access ang Camera.");
                         scannerDiv.style.display = "none";
                         scanQrBtn.textContent = "📷 I-SCAN ANG RIDER ID";
                         scanQrBtn.style.backgroundColor = "#ff9900"; scanQrBtn.style.color = "black";
@@ -1413,58 +1292,6 @@
                 }
             });
         }
-
-
-
-        // ==========================================
-        // 👑 SECRET LONG-PRESS SA LOGO PARA SA ADMIN MENU
-        // ==========================================
-        let pressTimer;
-        const adminLogo = document.getElementById('masterMindsLogo');
-
-        if (adminLogo) {
-            adminLogo.addEventListener('contextmenu', function(e) {
-                e.preventDefault();
-            });
-
-            const startPress = (e) => {
-                pressTimer = setTimeout(async () => {
-                    let passcode = await customPinPrompt("👑 ADMIN PANEL", "Pagsulod og Admin Passcode:");
-                    if (!passcode) return;
-
-                    if (typeof riderDatabase === 'undefined') {
-                        alert("⚠️ Error: Wala nabasa ang database.");
-                        return;
-                    }
-
-                    // I-hash ang gisulod nga PIN gamit ang atong sha256Hash function
-                    const hashedInput = await sha256Hash(passcode);
-
-                    // 🔒 GIAKOP NIYA ANG ID FILTER PARA SA ADMIN RA GYUD
-                    let validAdmin = riderDatabase.find(r => r.passcode === hashedInput && (r.idNum === "0000" || r.idNum === "0001" || r.idNum === "0003"));
-
-                    if (validAdmin) {
-                        // Husto ang passcode ug Admin ID! Pasudlon na sa menu.html
-                        window.location.href = 'menu.html';
-                    } else {
-                        alert("❌ Sayop nga Passcode o dili ka awtorisado nga Admin!");
-                    }
-                }, 2500); // 2.5 segundos nga long-press
-            };
-
-            const cancelPress = () => {
-                clearTimeout(pressTimer);
-            };
-
-            adminLogo.addEventListener('mousedown', startPress);
-            adminLogo.addEventListener('touchstart', startPress);
-
-            adminLogo.addEventListener('mouseup', cancelPress);
-            adminLogo.addEventListener('mouseleave', cancelPress);
-            adminLogo.addEventListener('touchend', cancelPress);
-            adminLogo.addEventListener('touchcancel', cancelPress);
-        }
-
     </script>
 </body>
 </html>
