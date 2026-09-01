@@ -77,13 +77,18 @@
 <body>
 
     <!-- ================= 1. KINI ANG HARANG: FULL-SCREEN LOGIN OVERLAY ================= -->
+    <!-- ================= FULL-SCREEN LOGIN OVERLAY ================= -->
     <div id="loginScreenContainer" style="display: flex; position: fixed; top: 0; left: 0; width: 100vw; height: 100vh; background: #000000; z-index: 999999; justify-content: center; align-items: center; padding: 20px; box-sizing: border-box;">
         <div style="width: 100%; max-width: 380px; background: #111; padding: 25px; border-radius: 12px; border: 1px solid #333; color: white; box-shadow: 0 10px 25px rgba(0,0,0,0.8);">
+            
+            <!-- 👑 DINGHI NATO GIBUTANG ANG LOGO ARON MA-LONG PRESS BISAN NAA SA LOGIN SCREEN -->
+            <img src="mmc.png" alt="MasterMinds CUP Logo" id="loginLogo" style="width: 150px; display: block; margin: 0 auto 15px auto; cursor: pointer; -webkit-touch-callout: none; user-select: none;">
+            
             <h2 style="text-align: center; margin-bottom: 5px; font-size: 20px;">MMC SCANNER LOGIN</h2>
-            <p style="text-align: center; color: #aaa; font-size: 13px; margin-bottom: 20px;">Para lamang sa mga Registered Riders.</p>
+            <p style="text-align: center; color: #aaa; font-size: 13px; margin-bottom: 20px;">Palihug isulod ang imong ID ug Passcode.</p>
             
             <div style="margin-bottom: 15px;">
-                <label style="font-size: 13px; color: #ccc;">Rider ID#:</label><br>
+                <label style="font-size: 13px; color: #ccc;">Rider / Marshal ID#:</label><br>
                 <input type="text" id="riderIdInput" placeholder="Pananglitan: 0001" style="width: 100%; padding: 12px; margin-top: 5px; background: #222; color: white; border: 1px solid #444; border-radius: 6px; box-sizing: border-box;">
             </div>
             
@@ -292,64 +297,57 @@
 
 
 
+// ==========================================
+        // 👑 SECRET LONG-PRESS SA LOGO PARA SA ADMIN MENU
         // ==========================================
-        // 🕵️‍♂️ SECRET TRIPLE-TAP SA SIGNAL STATUS (MARSHAL OVERRIDE)
-        // ==========================================
-        let tapCount = 0;
-        let tapTimeout;
-        
-        document.addEventListener("DOMContentLoaded", function() {
-            const secretButton = document.getElementById('signalStatus'); 
-            const scanQrBtn = document.getElementById('scanQrBtn');
-            let isMarshalMode = localStorage.getItem('marshalMode') === 'true';
+        let pressTimer;
+        const loginLogo = document.getElementById('loginLogo');
+        const scannerLogo = document.getElementById('masterMindsLogo');
 
-            // Susiha ang inisyal nga kahimtang sa QR button
-            if (scanQrBtn) {
-                scanQrBtn.style.display = isMarshalMode ? "block" : "none";
-            }
+        function setupLogoLongPress(logoElement) {
+            if (!logoElement) return;
 
-            if (secretButton) {
-                secretButton.addEventListener('click', async function() {
-                    tapCount++;
-                    clearTimeout(tapTimeout);
-                    tapTimeout = setTimeout(() => { tapCount = 0; }, 1500);
-                    
-                    if (tapCount === 3) {
-                        tapCount = 0; 
-                        let currentMarshalStatus = localStorage.getItem('tourIsMarshal') === "true";
+            logoElement.addEventListener('contextmenu', function(e) {
+                e.preventDefault();
+            });
 
-                        // KUNG RIDER PA TO UG GUSTO I-UNLOCK SA MARSHAL:
-                        if (!currentMarshalStatus && !isMarshalMode) {
-                            let passcode = await customPinPrompt("🕵️‍♂️ MARSHAL OVERRIDE", "Pagsulod og Marshal Passcode (PIN):");
-                            if (!passcode) return;
+            const startPress = (e) => {
+                pressTimer = setTimeout(async () => {
+                    let passcode = await customPinPrompt("👑 ADMIN PANEL", "Pagsulod og Admin Passcode:");
+                    if (!passcode) return;
 
-                            if (typeof riderDatabase !== 'undefined') {
-                                let hashedInput = await sha256Hash(passcode); 
-                                let validMarshal = riderDatabase.find(r => r.passcode === hashedInput && r.isMarshal === true);     
-                                
-                                if (validMarshal) {
-                                    localStorage.setItem('marshalMode', 'true'); 
-                                    localStorage.setItem('tourIsMarshal', 'true');
-                                    if (scanQrBtn) scanQrBtn.style.display = "block"; 
-                                    alert(`🔓 MARSHAL OVERRIDE ON! Welcome, Master ${validMarshal.fullname}! Naabli na ang QR Scanner.`);
-                                } else { 
-                                    alert("❌ Sayop nga Passcode!"); 
-                                }
-                            } else { 
-                                alert("⚠️ Error: Wala nabasa ang database."); 
-                            }
-                        } else {
-                            // KUNG GUSTO I-LOCK BALIK SA RIDER MODE
-                            if (confirm("🔒 Gusto nimo i-lock ug ibalik sa Regular Rider Mode?")) {
-                                localStorage.setItem('marshalMode', 'false');
-                                localStorage.setItem('tourIsMarshal', 'false');
-                                if (scanQrBtn) scanQrBtn.style.display = "none"; 
-                                alert("🔒 Naka-Rider Mode na ang app.");
-                            }
-                        }
+                    if (typeof riderDatabase === 'undefined') {
+                        alert("⚠️ Error: Wala nabasa ang database.");
+                        return;
                     }
-                });
-            }
+
+                    const hashedInput = await sha256Hash(passcode);
+                    let validAdmin = riderDatabase.find(r => r.passcode === hashedInput && (r.idNum === "0000" || r.idNum === "0001" || r.idNum === "0003"));
+
+                    if (validAdmin) {
+                        window.location.href = 'menu.html';
+                    } else {
+                        alert("❌ Sayop nga Passcode o dili ka awtorisado nga Admin!");
+                    }
+                }, 2500); // 2.5 segundos
+            };
+
+            const cancelPress = () => {
+                clearTimeout(pressTimer);
+            };
+
+            logoElement.addEventListener('mousedown', startPress);
+            logoElement.addEventListener('touchstart', startPress);
+            logoElement.addEventListener('mouseup', cancelPress);
+            logoElement.addEventListener('mouseleave', cancelPress);
+            logoElement.addEventListener('touchend', cancelPress);
+            logoElement.addEventListener('touchcancel', cancelPress);
+        }
+
+        // I-apply sa login screen logo ug sa scanner logo
+        document.addEventListener("DOMContentLoaded", function() {
+            setupLogoLongPress(document.getElementById('loginLogo'));
+            setupLogoLongPress(document.getElementById('masterMindsLogo'));
         });
 
 
