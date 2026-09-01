@@ -408,52 +408,61 @@
     <script>
 
 function verifyAndLogin() {
-    let inputtedID = document.getElementById("riderIdInput").value.trim();
-    let inputtedPass = document.getElementById("riderPassInput").value.trim();
+    try {
+        let inputtedID = document.getElementById("riderIdInput").value.trim();
+        let inputtedPass = document.getElementById("riderPassInput").value.trim();
 
-    // 1. Susiha kung na-load ba ang database.js
-    if (typeof riderDatabase === 'undefined') {
-        alert("CRITICAL ERROR: Ang database.js wala makita o wala nauna og load sa script!");
-        return;
-    }
+        // 1. Susiha kung na-load ba ang database.js
+        if (typeof riderDatabase === 'undefined') {
+            alert("CRITICAL ERROR: Ang database.js wala makita!");
+            return;
+        }
 
-    if (!inputtedID) {
-        alert("Palihug isulod ang Rider ID#!");
-        return;
-    }
+        if (!inputtedID) {
+            alert("Palihug isulod ang Rider ID#!");
+            return;
+        }
 
-    // 2. Pangitaa sa database kung naa ba ang ID
-    let rider = riderDatabase.find(r => r.idNum === inputtedID);
+        // 2. Pangitaa sa database
+        let rider = riderDatabase.find(r => r.idNum === inputtedID);
 
-    if (rider) {
-        // PASAR! Tago-a dayon ang itom nga overlay sa login
-        let loginOverlay = document.getElementById("loginScreenContainer");
-        if (loginOverlay) {
+        if (rider) {
+            // DEBUG: Kon makita ang rider, mo-pop up kini sa dili pa mobalhin
+            alert("Success! Nakit-an si: " + rider.fullname);
+
+            // 3. Susiha kung naa ba gyud kining duha ka IDs sa imong HTML markup
+            let loginOverlay = document.getElementById("loginScreenContainer");
+            let scannerScreen = document.getElementById("scannerScreenContainer");
+
+            if (!loginOverlay) {
+                alert("HTML ERROR: Wala makit-an ang id='loginScreenContainer'");
+                return;
+            }
+            if (!scannerScreen) {
+                alert("HTML ERROR: Wala makit-an ang id='scannerScreenContainer'");
+                return;
+            }
+
+            // 4. I-hide ang login ug ipakita ang scanner
             loginOverlay.style.display = "none";
-        }
-
-        // Ipakita ang main scanner screen
-        let scannerScreen = document.getElementById("scannerScreenContainer");
-        if (scannerScreen) {
             scannerScreen.style.display = "block";
+
+            // 5. I-save sa LocalStorage
+            localStorage.setItem("tourRiderID", rider.idNum);
+            localStorage.setItem("tourRiderName", rider.fullname);
+            localStorage.setItem("tourIsLoggedIn", "true");
+
+            let welcomeEl = document.getElementById("welcomeName");
+            if (welcomeEl) {
+                welcomeEl.innerText = `${rider.fullname} (${rider.nickname})`;
+            }
+
+        } else {
+            alert("ACCESS DENIED: Wala sa database ang ID# nga " + inputtedID);
+            document.getElementById("riderIdInput").value = "";
         }
-
-        // I-save sa localStorage
-        localStorage.setItem("tourRiderID", rider.idNum);
-        localStorage.setItem("tourRiderName", rider.fullname);
-        localStorage.setItem("tourIsLoggedIn", "true");
-
-        // Ibutang ang pangalan sa welcome display
-        let welcomeEl = document.getElementById("welcomeName");
-        if (welcomeEl) {
-            welcomeEl.innerText = `${rider.fullname} (${rider.nickname})`;
-        }
-
-        console.log("Login Successful for: ", rider.fullname);
-
-    } else {
-        alert("ACCESS DENIED: Ang ID# " + inputtedID + " kay walay labot o wala sa database.");
-        document.getElementById("riderIdInput").value = "";
+    } catch (err) {
+        alert("JS Crash Error: " + err.message);
     }
 }
 
