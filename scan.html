@@ -98,6 +98,7 @@
             </div>
             
             <button id="loginBtn" style="width: 100%; background: #007BFF; color: white; padding: 12px; border: none; border-radius: 6px; font-weight: bold; cursor: pointer; font-size: 15px;">SULOD SA SCANNER</button>
+            <button onclick="verifyAndLogin()" id="loginBtn" style="width: 100%; background: #007BFF; color: white; padding: 12px; border: none; border-radius: 6px; font-weight: bold; cursor: pointer; font-size: 15px;">SULOD SA SCANNER</button>
         </div>
     </div>
 
@@ -206,66 +207,85 @@
         // ==========================================
         
         // 🌟 SAFE SHA-256 HASH ENGINE (Naay panalipod batok sa browser crash)
+        // 🌟 SAFE SHA-256 HASH ENGINE
         async function sha256Hash(str) {
             try {
-                if (!window.crypto || !window.crypto.subtle) {
-                    alert("SECURITY ERROR: Ang crypto.subtle kay giguyod sa non-secure context. Gamita ang Localhost o Vercel (HTTPS).");
-                    return "";
-                }
                 const encoder = new TextEncoder();
                 const data = encoder.encode(str);
                 const hashBuffer = await crypto.subtle.digest('SHA-256', data);
                 const hashArray = Array.from(new Uint8Array(hashBuffer));
                 return hashArray.map(b => b.toString(16).padStart(2, '0')).join('');
             } catch (err) {
-                alert("Hash Function Error: " + err.message);
+                alert("Hash Error: " + err.message);
                 return "";
             }
         }
 
-        // 🔐 SAFE LOGIN VERIFIER (Dili na gyud mapilit, mo-alert kon naay sipyat)
+        // 🔐 BULLETPROOF LOGIN VERIFIER
         async function verifyAndLogin() {
-            try {
-                let inputtedID = document.getElementById("riderIdInput").value.trim();
-                let inputtedPass = document.getElementById("riderPassInput").value.trim();
+            // Instant debug test aron masiguro nga ni-execute ang button click
+            // (Pwede ra nimo ni tangtangon nig andar na)
+            
+            let inputtedID = document.getElementById("riderIdInput").value.trim();
+            let inputtedPass = document.getElementById("riderPassInput").value.trim();
 
-                if (!inputtedID || !inputtedPass) {
-                    alert("Palihug i-fill up ang ID ug Passcode!");
-                    return;
-                }
+            if (!inputtedID || !inputtedPass) {
+                alert("Palihug i-fill up ang ID ug Passcode!");
+                return;
+            }
 
-                if (typeof riderDatabase === 'undefined') {
-                    alert("CRITICAL ERROR: Wala makit-an ang database.js! Siguroha nga naa kini sa parehong folder.");
-                    return;
-                }
+            if (typeof riderDatabase === 'undefined') {
+                alert("CRITICAL ERROR: Wala makit-an ang database.js! Siguroha nga na-load kini.");
+                return;
+            }
 
-                let rider = riderDatabase.find(r => r.idNum === inputtedID);
+            let rider = riderDatabase.find(r => r.idNum === inputtedID);
 
-                if (rider) {
-                    let isPasscodeValid = false;
-                    
-                    if (rider.passcode) {
-                        let hashedInputPass = await sha256Hash(inputtedPass);
-                        if (hashedInputPass === rider.passcode) {
-                            isPasscodeValid = true;
-                        } else {
-                            alert("ACCESS DENIED: Sayop ang imong Passcode!");
-                            return;
-                        }
+            if (rider) {
+                let isPasscodeValid = false;
+                
+                if (rider.passcode) {
+                    let hashedInputPass = await sha256Hash(inputtedPass);
+                    if (hashedInputPass === rider.passcode) {
+                        isPasscodeValid = true;
                     } else {
-                        isPasscodeValid = true; 
-                    }
-
-                    if (isPasscodeValid) {
-                        grantAccess(rider);
+                        alert("ACCESS DENIED: Sayop ang imong Passcode!");
+                        return;
                     }
                 } else {
-                    alert("ACCESS DENIED: Ang maong ID# kay walay labot o dili rehistrado.");
-                    document.getElementById("riderIdInput").value = "";
-                    document.getElementById("riderPassInput").value = "";
+                    isPasscodeValid = true; 
                 }
-            } catch (err) {
-                alert("Login System Crash: " + err.message);
+
+                if (isPasscodeValid) {
+                    // SAKTO TANAN! Ibutang ang state ug ablihi ang scanner
+                    localStorage.setItem("tourRiderID", rider.idNum);
+                    localStorage.setItem("defaultRiderID", rider.idNum);
+                    localStorage.setItem("tourRiderName", rider.fullname);
+                    localStorage.setItem("tourIsLoggedIn", "true");
+                    
+                    if (rider.isMarshal === true) {
+                        localStorage.setItem("tourIsMarshal", "true");
+                        localStorage.setItem("marshalMode", "true");
+                    } else {
+                        localStorage.setItem("tourIsMarshal", "false");
+                        localStorage.setItem("marshalMode", "false");
+                    }
+
+                    // Tago-a ang login overlay, ipakita ang app
+                    document.getElementById("loginScreenContainer").style.display = "none";
+                    document.getElementById("scannerScreenContainer").style.display = "flex";
+
+                    initScannerApp(rider.idNum);
+
+                    const scanQrBtn = document.getElementById('scanQrBtn');
+                    if (scanQrBtn) {
+                        scanQrBtn.style.display = (rider.isMarshal === true) ? "block" : "none";
+                    }
+                }
+            } else {
+                alert("ACCESS DENIED: Ang maong ID# kay walay labot o dili rehistrado.");
+                document.getElementById("riderIdInput").value = "";
+                document.getElementById("riderPassInput").value = "";
             }
         }
 
