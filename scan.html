@@ -1228,6 +1228,10 @@
         const idNumBox = document.getElementById('idNum');
         if (idNumBox) {
             idNumBox.addEventListener('dblclick', function() {
+                if (!isMarshalMode) { 
+                    alert("⚠️ RIDER MODE: Dili ka pwede mag-usab sa ID!"); 
+                    return; 
+                }
                 this.removeAttribute('readonly'); 
                 this.value = ""; 
                 document.getElementById('name').value = ""; 
