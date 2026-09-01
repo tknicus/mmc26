@@ -1227,16 +1227,11 @@
         // ==========================================
         const idNumBox = document.getElementById('idNum');
         if (idNumBox) {
-            idNumBox.addEventListener('dblclick', function(e) {
-                let isMarshal = localStorage.getItem("tourIsMarshal") === "true";
-                
-                // KUNG ORDINARYONG RIDER RA, HARANGAN DAYON!
-                if (!isMarshal) {
-                    alert("⚠️ RIDER MODE: Dili ka pwede mag-usab sa imong ID number!");
-                    return;
+            idNumBox.addEventListener('dblclick', function() {
+                if (!isMarshalMode) { 
+                    alert("⚠️ RIDER MODE: Dili ka pwede mag-usab sa ID!"); 
+                    return; 
                 }
-
-                // KUNG MARSHAL RA ANG MAKA-DOUBLE TAP:
                 this.removeAttribute('readonly'); 
                 this.value = ""; 
                 document.getElementById('name').value = ""; 
