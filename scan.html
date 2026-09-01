@@ -1227,11 +1227,16 @@
         // ==========================================
         const idNumBox = document.getElementById('idNum');
         if (idNumBox) {
-            idNumBox.addEventListener('dblclick', function() {
-                if (!isMarshalMode) { 
-                    alert("⚠️ RIDER MODE: Dili ka pwede mag-usab sa ID!"); 
-                    return; 
+            idNumBox.addEventListener('dblclick', function(e) {
+                let isMarshal = localStorage.getItem("tourIsMarshal") === "true";
+                
+                // KUNG ORDINARYONG RIDER RA, HARANGAN DAYON!
+                if (!isMarshal) {
+                    alert("⚠️ RIDER MODE: Dili ka pwede mag-usab sa imong ID number!");
+                    return;
                 }
+
+                // KUNG MARSHAL RA ANG MAKA-DOUBLE TAP:
                 this.removeAttribute('readonly'); 
                 this.value = ""; 
                 document.getElementById('name').value = ""; 
@@ -1240,6 +1245,19 @@
                 this.focus(); 
                 this.style.border = "3px solid #ffcc00"; 
             });
+
+            idNumBox.addEventListener('input', function() {
+                this.value = this.value.replace(/[^0-9]/g, ''); 
+                updateCheckpointCheckmarks(this.value.trim());
+                if (this.value.length === 4) {
+                    this.setAttribute('readonly', true); 
+                    this.style.border = "1px solid #444"; 
+                    this.blur(); 
+                    searchDatabase(this.value); 
+                    localStorage.setItem('defaultRiderID', this.value); 
+                }
+            });
+        }
 
             idNumBox.addEventListener('input', function() {
                 this.value = this.value.replace(/[^0-9]/g, ''); 
