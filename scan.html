@@ -18,8 +18,8 @@
     <style>
         body {
             font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-            background-color: #121212; /* Dark background */
-            color: #f5f5f5; /* Puti nga text */
+            background-color: #121212;
+            color: #f5f5f5;
             margin: 0;
             padding: 15px;
             display: flex;
@@ -27,24 +27,21 @@
         }
 
         .container {
-            background-color: #1e1e1e; /* Medyo light nga dark */
+            background-color: #1e1e1e;
             width: 100%;
             max-width: 450px;
             padding: 20px;
             border-radius: 8px;
             box-shadow: 0px 8px 15px rgba(0, 0, 0, 0.8);
-            border-top: 5px solid #cc0000; /* Pula nga linya sa ibabaw */
+            border-top: 5px solid #cc0000;
             box-sizing: border-box;
         }
 
-        /* Logo Styling */
         .app-logo {
             width: 100%;
             max-width: 250px;
             display: block;
-            margin: 0 auto 15px auto; /* I-center ang logo */
-            
-            /* 👇 KINI ANG MGA BAG-ONG LINYA ARON MA-DISABLE ANG BROWSER MENU 👇 */
+            margin: 0 auto 15px auto;
             -webkit-touch-callout: none; 
             -webkit-user-select: none; 
             user-select: none; 
@@ -55,7 +52,7 @@
             color: #ffffff;
             margin-top: 0;
             text-transform: lowercase;
-            font-style: italic; /* Pang-racing nga porma */
+            font-style: italic;
             letter-spacing: 1px;
             font-size: 15px;
         }
@@ -65,12 +62,11 @@
             color: #ffffff;
             margin-top: 0;
             text-transform: uppercase;
-            font-style: italic; /* Pang-racing nga porma */
+            font-style: italic;
             letter-spacing: 1px;
             font-size: 20px;
         }
 
-        /* Status & Location Indicators */
         #statusIndicator, #liveLocation {
             text-align: center;
             padding: 10px;
@@ -89,9 +85,9 @@
         .status.online { background-color: #1b5e20; color: white; }
         .status.offline { background-color: #cc0000; color: white; }
 
-        /* Input Boxes */
         input[type="text"], 
         input[type="number"],
+        input[type="password"],
         textarea {
             width: 100%;
             padding: 12px;
@@ -99,7 +95,7 @@
             margin-bottom: 15px;
             border: 1px solid #444;
             border-radius: 4px;
-            background-color: #2a2a2a; /* Dark nga kahon */
+            background-color: #2a2a2a;
             color: #ffffff;
             font-size: 16px;
             box-sizing: border-box;
@@ -107,9 +103,9 @@
             font-family: Arial, sans-serif;
         }
 
-        input:focus, textarea:focus {
+        input:focus, textarea:focus, select:focus {
             outline: none;
-            border-color: #cc0000; /* Mo-pula ang kilid kung i-click */
+            border-color: #cc0000;
             box-shadow: 0 0 5px rgba(204, 0, 0, 0.5);
         }
 
@@ -118,7 +114,6 @@
             color: #888;
         }
 
-        /* Buttons (Dagko para dali ma-click) */
         button {
             width: 100%;
             padding: 15px;
@@ -131,9 +126,8 @@
             transition: 0.2s;
         }
 
-        /* Ang Main Submit Button (Pula) */
         button[type="submit"] {
-            background-color: #cc0000; /* MasterMinds Red */
+            background-color: #cc0000;
             color: white;
             box-shadow: 0 4px 6px rgba(204, 0, 0, 0.3);
             margin-top: 5px;
@@ -150,7 +144,6 @@
             box-shadow: none;
         }
 
-        /* Ang Camera Button (Grey/Silver) */
         .camera-btn-wrapper {
             position: relative;
             overflow: hidden;
@@ -177,16 +170,14 @@
             width: 100%;
         }
 
-        /* Picture Preview */
         #photoPreview {
             max-width: 100%;
-            border: 2px dashed #cc0000; /* Pula nga border kung naay pic */
+            border: 2px dashed #cc0000;
             border-radius: 5px;
             margin-bottom: 15px;
-            display: none; /* Tago una kung walay pic */
+            display: none;
         }
 
-        /* DESIGN PARA SA DROPDOWN ARON MASIGO UG MO-ITOM */
         select {
             width: 100%;
             padding: 12px;
@@ -198,126 +189,43 @@
             color: #ffffff;
             font-size: 16px;
             box-sizing: border-box;
-            transition: all 0.3s ease;
             font-family: Arial, sans-serif;
         }
-
-        select:focus {
-            outline: none;
-            border-color: #cc0000;
-            box-shadow: 0 0 5px rgba(204, 0, 0, 0.5);
-        }
-        
     </style>
     <!-- 🎨 KATAPUSAN SA THEME 🎨 -->
 </head>
 <body>
-<!-- ================= FULL-SCREEN LOGIN OVERLAY ================= -->
-<div id="loginScreenContainer" style="position: fixed; top: 0; left: 0; width: 100vw; height: 100vh; background: #000000; z-index: 999999; display: flex; justify-content: center; align-items: center; padding: 20px; box-sizing: border-box;">
-    <div style="width: 100%; max-width: 380px; background: #111; padding: 25px; border-radius: 12px; border: 1px solid #333; color: white; box-shadow: 0 10px 25px rgba(0,0,0,0.8);">
-        <h2 style="text-align: center; margin-bottom: 5px; font-size: 20px;">MMC SCANNER LOGIN</h2>
-        <p style="text-align: center; color: #aaa; font-size: 13px; margin-bottom: 20px;">Palihug isulod ang imong ID ug Passcode.</p>
-        
-        <div style="margin-bottom: 15px;">
-            <label style="font-size: 13px; color: #ccc;">Rider ID#:</label><br>
-            <input type="text" id="riderIdInput" placeholder="Pananglitan: 0001" style="width: 100%; padding: 12px; margin-top: 5px; background: #222; color: white; border: 1px solid #444; border-radius: 6px; box-sizing: border-box;">
-        </div>
-        
-        <div style="margin-bottom: 20px;">
-            <label style="font-size: 13px; color: #ccc;">Passcode / PIN:</label><br>
-            <input type="password" id="riderPassInput" placeholder="Isulod ang passcode" style="width: 100%; padding: 12px; margin-top: 5px; background: #222; color: white; border: 1px solid #444; border-radius: 6px; box-sizing: border-box;">
-        </div>
-        
-        <button onclick="verifyAndLogin()" style="width: 100%; background: #007BFF; color: white; padding: 12px; border: none; border-radius: 6px; font-weight: bold; cursor: pointer; font-size: 15px;">LOGIN SA SCANNER</button>
-    </div>
-</div>
 
-<!-- ================= TIBUOK NIMO NGA MAIN SCANNER SCREEN ================= -->
-<div id="scannerScreenContainer" style="display: none; width: 100%; min-height: 100vh; background: #000;">
-    <!-- Ibutang dinhi ang TIBUOK nimo nga daang design sa scanner gikan sa taas hangtod ubos -->
-</div>
-
-
-
-
-    <!-- ================= 1. LOGIN SCREEN CONTAINER ================= -->
-    <div id="loginScreenContainer" style="display: block; width: 100vw; height: 100vh; background: #000; position: fixed; top: 0; left: 0; z-index: 9999; display: flex; justify-content: center; align-items: center;">
-        <div style="width: 100%; max-width: 400px; padding: 20px; background: #111; color: white; border-radius: 8px; border: 1px solid #333;">
-            <h2 style="text-align: center;">MMC SCANNER LOGIN</h2>
-            <p style="text-align: center; color: #aaa;">Palihug isulod ang imong ID ug Passcode.</p>
+    <!-- ================= FULL-SCREEN LOGIN OVERLAY ================= -->
+    <div id="loginScreenContainer" style="position: fixed; top: 0; left: 0; width: 100vw; height: 100vh; background: #000000; z-index: 999999; display: flex; justify-content: center; align-items: center; padding: 20px; box-sizing: border-box;">
+        <div style="width: 100%; max-width: 380px; background: #111; padding: 25px; border-radius: 12px; border: 1px solid #333; color: white; box-shadow: 0 10px 25px rgba(0,0,0,0.8);">
+            <h2 style="text-align: center; margin-bottom: 5px; font-size: 20px;">MMC SCANNER LOGIN</h2>
+            <p style="text-align: center; color: #aaa; font-size: 13px; margin-bottom: 20px;">Palihug isulod ang imong ID ug Passcode.</p>
             
             <div style="margin-bottom: 15px;">
-                <label>Rider ID#:</label><br>
-                <input type="text" id="riderIdInput" placeholder="Pananglitan: 0001" style="width: 100%; padding: 10px; margin-top: 5px; background: #222; color: white; border: 1px solid #444;">
+                <label style="font-size: 13px; color: #ccc;">Rider ID#:</label><br>
+                <input type="text" id="riderIdInput" placeholder="Pananglitan: 0001" autocomplete="off">
             </div>
             
-            <div style="margin-bottom: 15px;">
-                <label>Passcode / PIN:</label><br>
-                <input type="password" id="riderPassInput" placeholder="Isulod ang passcode" style="width: 100%; padding: 10px; margin-top: 5px; background: #222; color: white; border: 1px solid #444;">
+            <div style="margin-bottom: 20px;">
+                <label style="font-size: 13px; color: #ccc;">Passcode / PIN:</label><br>
+                <input type="password" id="riderPassInput" placeholder="Isulod ang passcode" autocomplete="off">
             </div>
             
-            <button onclick="verifyAndLogin()" style="width: 100%; background: #007BFF; color: white; padding: 12px; border: none; border-radius: 4px; font-weight: bold; cursor: pointer;">LOGIN SA SCANNER</button>
+            <button id="loginBtn" style="width: 100%; background: #007BFF; color: white; padding: 12px; border: none; border-radius: 6px; font-weight: bold; cursor: pointer; font-size: 15px;">LOGIN SA SCANNER</button>
         </div>
     </div>
 
-    <!-- ================= 2. SCANNER SCREEN CONTAINER (Ang tibuok nimo nga app) ================= -->
-    <div id="scannerScreenContainer" style="display: none; width: 100%; min-height: 100vh; background: #000;">
-        <!-- Ibutang dinhi ang TIBUOK nimo nga scanner code gikan sa taas hangtod ubos -->
-        <div style="max-width: 600px; margin: 0 auto; color: white; padding: 15px;">
-            <h2>CHECKPOINT SCANNER</h2>
-            <p>Welcome, <span id="welcomeName">Rider</span>!</p>
-            <!-- ... ang uban pa nimong existing scanner fields ... -->
-            <button onclick="logoutRider()" style="background: #dc3545; color: white; padding: 8px 12px; border: none; border-radius: 4px; cursor: pointer;">LOGOUT</button>
-        </div>
-    </div>
-
-
-
-
-    <!-- KINI ANG SCANNER INTERFACE (Nakatago kini sa sinugdanan) -->
-    <div id="scannerWrapper" style="display: none; width: 100%; max-width: 600px; margin: 0 auto;">
-        <!-- Dinhi ibutang ang tibuok nimo nga Checkpoint Scanner design gikan sa tuo -->
-        <div style="background: #111; color: white; padding: 20px;">
-            <h2>CHECKPOINT SCANNER</h2>
-            <p>Welcome, <span id="welcomeName">Rider</span>!</p>
-            <!-- ... ang uban pa nimong scanner fields ug buttons ... -->
-            <button onclick="logoutRider()" style="background: #dc3545; color: white; padding: 8px 12px; border: none; border-radius: 4px; cursor: pointer;">LOGOUT</button>
-        </div>
-    </div>
-    
-    <!-- LOGIN SCREEN (Pultahan) -->
-    <div id="loginSection" style="max-width: 400px; margin: 50px auto; padding: 20px; border: 1px solid #ccc; border-radius: 8px; font-family: sans-serif;">
-        <h2>MMC Scanner Login</h2>
-        <p>Palihug isulod ang imong ID ug Passcode para makasulod.</p>
-        
-        <div style="margin-bottom: 15px;">
-            <label>Rider ID#:</label><br>
-            <input type="text" id="riderIdInput" placeholder="Pananglitan: 0001" style="width: 100%; padding: 8px; margin-top: 5px;">
-        </div>
-        
-        <div style="margin-bottom: 15px;">
-            <label>Passcode / PIN:</label><br>
-            <input type="password" id="riderPassInput" placeholder="Isulod ang passcode" style="width: 100%; padding: 8px; margin-top: 5px;">
-        </div>
-        
-        <button onclick="verifyAndLogin()" style="width: 100%; background: #007BFF; color: white; padding: 10px; border: none; border-radius: 4px; cursor: pointer;">Login sa Scanner</button>
-    </div>
-
-    <!-- SCANNER SCREEN (Nakatago sa una hangtod makasulod) -->
-    <div id="scannerSection" style="display: none; max-width: 600px; margin: 30px auto; font-family: sans-serif; padding: 20px;">
-        <h2>Welcome, <span id="welcomeName">Rider</span>! 🏍️</h2>
-        <p>Status: <span style="color: green; font-weight: bold;">Authorized & Verified</span></p>
-        <hr>
-        <!-- Dinhi ibutang ang imong tinuod nga scanner interface o checkpoint buttons -->
-        <p>Adto na dinhi ang camera scanner o ang mga checkpoint buttons nimo...</p>
-        <button onclick="logoutRider()" style="background: #dc3545; color: white; padding: 8px 12px; border: none; border-radius: 4px; cursor: pointer;">Logout</button>
-    </div>
-
-    
-    <div class="container">
+    <!-- ================= MAIN SCANNER APP CONTAINER ================= -->
+    <div class="container" id="mainAppContainer" style="display: none;">
         <img src="mmc.png" alt="MasterMinds CUP Logo" class="app-logo" id="masterMindsLogo">
         <h4>" never say never "</h4>
         <h2>Checkpoint Scanner</h2>
+
+        <div style="text-align: right; margin-bottom: 10px;">
+            <span id="loggedInRiderInfo" style="font-size: 12px; color: #00ff00; font-weight: bold;"></span>
+            <button onclick="logoutRider()" style="background: #dc3545; color: white; padding: 4px 8px; font-size: 11px; width: auto; margin-left: 5px; border-radius: 3px;">LOGOUT</button>
+        </div>
 
         <div id="liveLocation">📍 Nangita sa imong location...</div>
 
@@ -338,7 +246,6 @@
         </div>
 
         <form id="myForm">
-
             <!-- 📷 QR SCANNER UI 📷 -->
             <button type="button" id="scanQrBtn" style="width: 100%; padding: 12px; background-color: #ff9900; color: black; font-weight: bold; font-size: 16px; border: none; border-radius: 4px; margin-bottom: 10px; cursor: pointer;">
                 📷 I-SCAN ANG RIDER ID
@@ -369,7 +276,7 @@
 
             <!-- 👇 ROUTE-BASED DYNAMIC DROPDOWN 👇 -->
             <select id="checkpoint" required>
-                <option value="" disabled selected>-- PILIA ANG CHECKPOINT -- (I-scan usa ang Rider)</option>
+                <option value="" disabled selected>-- PILIA ANG CHECKPOINT --</option>
             </select>
             
             <!-- 📋 CHECKPOINT HISTORY CHECKLIST BOX -->
@@ -389,7 +296,6 @@
             <img id="photoPreview" alt="Ebidensya">
             <canvas id="photoCanvas" style="display:none;"></canvas>
 
-            <!--button type="submit">I-Submit ang Data</button-->
             <button type="submit" id="mainSubmitBtn">I-Submit ang Data</button>
         </form>
 
@@ -398,150 +304,22 @@
             <p style="margin: 5px 0 0 0;">Build Version: <span id="appVersionText" style="color: #00ff00; font-family: monospace;">v2.8-technicus</span></p>
             <p style="margin: 3px 0 0 0; font-size: 10px; color: #666;">Status: Active & Secure 🛡️</p>
         </div>
-
     </div>
 
-    <!--audio id="submitMusic" src="./never_say_never.mp3" preload="auto"></audio>s -->
-
-
+    <!-- EXTERNAL DATABASE -->
     <script src="database.js"></script>
     <script>
-
-function verifyAndLogin() {
-    try {
-        let inputtedID = document.getElementById("riderIdInput").value.trim();
-        let inputtedPass = document.getElementById("riderPassInput").value.trim();
-
-        // 1. Susiha kung na-load ba ang database.js
-        if (typeof riderDatabase === 'undefined') {
-            alert("CRITICAL ERROR: Ang database.js wala makita!");
-            return;
-        }
-
-        if (!inputtedID) {
-            alert("Palihug isulod ang Rider ID#!");
-            return;
-        }
-
-        // 2. Pangitaa sa database
-        let rider = riderDatabase.find(r => r.idNum === inputtedID);
-
-        if (rider) {
-            // DEBUG: Kon makita ang rider, mo-pop up kini sa dili pa mobalhin
-            alert("Success! Nakit-an si: " + rider.fullname);
-
-            // 3. Susiha kung naa ba gyud kining duha ka IDs sa imong HTML markup
-            let loginOverlay = document.getElementById("loginScreenContainer");
-            let scannerScreen = document.getElementById("scannerScreenContainer");
-
-            if (!loginOverlay) {
-                alert("HTML ERROR: Wala makit-an ang id='loginScreenContainer'");
-                return;
-            }
-            if (!scannerScreen) {
-                alert("HTML ERROR: Wala makit-an ang id='scannerScreenContainer'");
-                return;
-            }
-
-            // 4. I-hide ang login ug ipakita ang scanner
-            loginOverlay.style.display = "none";
-            scannerScreen.style.display = "block";
-
-            // 5. I-save sa LocalStorage
-            localStorage.setItem("tourRiderID", rider.idNum);
-            localStorage.setItem("tourRiderName", rider.fullname);
-            localStorage.setItem("tourIsLoggedIn", "true");
-
-            let welcomeEl = document.getElementById("welcomeName");
-            if (welcomeEl) {
-                welcomeEl.innerText = `${rider.fullname} (${rider.nickname})`;
-            }
-
-        } else {
-            alert("ACCESS DENIED: Wala sa database ang ID# nga " + inputtedID);
-            document.getElementById("riderIdInput").value = "";
-        }
-    } catch (err) {
-        alert("JS Crash Error: " + err.message);
-    }
-}
-
-function grantAccess(rider) {
-    localStorage.setItem("tourRiderID", rider.idNum);
-    localStorage.setItem("tourRiderName", rider.fullname);
-    localStorage.setItem("tourIsLoggedIn", "true");
-
-    // 1. Tago-a ug tangtanga ang itom nga login overlay
-    let loginOverlay = document.getElementById("loginScreenContainer");
-    if (loginOverlay) {
-        loginOverlay.style.display = "none";
-    }
-
-    // 2. Ipakita ang tibuok scanner screen nga hapsay
-    let scannerScreen = document.getElementById("scannerScreenContainer");
-    if (scannerScreen) {
-        scannerScreen.style.display = "block";
-    }
-
-    let welcomeEl = document.getElementById("welcomeName");
-    if (welcomeEl) {
-        welcomeEl.innerText = `${rider.fullname} (${rider.nickname})`;
-    }
-}
-
-// Automatic check inig-load sa pahina
-window.onload = function() {
-    let isLoggedIn = localStorage.getItem("tourIsLoggedIn");
-    let savedName = localStorage.getItem("tourRiderName");
-
-    if (isLoggedIn === "true") {
-        document.getElementById("loginScreenContainer").style.display = "none";
-        document.getElementById("scannerScreenContainer").style.display = "block";
-        
-        if (savedName && document.getElementById("welcomeName")) {
-            document.getElementById("welcomeName").innerText = savedName;
-        }
-    } else {
-        document.getElementById("loginScreenContainer").style.display = "flex";
-        document.getElementById("scannerScreenContainer").style.display = "none";
-    }
-};
-
-
-
-
-
-        // Inig abli sa pahina, i-check kung naka-login na daan
-        window.onload = function() {
-            let isLoggedIn = localStorage.getItem("tourIsLoggedIn");
-            let savedName = localStorage.getItem("tourRiderName");
-
-            if (isLoggedIn === "true") {
-                // Kung naka-login na daan, tago-a ang login ug ipakita ang scanner daan
-                document.getElementById("loginWrapper").style.display = "none";
-                document.getElementById("scannerWrapper").style.display = "block";
-                
-                if (savedName && document.getElementById("welcomeName")) {
-                    document.getElementById("welcomeName").innerText = savedName;
-                }
-            } else {
-                // Kung wala pa, login lang ang makita
-                document.getElementById("loginWrapper").style.display = "block";
-                document.getElementById("scannerWrapper").style.display = "display: none";
-            }
-        };   
-        
-        
-        // Function para mag-generate og SHA-256 hash gikan sa gi-type sa rider
-        async function sha256(message) {
-            const msgBuffer = new TextEncoder().encode(message);
-            const hashBuffer = await crypto.subtle.digest('SHA-256', msgBuffer);
+        // ==========================================
+        // 🔐 LOGIN & AUTHENTICATION LOGIC
+        // ==========================================
+        async function sha256Hash(str) {
+            const encoder = new TextEncoder();
+            const data = encoder.encode(str);
+            const hashBuffer = await crypto.subtle.digest('SHA-256', data);
             const hashArray = Array.from(new Uint8Array(hashBuffer));
-            const hashHex = hashArray.map(b => b.toString(16).padStart(2, '0')).join('');
-            return hashHex;
+            return hashArray.map(b => b.toString(16).padStart(2, '0')).join('');
         }
 
-        // Gi-update nga Login Function nga mo-support sa Hash Passcode
         async function verifyAndLogin() {
             let inputtedID = document.getElementById("riderIdInput").value.trim();
             let inputtedPass = document.getElementById("riderPassInput").value.trim();
@@ -560,16 +338,13 @@ window.onload = function() {
 
             if (rider) {
                 if (rider.passcode) {
-                    // I-hash nato ang gi-type sa rider para ma-match sa naa sa database.js
-                    let hashedInputPass = await sha256(inputtedPass);
-
+                    let hashedInputPass = await sha256Hash(inputtedPass);
                     if (hashedInputPass === rider.passcode) {
                         grantAccess(rider);
                     } else {
                         alert("ACCESS DENIED: Sayop ang imong Passcode!");
                     }
                 } else {
-                    // Kung walay passcode ang rider sa database
                     grantAccess(rider);
                 }
             } else {
@@ -583,201 +358,28 @@ window.onload = function() {
             localStorage.setItem("tourRiderID", rider.idNum);
             localStorage.setItem("tourRiderName", rider.fullname);
             localStorage.setItem("tourIsLoggedIn", "true");
+            localStorage.setItem("defaultRiderID", rider.idNum);
+            localStorage.setItem("mmc_rider_id", rider.idNum);
 
-            document.getElementById("welcomeName").innerText = `${rider.fullname} (${rider.nickname})`;
-            document.getElementById("loginSection").style.display = "none";
-            document.getElementById("scannerSection").style.display = "block";
+            document.getElementById("loginScreenContainer").style.display = "none";
+            document.getElementById("mainAppContainer").style.display = "block";
+            
+            let infoEl = document.getElementById("loggedInRiderInfo");
+            if (infoEl) infoEl.innerText = `👤 ${rider.fullname} (${rider.nickname || ''})`;
+
+            initializeScannerApp(rider.idNum);
         }
 
         function logoutRider() {
-            localStorage.clear();
+            localStorage.removeItem("tourIsLoggedIn");
+            localStorage.removeItem("tourRiderID");
+            localStorage.removeItem("tourRiderName");
             location.reload();
         }
 
-        window.onload = function() {
-            let isLoggedIn = localStorage.getItem("tourIsLoggedIn");
-            let savedName = localStorage.getItem("tourRiderName");
-
-            if (isLoggedIn === "true" && savedName) {
-                document.getElementById("welcomeName").innerText = savedName;
-                document.getElementById("loginSection").style.display = "none";
-                document.getElementById("scannerSection").style.display = "block";
-            }
-        };
-        
-
-
-
-
-
-
-        ////////////////////////////////////////////////////////////////////////////////////////////////////
-        // 🔒 PERMANENT STATUS & EXPIRY CHECKER (T or F)
-        let appStatus = localStorage.getItem('mmc_app_status');
-
-        // 1. Kung primerong install pa lang, butangan dayon og 'T' (True / Active)
-        if (!appStatus) {
-            localStorage.setItem('mmc_app_status', 'T');
-            appStatus = 'T';
-        }
-
-        const eventExpiryDate = new Date('2026-10-01T00:00:00'); // Petsa sa katapusan
-        const today = new Date();
-
-        // 2. Susiha kung lapas na ba sa petsa O KAYA na-set na daan sa 'F'
-        if (today > eventExpiryDate || appStatus === 'F') {
-            
-            // Himuong 'F' ang status para permanenteng patay na ang scanner
-            localStorage.setItem('mmc_app_status', 'F');
-
-            // Dinhi na mogawas ang giplano natong Finisher / Participant Badge Screen
-            let currentId = localStorage.getItem('defaultRiderID') || "0000";
-            let riderName = localStorage.getItem('offlineName_' + currentId) || "MasterMinds Rider";
-            let riderLevel = localStorage.getItem('offlineLevel_' + currentId) || "G5";
-            
-            let riderHistoryKey = 'history_' + currentId;
-            let completedCheckpoints = JSON.parse(localStorage.getItem(riderHistoryKey)) || [];
-            let isFinisher = completedCheckpoints.includes("CP FL");
-            
-            let badgeTitle = isFinisher ? "🏆 Official Finisher Badge" : "🛡️ Official Participant Badge";
-            let statusText = isFinisher ? "⭐ FINISHER" : "🏁 RIDER PARTICIPANT";
-            let statusColor = isFinisher ? "#00ff00" : "#ffcc00";
-            let borderGlow = isFinisher ? "#ffcc00" : "#ff9900";
-            let messageText = isFinisher 
-                ? "📸 <b>I-screenshot kini nga screen para i-flex sa imong wall!</b><br>Daghang salamat sa imong kaisog ug pag-apil sa MasterMinds' CUP."
-                : "📸 <b>I-screenshot kini nga badge isip handumanan!</b><br>Bisan wala nakaabot sa finish line, dako kaayog pasidungog ang imong gi-survive nga mga checkpoints.";
-
-            document.addEventListener("DOMContentLoaded", function() {
-                const container = document.querySelector('.container');
-                if (container) {
-                    container.innerHTML = `
-                        <img src="mmc.png" alt="MasterMinds CUP Logo" class="app-logo">
-                        <h4 style="color: #ffcc00; text-align: center; font-style: italic;">" never say never "</h4>
-                        <h2 style="color: #fff; text-align: center; text-transform: uppercase;">${badgeTitle}</h2>
-                        
-                        <div style="background: linear-gradient(145deg, #1a1a1a, #2a2a2a); border: 2px solid ${borderGlow}; border-radius: 12px; padding: 20px; margin: 20px 0; text-align: center; box-shadow: 0 0 15px rgba(255,204,0,0.2);">
-                            <div style="font-size: 12px; color: #aaa; text-transform: uppercase; letter-spacing: 2px;">Gisertipikahan si</div>
-                            <h1 style="color: #ffffff; font-size: 24px; margin: 10px 0; text-transform: uppercase; text-shadow: 0 2px 4px rgba(0,0,0,0.5);">${riderName}</h1>
-                            <div style="font-size: 13px; color: #ff9900; font-weight: bold; margin-bottom: 15px;">Rider ID: #${currentId} | Level: ${riderLevel}</div>
-                            
-                            <hr style="border: 0; border-top: 1px solid #444; margin: 15px 0;">
-                            
-                            <div style="display: flex; justify-content: space-around; color: #fff; font-size: 14px;">
-                                <div>
-                                    <span style="font-size: 10px; color: #aaa; display: block;">STATUS</span>
-                                    <b style="color: ${statusColor};">${statusText}</b>
-                                </div>
-                                <div style="border-left: 1px solid #444; padding-left: 15px;">
-                                    <span style="font-size: 10px; color: #aaa; display: block;">NA-SURVIVE</span>
-                                    <b style="color: #00d2ff;">${completedCheckpoints.length} Checkpoints</b>
-                                </div>
-                            </div>
-                        </div>
-
-                        <p style="text-align: center; color: #ccc; font-size: 13px; line-height: 1.5; margin-bottom: 20px;">
-                            ${messageText}<br><br>
-                            <span style="color: #888; font-size: 11px;">Tapos na ang event. Pwede na nimo i-uninstall kining app sa imong selpon.</span>
-                        </p>
-
-                        <button onclick="alert('Palihug adtoa ang Phone Settings > Apps > MasterMinds CUP para i-uninstall. Salamat!')" style="background-color: #cc0000; color: white; padding: 15px; font-weight: bold; border: none; border-radius: 4px; width: 100%; cursor: pointer; text-transform: uppercase;">
-                            🗑️ Unsaon pag-Uninstall
-                        </button>
-
-                        <div style="text-align: center; margin-top: 25px; font-size: 12px; color: #777;">
-                            &copy; 2026 MasterMinds'CUP. All Rights Reserved.
-                        </div>
-                    `;
-                }
-            });
-            // return; // Mo-relax na ang app, dili na modagan ang scanner form!
-        }
-        /////////////////////////////////////////////////////////////////////////////////////////////
-        
-        // 🎵 ULTIMATE AUDIO WEAPON (Pure JS) 🎵
-        const submitAudio = new Audio('./never_say_never.mp3');
-        submitAudio.preload = 'auto'; // I-karga daan sa memory
-
-        // Inig click gyud mismo sa button (dili form submit), patugtugon dayon!
-        document.addEventListener("DOMContentLoaded", function() {
-            const mainSubmitBtn = document.getElementById('mainSubmitBtn');
-            if (mainSubmitBtn) {
-                mainSubmitBtn.addEventListener('click', function() {
-                    submitAudio.currentTime = 0;
-                    let playPromise = submitAudio.play();
-                    if (playPromise !== undefined) {
-                        playPromise.catch(e => console.log("Gipugngan sa Android:", e));
-                    }
-                });
-            }
-        });
-        
-        // 🌟 KINI ANG SAKTONG INITIALIZATION PARA SA RIDER ID NGA MO-PROMPT KUNG WALA PA
-        document.addEventListener("DOMContentLoaded", function() {
-            const idElem = document.getElementById('idNum');
-            const nameElem = document.getElementById('name');
-            const levelElem = document.getElementById('level');
-
-            if (!idElem) return;
-
-            // 1. Susiha ang parehong storage keys aron walay libog ('mmc_rider_id' o 'defaultRiderID')
-            let savedRiderID = localStorage.getItem("mmc_rider_id") || localStorage.getItem("defaultRiderID");
-
-            if (!savedRiderID) {
-                // Kung wala pa gyud, pangutan-a ang rider/marshal sa unang higayon ra
-                let inputID = prompt("👑 WELCOME SA MASTERMINDS'CUP!\nPalihug isulod ang imong Rider / Marshal ID Number:");
-                
-                if (inputID && inputID.trim() !== "") {
-                    savedRiderID = inputID.trim().replace(/[^0-9]/g, ''); // Sigurohon nga numero ra
-                    localStorage.setItem("mmc_rider_id", savedRiderID);
-                    localStorage.setItem("defaultRiderID", savedRiderID);
-                    alert(`✅ Narehistro na ang ID: ${savedRiderID} sa kini nga selpon.`);
-                } else {
-                    alert("⚠️ Kinahanglan ang ID number para magamit ang app!");
-                    return;
-                }
-            }
-
-            // 2. Ibutang ang ID sa idNum input box ug i-lock aron dili ma-edit
-            idElem.value = savedRiderID;
-            idElem.setAttribute('readonly', true);
-
-            // 3. Pangitaa sa database.js ang pangalan ug level gamit ang savedRiderID
-            if (typeof riderDatabase !== 'undefined' && Array.isArray(riderDatabase)) {
-                let currentRider = riderDatabase.find(r => r.idNum === savedRiderID);
-                
-                if (currentRider) {
-                    let rLevel = currentRider.level || "G5";
-                    if (nameElem) nameElem.value = currentRider.fullname || currentRider.name || "";
-                    
-                    let fullRouteName = routeNames[rLevel] ? routeNames[rLevel] : rLevel;
-                    if (levelElem) levelElem.value = fullRouteName;
-                    
-                    window.activeRiderLevel = rLevel; 
-                    populateCheckpointsByLevel(rLevel);
-
-                    localStorage.setItem('offlineName_' + savedRiderID, currentRider.fullname || currentRider.name || "");
-                    localStorage.setItem('offlineLevel_' + savedRiderID, rLevel);
-                } else {
-                    if (nameElem) nameElem.value = "❌ Wala sa Masterlist";
-                    if (levelElem) levelElem.value = "G5";
-                    window.activeRiderLevel = "G5";
-                    populateCheckpointsByLevel("G5");
-                }
-            } else {
-                console.error("⚠️ Error: Wala nabasa ang database.js.");
-            }
-
-            // Tawgon ang progress ug checkpoints update
-            updateCheckpointCheckmarks(savedRiderID);
-            if (typeof updateRiderProgress === 'function') {
-                updateRiderProgress();
-            }
-
-            if ('serviceWorker' in navigator) {
-                navigator.serviceWorker.register('./sw.js').catch(function(error) {});
-            }
-        });   
-        
+        // ==========================================
+        // 🗺️ ROUTE CONFIGURATIONS
+        // ==========================================
         const routeNames = {
             "AS26": "628 ALL STAR",
             "G5": "MAN OF STEEL",
@@ -789,347 +391,38 @@ window.onload = function() {
             "G1S": "SOUTH - JAS-T'Boli"
         };
 
-        // ==========================================
-        // 🗺️ 8 KA NAGKALAIN-LAING RUTA UG ILANG MGA LUGAR
-        // ==========================================
         const routeConfigs = {
             "G1N": [
                 { val: "CP 00", name: "#00 Starting Grid" },
                 { val: "CP 01", name: "#01 San Fernando Municipal Plaza" },
-                { val: "CP 02", name: "#02 Iba Central Elementary School  25km" },
+                { val: "CP 02", name: "#02 Iba Central Elementary School 25km" },
                 { val: "CP 03", name: "#03 Busdi Integrated School" },
-                { val: "CP 04", name: "#04 Magawa Bridge (Mandatory PO)" },
-                { val: "CP 05", name: "#05 turn right to Gingoog" },
-                { val: "CP 06", name: "#06 Gingoog Butuan Fork (turn left to Gingoog)" },
-                { val: "CP 07", name: "#07 Kahulogan (turn left to Claveria)" },
-                { val: "CP 08", name: "#08 Claveria View Deck" },
-                { val: "CP 09", name: "#09 Municipal Hall of Claveria" },
-                { val: "CP 10", name: "#10 Villanueva Municipal Hall" },
-                { val: "CP 11", name: "#11 Balingoan Municipal Hall" },
-                { val: "CP 12", name: "#12 Gahub Bridge" },
-                { val: "CP 13", name: "#13 Magsaysay BUS Terminal" },
-                { val: "CP 14", name: "#14 Vinapor White Beach Park" },
-                { val: "CP 15", name: "#15 Bancasi Rotunda" },
-                { val: "CP 16", name: "#16 turn right to San Vicente" },
-                { val: "CP 17", name: "#17 Daktan Central Elementary School" },
-                { val: "CP 18", name: "#18 Crossing Luna turn right" },
-                { val: "CP 19", name: "#19 Talacogon Municipal Hall" },
-                { val: "CP 20", name: "#20 Loreto Municipal Hall" },
-                { val: "CP 21", name: "#21 Sampaguita Junction Park" },
-                { val: "CP 22", name: "#22 Sta Emilia" },
-                { val: "CP 23", name: "#23 LS Sarmiento Bridge  (Mandatory PO)" },
-                { val: "CP 24", name: "#24 San Antonio" },
-                { val: "CP 25", name: "#25 Longanapan" },
-                { val: "CP 26", name: "#26 Sonlon" },
-                { val: "CP 27", name: "#27 Suawon" },
-                { val: "CP 28", name: "#28 New Corella Plaza" },
-                { val: "CP 29", name: "#29 New Bohol Landmark" },
-                { val: "CP 30", name: "#30 San Agustin Elementary School" },
-                { val: "CP 31", name: "#31 Fe Misa Ayala Seniors Park" },
-                { val: "CP 32", name: "#32 ELKAPITAN 's Burial Ground " },
-                { val: "CP FL", name: "#FL Ending Grid" },
-                { val: "CP xx", name: "#xx Stand By Me" }
+                { val: "CP FL", name: "#FL Ending Grid" }
             ],
             "G1E": [
                 { val: "CP 00", name: "#00 Starting Grid" },
                 { val: "CP 01", name: "#01 Carmen Cannon" },
-                { val: "CP 02", name: "#02 Sto. Tomas Park" },
-                { val: "CP 03", name: "#03 Asuncion-San Isidro-Laak-Veruela Rd (junction)" },
-                { val: "CP 04", name: "#04 711 Laak" },
-                { val: "CP 05", name: "#05 Loreto Municipal / Petron" },
-                { val: "CP 06", name: "#06 Trento Roundball/SeaOil" },
-                { val: "CP 07", name: "#07 Tabon Junction" },
-                { val: "CP 08", name: "#08 Caatijan, Boston (junction)" },
-                { val: "CP 09", name: "#09 Parkway Monkayo" },
-                { val: "CP 10", name: "#10 SMJR Montevista" },
-                { val: "CP 11", name: "#11 Cateel Taytayan" },
-                { val: "CP 12", name: "#12 Pusan Point Caraga" },
-                { val: "CP 13", name: "#13 WOW Manay Landmark" },
-                { val: "CP 14", name: "#14 Mati Baywalk" },
-                { val: "CP 15", name: "#15 Maragusan Landmark" },
-                { val: "CP 16", name: "#16 Fe Misa Ayala Seniors Park" },
-                { val: "CP 17", name: "#17 ELKAPITAN 's Burial Ground " },
-                { val: "CP FL", name: "#18 Ending Grid" },
-                { val: "CP xx", name: "#xx Stand By Me" }
+                { val: "CP FL", name: "#18 Ending Grid" }
             ],
             "G1W": [
                 { val: "CP 00", name: "#00 DavNor Sports Complex (Starting Grid)" },
-                { val: "CP 01", name: "#01 Davao City Coastal Road" },
-                { val: "CP 02", name: "#02 McDo Cogon Digos" },
-                { val: "CP 03", name: "#03 Esso Gasoline Station, Paco, Kidapawan" },
-                { val: "CP 04", name: "#04 crash site" },
-                { val: "CP 05", name: "#05 DASH Gasoline Station" },
-                { val: "CP 06", name: "#06 Brgy. Sarmiento Signage" },
-                { val: "CP 07", name: "#07 Picong Tunnel (Mandatory Photo Op)" },
-                { val: "CP 08", name: "#08 KM0 Warawi" },
-                { val: "CP 09", name: "#09 i love Kalilangan" },
-                { val: "CP 10", name: "#10 Maramag Municipal Hall" },
-                { val: "CP 11", name: "#11 Jollibee Valencia" },
-                { val: "CP 12", name: "#12 San Fernando Municipal Plaza" },
-                { val: "CP 13", name: "#13 Lantawan ni Jade" },
-                { val: "CP 14", name: "#14 w0w Assuncion" },
-                { val: "CP 15", name: "#15 Fe Misa Ayala Seniors Park" },
-                { val: "CP 16", name: "#16 ELKAPITAN 's Burial Ground " },
-                { val: "CP FL", name: "#17 DavNor Sports Complex (End Grid)" },
-                { val: "CP xx", name: "#xx Stand By Me" }
+                { val: "CP FL", name: "#17 DavNor Sports Complex (End Grid)" }
             ],
             "G1S": [
                 { val: "CP 00", name: "#00 Starting Grid" },
-                { val: "CP 01", name: "#01 Davao City Coastal Road" },
-                { val: "CP 02", name: "#02 Petron/McDo Cogon Digos" },
-                { val: "CP 03", name: "#03 Flying V, Junction DavOc & GSC" },
-                { val: "CP 04", name: "#04 Malita Municipal Hall" },
-                { val: "CP 05", name: "#05 Joyce Paradise" },
-                { val: "CP 06", name: "#06 Baños Point Lighthouse" },
-                { val: "CP 07", name: "#07 JAS Municipal Hall" },
-                { val: "CP 08", name: "#08 TOUR Town Glan" },
-                { val: "CP 09", name: "#09 Plaza Heneral Santos" },
-                { val: "CP 10", name: "#10 GSC IA Welcome Arch" },
-                { val: "CP 11", name: "#11 T'Boli" },
-                { val: "CP 12", name: "#12 711 Surallah" },
-                { val: "CP 13", name: "#13 Isulan Roundball" },
-                { val: "CP 14", name: "#14 Tacurong Roundball" },
-                { val: "CP 15", name: "#15 Marbel Roundball" },
-                { val: "CP 16", name: "#16 Columbio Municipal Hall" },
-                { val: "CP 17", name: "#17 Viacrucis Park Bansalan" },
-                { val: "CP 18", name: "#18 Shell Cogon Digos" },
-                { val: "CP 19", name: "#19 Petron Diversion Road Buhangin" },
-                { val: "CP 20", name: "#20 Fe Misa Ayala Seniors Park" },
-                { val: "CP 21", name: "#21 ELKAPITAN 's Burial Ground " },
-                { val: "CP FL", name: "#22 Clossing Grid" },
-                { val: "CP xx", name: "#xx Stand By Me" }
+                { val: "CP FL", name: "#22 Clossing Grid" }
             ],
             "G3": [
                 { val: "CP 00", name: "#00 Start G3" },
-                { val: "CP 01", name: "#07 Bukidnon Route - A" },
-                { val: "CP 02", name: "#08 Bukidnon Route - B" },
-                { val: "CP 03", name: "#09 Finish Line G3" },
-                { val: "CP 04", name: "DavNor Sports Complex" },
-                { val: "CP 05", name: "Davao Coastal Road" },
-                { val: "CP 06", name: "McDo Petron Cogon Digos" },
-                { val: "CP 07", name: "Flying V Otsenta" },
-                { val: "CP 08", name: "Malita Municipal Plaza" },
-                { val: "CP 09", name: "Joyce Paradise (Mandatory Photo Ops)" },
-                { val: "CP 10", name: "Baños Point Lighthouse" },
-                { val: "CP 11", name: "JAS Municipal Hall" },
-                { val: "CP 12", name: "TOUR Town Glan" },
-                { val: "CP 13", name: "Plaza Heneral Santos" },
-                { val: "CP 14", name: "Maitum Municipal Hall" },
-                { val: "CP 15", name: "Baywalk Palimbang (Mandatory Photo Ops)" },
-                { val: "CP 16", name: "Lebak Roundball" },
-                { val: "CP 17", name: "Grand Mosque of Cotabato" },
-                { val: "CP 18", name: "Picung Tunnel (Mandatory Photo Ops)" },
-                { val: "CP 19", name: "Rotunda Park Pagadian" },
-                { val: "CP 20", name: "Ipil Rotunda Obelisk" },
-                { val: "CP 21", name: "Zamboanga City Signage (Mandatory Photo Ops)" },
-                { val: "CP 22", name: "Boyscout of the Philippines" },
-                { val: "CP 23", name: "Limpana TRUSS Bridge (Mandatory Photo Ops)" },
-                { val: "CP 24", name: "Pangian Bridge" },
-                { val: "CP 25", name: "Sibuco Municipality" },
-                { val: "CP 26", name: "Siocon Rotonda Plaza" },
-                { val: "CP 27", name: "Baliguian Eadle Landmark (Mandatory Photo Ops)" },
-                { val: "CP 28", name: "I Love Gutalac Landmard (Mandatory Photo Ops)" },
-                { val: "CP 29", name: "Liloy Municipal Hall" },
-                { val: "CP 30", name: "Giant Chicken Statue" },
-                { val: "CP 31", name: "Dipolog Rotonda" },
-                { val: "CP 32", name: "Dapitan Park" },
-                { val: "CP 33", name: "I Love Oroquieta" },
-                { val: "CP 34", name: "Panguil Bay Bridge" },
-                { val: "CP 35", name: "Iligan City (711/Petron)" },
-                { val: "CP 36", name: "MV Beach & Pool Resort" },
-                { val: "CP 37", name: "El Salvador City Hall" },
-                { val: "CP 38", name: "Divine Mercy Statue" },
-                { val: "CP 39", name: "Bugo CDO Shell Gasoline Station" },
-                { val: "CP 40", name: "Sugbongcogon Municipal Hall" },
-                { val: "CP 41", name: "The Bay Gingoog" },
-                { val: "CP 42", name: "Magsaysay Munipal Park" },
-                { val: "CP 43", name: "Cervantina Elementary School" },
-                { val: "CP 44", name: "Vinapor Beach Park" },
-                { val: "CP 45", name: "Rotunda Bancasi" },
-                { val: "CP 46", name: "Jollibee Cabadbaran" },
-                { val: "CP 47", name: "Jabonga People's Park" },
-                { val: "CP 48", name: "Hanagdong Project" },
-                { val: "CP 49", name: "Looc Landmark" },
-                { val: "CP 50", name: "Punta Bilar Lighthouse" },
-                { val: "CP 51", name: "I Love Surigao" },
-                { val: "CP 52", name: "Nabago Elementary School" },
-                { val: "CP 53", name: "Noventa View Deck" },
-                { val: "CP 54", name: "Tandag City Baywalk Boulevard" },
-                { val: "CP 55", name: "Hinatuan Signage" },
-                { val: "CP 56", name: "Petron Cateel" },
-                { val: "CP 57", name: "Baganga Sunrise Boulevard" },
-                { val: "CP 58", name: "Pusan Point Caraga" },
-                { val: "CP 59", name: "WOW Manay Landmark" },
-                { val: "CP 60", name: "Dahican Rotunda" },
-                { val: "CP 61", name: "Mati Baywalk Park" },
-                { val: "CP 62", name: "711/SeaOil Governor Generoso" },
-                { val: "CP 63", name: "Centennial Tree (dedo na :-( )" },
-                { val: "CP 64", name: "Cape San Agustin (Mandatory Photo Op)" },
-                { val: "CP 65", name: "Manikling Rotonda" },
-                { val: "CP 66", name: "Davao Oriental Welcome Park" },
-                { val: "CP 67", name: "Diocesan Shrine of Our Mother of Pertual Help" },
-                { val: "CP 68", name: "Fe Misa Ayala Seniors Park" },
-                { val: "CP 69", name: "ELKAPITAN 's Burial Ground " },
-                { val: "CP FL", name: "DavNor Sports Complex" },
-                { val: "CP xx", name: "#xx Stand By Me" }
+                { val: "CP FL", name: "DavNor Sports Complex" }
             ],
             "G4": [
-                { val: "CP 00", name: "#00 Start G4 tark-tarak Riddes" },
-                { val: "CP 01", name: "#01 Talaingod Route - A" },
-                { val: "CP 02", name: "#03 Talaingod Route - B" },
-                { val: "CP FL", name: "#04 Finish Line G4" },
-                { val: "CP xx", name: "#xx Stand By Me" }
+                { val: "CP 00", name: "#00 Start G4" },
+                { val: "CP FL", name: "#04 Finish Line G4" }
             ],
             "G5": [
                 { val: "CP 000", name: "#00 DavNor Sports Complex" },
-                { val: "CP 001", name: "#00 Davao City Coastal Road" },
-                { val: "CP 002", name: "#00 McDo Cogon Digos" },
-                { val: "CP 003", name: "#00 Esso Gasoline Station, Paco, Kidapawan" },
-                { val: "CP 004", name: "#00 White Hills View, Sitio Dao Road, Arakan" },
-                { val: "CP 005", name: "#00 Philippine Eagle Monument" },
-                { val: "CP 006", name: "#00 Greek Hills" },
-                { val: "CP 007", name: "#00 OverView Nature & Culture Park" },
-                { val: "CP 008", name: "#00 3J Gazz, Quezon, Bukidnon" },
-                { val: "CP 009", name: "#00 Aglayan Roundball" },
-                { val: "CP 010", name: "#00 Lantaw 360 Camp & Cafe" },
-                { val: "CP 011", name: "#00 junction Tikalaan (Mandatory Photo Op) turn left" },
-                { val: "CP 012", name: "#00 711 Pangantukan" },
-                { val: "CP 013", name: "#00 Discovery Hotel Dangcagan" },
-                { val: "CP 014", name: "#00 Buagas Machine Shop, Carmen" },
-                { val: "CP 015", name: "#00 crash site (Mandatory Photo Op) atbang sa menteryo" },
-                { val: "CP 016", name: "#00 Bagontapay Roundball" },
-                { val: "CP 017", name: "#00 turn RIGHT to Magsaysay" },
-                { val: "CP 018", name: "#00 Tacul Elementary School" },
-                { val: "CP 019", name: "#00 Magsaysay Municipality" },
-                { val: "CP 020", name: "#00 Matanao, turn right to Savoy" },
-                { val: "CP 021", name: "#00 Columbio Municipal Hall" },
-                { val: "CP 022", name: "#00 Isulan Roundball" },
-                { val: "CP 023", name: "#00 711 Surallah" },
-                { val: "CP 024", name: "#00 Marbel Roundball" },
-                { val: "CP 025", name: "#00 BK's Kitchen @ Ondeng’s Food Park" },
-                { val: "CP 026", name: "#00 Bangkapayapaan Monument" },
-                { val: "CP 027", name: "#00 Flying V Otsenta Junction" },
-                { val: "CP 028", name: "#00 Malita Municipal Plaza" },
-                { val: "CP 029", name: "#00 Joyce Paradise" },
-                { val: "CP 030", name: "#00 Baños Point Lighthouse" },
-                { val: "CP 031", name: "#00 JAS Municipal Hall" },
-                { val: "CP 032", name: "#00 TOUR Town Glan" },
-                { val: "CP 033", name: "#00 Maasim Town Plaza" },
-                { val: "CP 034", name: "#00 Maitum Municipal Hall" },
-                { val: "CP 035", name: "#00 Baywalk Palimbang" },
-                { val: "CP 036", name: "#00 Kalamansig Municipal" },
-                { val: "CP 037", name: "#00 Lebak Municipal Portal / Lebak " },
-                { val: "CP 038", name: "#00 The Grand Mosque of Cotabato" },
-                { val: "CP 039", name: "#00 People's Palace Cotabato City" },
-                { val: "CP 040", name: "#00 Alamada Municipal Hall" },
-                { val: "CP 041", name: "#00 Tent City" },
-                { val: "CP 042", name: "#00 WOWWAO" },
-                { val: "CP 043", name: "#00 KM0 Warawi" },
-                { val: "CP 044", name: "#00 Picong Tunnel (Mandatory Photo Op)" },
-                { val: "CP 045", name: "#00 Pagadian Rotonda Park" },
-                { val: "CP 046", name: "#00 Ipil Rotunda Obelisk" },
-                { val: "CP 047", name: "#00 Pasonanca Park" },
-                { val: "CP 048", name: "#00 Zamboanga City Signage" },
-                { val: "CP 049", name: "#00 Historic BSP Monument (Mandatory Photo Ops)" },
-                { val: "CP 050", name: "#00 Limpana TRUSS Bridge (Mandatory Photo Ops)" },
-                { val: "CP 051", name: "#00 Pangian Bridge" },
-                { val: "CP 052", name: "#00 Sibuco Municipal Hall" },
-                { val: "CP 053", name: "#00 Siocon Municipal Hall" },
-                { val: "CP 054", name: "#00 Liloy Municipal Hall" },
-                { val: "CP 055", name: "#00 Manukan Town Hall" },
-                { val: "CP 056", name: "#00 Dipolog City Hall" },
-                { val: "CP 057", name: "#00 New Dapitan City Hallv" },
-                { val: "CP 058", name: "#00 I Love Oroquieta" },
-                { val: "CP 059", name: "#00 Hoyohoy View Deeck" },
-                { val: "CP 060", name: "#00 Petron Tangub" },
-                { val: "CP 061", name: "#00 Panguil Bay Bridge" },
-                { val: "CP 062", name: "#00 Dapit Alim Shrine" },
-                { val: "CP 063", name: "#00 Maria Christina Falls" },
-                { val: "CP 064", name: "#00 Iligan City (711/Petron)" },
-                { val: "CP 065", name: "#00 El Salvador City Hall" },
-                { val: "CP 066", name: "#00 Devine Mercy Statue" },
-                { val: "CP 067", name: "#00 Shell CDO" },
-                { val: "CP 068", name: "#00 Atugan Nature Farm" },
-                { val: "CP 069", name: "#00 Valencia Jollibee" },
-                { val: "CP 070", name: "#00 San Fernando Cabanglasan Junction" },
-                { val: "CP 071", name: "#00 Manggaod" },
-                { val: "CP 072", name: "#00 Iba" },
-                { val: "CP 073", name: "#00 Kulaman" },
-                { val: "CP 074", name: "#00 Busdi" },
-                { val: "CP 075", name: "#00 Bulonay" },
-                { val: "CP 076", name: "#00 Magawa" },
-                { val: "CP 077", name: "#00 Magawa Bridge (Mandatory Photo Op)" },
-                { val: "CP 078", name: "#00 Lamingan" },
-                { val: "CP 079", name: "#00 Mintapud" },
-                { val: "CP 080", name: "#00 Gingoog Butuan Fork (turn left to Gingoog) " },
-                { val: "CP 081", name: "#00 Bal-ason" },
-                { val: "CP 082", name: "#00 Kahulogan" },
-                { val: "CP 083", name: "#00 Claveria View Deck" },
-                { val: "CP 084", name: "#00 Municipal Hall of Claveria" },
-                { val: "CP 085", name: "#00 Balingasag Light House" },
-                { val: "CP 086", name: "#00 Balingoan" },
-                { val: "CP 087", name: "#00 The Bay Gingoog" },
-                { val: "CP 088", name: "#00 Vin4 (Jurassic) Blue Waters" },
-                { val: "CP 089", name: "#00 Bancasi " },
-                { val: "CP 090", name: "#00 right to Amparo" },
-                { val: "CP 091", name: "#00 Tungao Lauan Eco Park" },
-                { val: "CP 092", name: "#00 Ezperanza Bridge" },
-                { val: "CP 093", name: "#00 right to Guadalupe" },
-                { val: "CP 094", name: "#00 Talacogon" },
-                { val: "CP 095", name: "#00 La Paz Signage" },
-                { val: "CP 096", name: "#00 Petron Loreto" },
-                { val: "CP 097", name: "#00 Loreto Municipal Hall" },
-                { val: "CP 098", name: "#00 Trento Rotonda" },
-                { val: "CP 099", name: "#00 Rotonda/711 San Francisco" },
-                { val: "CP 100", name: "#00 Bayugan Park" },
-                { val: "CP 101", name: "#00 Jollibee Cabadbaran" },
-                { val: "CP 102", name: "#00 Jabonga People's Park" },
-                { val: "CP 103", name: "#00 Hanagdong Project" },
-                { val: "CP 104", name: "#00 Looc Landmark" },
-                { val: "CP 105", name: "#00 Punta Bilar Lighthouse" },
-                { val: "CP 106", name: "#00 I Love Surigao" },
-                { val: "CP 107", name: "#00 Nabago Elementary School" },
-                { val: "CP 108", name: "#00 Claver 711" },
-                { val: "CP 109", name: "#00 Noventa View Deck" },
-                { val: "CP 110", name: "#00 Tandag Boulevard" },
-                { val: "CP 111", name: "#00 Lianga Signage" },
-                { val: "CP 112", name: "#00 Harip Beach" },
-                { val: "CP 113", name: "#00 Enchanted River" },
-                { val: "CP 114", name: "#00 Hinatuan Signage" },
-                { val: "CP 115", name: "#00 iLoveBislig" },
-                { val: "CP 116", name: "#00 Cuevas" },
-                { val: "CP 117", name: "#00 Monkayo" },
-                { val: "CP 118", name: "#00 Mt. Diwata" },
-                { val: "CP 119", name: "#00 Poblacion Boston" },
-                { val: "CP 120", name: "#00 Baganga Sunrise" },
-                { val: "CP 121", name: "#00 Pusan Point Caraga" },
-                { val: "CP 122", name: "#00 WOW Manay Landmark" },
-                { val: "CP 123", name: "#00 Dahican Rotunda" },
-                { val: "CP 124", name: "#00 DavOr Provincial Museum" },
-                { val: "CP 125", name: "#00 Mati Baywalk Park" },
-                { val: "CP 126", name: "#00  Mt. Hamiguitan World Heritage Park" },
-                { val: "CP 127", name: "#00 711/SeaOil Governor Generoso" },
-                { val: "CP 128", name: "#00 Centennial Tree General Generoso" },
-                { val: "CP 129", name: "#00 Cape San Agustin (Mandatory Photo Op)" },
-                { val: "CP 130", name: "#00 Manikling Rotonda" },
-                { val: "CP 131", name: "#00 Diocesan Shrine of Our Mother of Pertual Help" },
-                { val: "CP 132", name: "#00 711 Mawab" },
-                { val: "CP 133", name: "#00 Bilawa Mainit Falls (Mandatory Photo Op)" },
-                { val: "CP 134", name: "#00 Tambo View Deck" },
-                { val: "CP 135", name: "#00 Maragusan Landmark" },
-                { val: "CP 136", name: "#00 Saddle Road (Mandatory Photo Op)" },
-                { val: "CP 137", name: "#00 Nabunturan" },
-                { val: "CP 138", name: "#00 Montevista Rotonda" },
-                { val: "CP 139", name: "#00 Monkayo (turn left to LS Sarmiento)" },
-                { val: "CP 140", name: "#00 Casoon National HighSchool" },
-                { val: "CP 141", name: "#00 S Sarmiento Bridge (Mandatory Photo Op)" },
-                { val: "CP 142", name: "#00 Conception Elementary School" },
-                { val: "CP 143", name: "#00 Laak Municipal Hall" },
-                { val: "CP 144", name: "#00 w0w Assuncion" },
-                { val: "CP 145", name: "#00 Fe Misa Ayala Seniors Park" },
-                { val: "CP 146", name: "#00 ELKAPITAN 's Burial Ground " },
-                { val: "CP 147", name: "#00 DavNor Sports Complex" },
-                { val: "CP xx", name: "#xx Stand By Me" }
+                { val: "CP FL", name: "#00 Finish Line" }
             ],
             "AS26": [
                 { val: "CP 00", name: "#00 Glorious Gate" },
@@ -1180,10 +473,112 @@ window.onload = function() {
                 { val: "CP 45", name: "#45 💪 Motor Parts, Brgy. Tagugpo, Pantukan" },
                 { val: "CP 46", name: "#46 💪 Napnapan" },
                 { val: "CP 47", name: "#47 💪 Jolibee Pantukan" },
-                { val: "CP FL", name: "#48 ELKAPITAN's Headstone" },
-                { val: "CP xx", name: "#xx Stand By Me" }
+                { val: "CP FL", name: "#48 ELKAPITAN's Headstone" }
             ]
         };
+
+        const routeTotalKm = { "G1N": 777, "G1E": 777, "G1W": 777, "G1S": 777, "G3": 3333, "G4": 444, "G5": 5555, "AS26": 628 };
+
+        const routeScriptURLs = {
+            "AS26": "https://script.google.com/macros/s/AKfycbxTau-qcMyRPmu753acuF4c6Pgm8jy3llrLSAzrzlS-0z-k_xmQoE_9-sl2yIXeMjJF/exec",
+            "G5": "https://script.google.com/macros/s/AKfycb3wEteB4HL7gy3t3dS-lon5kY4MwKn8XTh-7I-RpK7IT3EISSf-9WUr0XxKsUB1rc8/exec",
+            "G4": "https://script.google.com/macros/s/AKfycby8eFI-lHgB71fiDWBVy_Jm9U2SPlvHw2hfDr_2NQr5YZkzpbAQmO8DspSvT6XAtxbz/exec",
+            "G3": "https://script.google.com/macros/s/AKfycbygg_k9reS3scefqvP_UKXxwCTihIBL0l2T5P1NgAaxMaXv_RBIP7sVfdNf3TXOnAmqyg/exec",
+            "G1N": "https://script.google.com/macros/s/AKfycbzQFK6-oBnlLOKPk8_mvJST_ai__oAupaDSfjOKA3SK75CQ2vjl1_qadDsIDk8nbMIKCw/exec",
+            "G1E": "https://script.google.com/macros/s/AKfycbzt_sabiNcZ5aJ0hu8CZYWLZ691Yz_skvk5QjjVloNxSK7NVSkEcRCBue_9tqZqPAtw5w/exec",
+            "G1W": "https://script.google.com/macros/s/AKfycbxYIxvC_tZ1UOavjHrQdMMAsOyVjaX8Tn8AmczoAHkEUVLqnq_Nys5XJm22VGJ9ZbbdIQ/exec",
+            "G1S": "https://script.google.com/macros/s/AKfycbzauIovOX8mY8D1MgPq2op-AmnFrkrREupLy6cILDPRqtUx1UqaE7P3hCYKNvITgGhX/exec",
+            "DEFAULT": "https://script.google.com/macros/s/AKfycbxTau-qcMyRPmu753acuF4c6Pgm8jy3llrLSAzrzlS-0z-k_xmQoE_9-sl2yIXeMjJF/exec"
+        };
+
+        // Global variables for scanner/camera/location
+        let isSyncing = false; 
+        let compressedPhotoBase64 = ""; 
+        let globalLat = "N/A";
+        let globalLon = "N/A";
+
+        // ==========================================
+        // 🚀 MAIN APPLICATION INITIALIZATION
+        // ==========================================
+        window.onload = function() {
+            let isLoggedIn = localStorage.getItem("tourIsLoggedIn");
+            let savedRiderID = localStorage.getItem("tourRiderID") || localStorage.getItem("defaultRiderID");
+
+            // Expiry/Finisher Badge check
+            let appStatus = localStorage.getItem('mmc_app_status');
+            if (!appStatus) {
+                localStorage.setItem('mmc_app_status', 'T');
+                appStatus = 'T';
+            }
+            const eventExpiryDate = new Date('2026-10-01T00:00:00');
+            const today = new Date();
+
+            if (today > eventExpiryDate || appStatus === 'F') {
+                localStorage.setItem('mmc_app_status', 'F');
+                renderFinisherBadge(savedRiderID || "0000");
+                return;
+            }
+
+            // Normal login state check
+            if (isLoggedIn === "true" && savedRiderID) {
+                document.getElementById("loginScreenContainer").style.display = "none";
+                document.getElementById("mainAppContainer").style.display = "block";
+                
+                let savedName = localStorage.getItem("tourRiderName") || "";
+                let infoEl = document.getElementById("loggedInRiderInfo");
+                if (infoEl) infoEl.innerText = `👤 ${savedName}`;
+
+                initializeScannerApp(savedRiderID);
+            } else {
+                document.getElementById("loginScreenContainer").style.display = "flex";
+                document.getElementById("mainAppContainer").style.display = "none";
+            }
+
+            // Hook up login button securely
+            const loginBtn = document.getElementById("loginBtn");
+            if (loginBtn) {
+                loginBtn.addEventListener("click", verifyAndLogin);
+            }
+        };
+
+        function initializeScannerApp(riderID) {
+            const idElem = document.getElementById('idNum');
+            const nameElem = document.getElementById('name');
+            const levelElem = document.getElementById('level');
+
+            if (idElem) {
+                idElem.value = riderID;
+                idElem.setAttribute('readonly', true);
+            }
+
+            if (typeof riderDatabase !== 'undefined' && Array.isArray(riderDatabase)) {
+                let currentRider = riderDatabase.find(r => r.idNum === riderID);
+                if (currentRider) {
+                    let rLevel = currentRider.level || "G5";
+                    if (nameElem) nameElem.value = currentRider.fullname || "";
+                    let fullRouteName = routeNames[rLevel] ? routeNames[rLevel] : rLevel;
+                    if (levelElem) levelElem.value = fullRouteName;
+                    
+                    window.activeRiderLevel = rLevel; 
+                    populateCheckpointsByLevel(rLevel);
+                } else {
+                    if (nameElem) nameElem.value = "❌ Wala sa Masterlist";
+                    if (levelElem) levelElem.value = "G5";
+                    window.activeRiderLevel = "G5";
+                    populateCheckpointsByLevel("G5");
+                }
+            }
+
+            updateCheckpointCheckmarks(riderID);
+            if (typeof updateRiderProgress === 'function') updateRiderProgress();
+            
+            showLiveLocationOnLoad();
+            initBatteryMonitor();
+
+            if ('serviceWorker' in navigator) {
+                navigator.serviceWorker.register('./sw.js').catch(function(error) {});
+            }
+        }
 
         function populateCheckpointsByLevel(riderLevel) {
             const dropdown = document.getElementById('checkpoint');
@@ -1200,19 +595,24 @@ window.onload = function() {
             });
         }
 
-        // 🌟 SHA-256 HASH ENGINE
-        async function sha256Hash(str) {
-            const encoder = new TextEncoder();
-            const data = encoder.encode(str);
-            const hashBuffer = await crypto.subtle.digest('SHA-256', data);
-            const hashArray = Array.from(new Uint8Array(hashBuffer));
-            return hashArray.map(b => b.toString(16).padStart(2, '0')).join('');
+        // ==========================================
+        // 📍 GPS, BATTERY & PHOTO UTILITIES
+        // ==========================================
+        const liveLocationDiv = document.getElementById('liveLocation');
+
+        function showLiveLocationOnLoad() {
+            if (navigator.geolocation && liveLocationDiv) {
+                navigator.geolocation.watchPosition(
+                    (position) => {
+                        globalLat = position.coords.latitude.toFixed(6);
+                        globalLon = position.coords.longitude.toFixed(6);
+                        liveLocationDiv.innerHTML = `📍 <b>Lat:</b> ${globalLat} &nbsp;|&nbsp; <b>Lon:</b> ${globalLon}`;
+                    },
+                    (error) => { liveLocationDiv.innerHTML = "⚠️ Palihug i-allow ang Location / GPS."; },
+                    { enableHighAccuracy: true, maximumAge: 0 }
+                );
+            }
         }
-        
-        let isSyncing = false; 
-        let compressedPhotoBase64 = ""; 
-        let globalLat = "N/A";
-        let globalLon = "N/A";
 
         function initBatteryMonitor() {
             const batStatus = document.getElementById('batteryStatus');
@@ -1232,8 +632,8 @@ window.onload = function() {
                 }).catch(() => {});
             }
         }
-        initBatteryMonitor(); 
 
+        // Camera processing & Watermarking
         const cameraInput = document.getElementById('cameraInput');
         if (cameraInput) {
             cameraInput.addEventListener('change', function(event) {
@@ -1289,17 +689,14 @@ window.onload = function() {
                                 const dmsLat = convertToDMS(globalLat, true);
                                 const dmsLon = convertToDMS(globalLon, false);
 
-                                const textA = `ID: ${riderID} (${riderName})`;
-                                ctx.strokeText(textA, canvas.width - 10, canvas.height - 55);
-                                ctx.fillText(textA, canvas.width - 10, canvas.height - 55);
+                                ctx.strokeText(`ID: ${riderID} (${riderName})`, canvas.width - 10, canvas.height - 55);
+                                ctx.fillText(`ID: ${riderID} (${riderName})`, canvas.width - 10, canvas.height - 55);
 
-                                const textB = `Date/Time: ${militaryDateTime}`;
-                                ctx.strokeText(textB, canvas.width - 10, canvas.height - 35);
-                                ctx.fillText(textB, canvas.width - 10, canvas.height - 35);
+                                ctx.strokeText(`Date/Time: ${militaryDateTime}`, canvas.width - 10, canvas.height - 35);
+                                ctx.fillText(`Date/Time: ${militaryDateTime}`, canvas.width - 10, canvas.height - 35);
 
-                                const textC = `${dmsLat}, ${dmsLon}`;
-                                ctx.strokeText(textC, canvas.width - 10, canvas.height - 15);
-                                ctx.fillText(textC, canvas.width - 10, canvas.height - 15);
+                                ctx.strokeText(`${dmsLat}, ${dmsLon}`, canvas.width - 10, canvas.height - 15);
+                                ctx.fillText(`${dmsLat}, ${dmsLon}`, canvas.width - 10, canvas.height - 15);
 
                                 compressedPhotoBase64 = canvas.toDataURL("image/jpeg", 0.5);
                                 const photoPreview = document.getElementById('photoPreview');
@@ -1315,58 +712,10 @@ window.onload = function() {
                 }
             });
         }
-                            
-        // const scriptURL = 'https://script.google.com/macros/s/AKfycbxTau-qcMyRPmu753acuF4c6Pgm8jy3llrLSAzrzlS-0z-k_xmQoE_9-sl2yIXeMjJF/exec';
-        // 🌐 MGA LAHI-LAHI NGA SCRIPT URL PARA SA MATAG ROTA 🌐
-        const routeScriptURLs = {
-            "AS26": "https://script.google.com/macros/s/AKfycbxTau-qcMyRPmu753acuF4c6Pgm8jy3llrLSAzrzlS-0z-k_xmQoE_9-sl2yIXeMjJF/exec",
-            "G5": "https://script.google.com/macros/s/AKfycbx3wEteB4HL7gy3t3dS-lon5kY4MwKn8XTh-7I-RpK7IT3EISSf-9WUr0XxKsUB1rc8/exec",
-            "G4": "https://script.google.com/macros/s/AKfycby8eFI-lHgB71fiDWBVy_Jm9U2SPlvHw2hfDr_2NQr5YZkzpbAQmO8DspSvT6XAtxbz/exec",
-            "G3": "https://script.google.com/macros/s/AKfycbygg_k9reS3scefqvP_UKXxwCTihIBL0l2T5P1NgAaxMaXv_RBIP7sVfdNf3TXOnAmqyg/exec",
-            "G1N": "https://script.google.com/macros/s/AKfycbzQFK6-oBnlLOKPk8_mvJST_ai__oAupaDSfjOKA3SK75CQ2vjl1_qadDsIDk8nbMIKCw/exec",
-            "G1E": "https://script.google.com/macros/s/AKfycbzt_sabiNcZ5aJ0hu8CZYWLZ691Yz_skvk5QjjVloNxSK7NVSkEcRCBue_9tqZqPAtw5w/exec",
-            "G1W": "https://script.google.com/macros/s/AKfycbxYIxvC_tZ1UOavjHrQdMMAsOyVjaX8Tn8AmczoAHkEUVLqnq_Nys5XJm22VGJ9ZbbdIQ/exec",
-            "G1S": "https://script.google.com/macros/s/AKfycbzauIovOX8mY8D1MgPq2op-AmnFrkrREupLy6cILDPRqtUx1UqaE7P3hCYKNvITgGhX/exec",
-            "DEFAULT": "https://script.google.com/macros/s/AKfycbxTau-qcMyRPmu753acuF4c6Pgm8jy3llrLSAzrzlS-0z-k_xmQoE_9-sl2yIXeMjJF/exec"
-        };
-        
-        const liveLocationDiv = document.getElementById('liveLocation');
-        const myForm = document.getElementById('myForm');
 
-        function showLiveLocationOnLoad() {
-            if (navigator.geolocation && liveLocationDiv) {
-                navigator.geolocation.watchPosition(
-                    (position) => {
-                        globalLat = position.coords.latitude.toFixed(6);
-                        globalLon = position.coords.longitude.toFixed(6);
-                        liveLocationDiv.innerHTML = `📍 <b>Lat:</b> ${globalLat} &nbsp;|&nbsp; <b>Lon:</b> ${globalLon}`;
-                    },
-                    (error) => { liveLocationDiv.innerHTML = "⚠️ Palihug i-allow ang Location / GPS."; },
-                    { enableHighAccuracy: true, maximumAge: 0 }
-                );
-            } else if (liveLocationDiv) { liveLocationDiv.innerHTML = "❌ GPS wala gisuportahan sa imong device."; }
-        }
-        showLiveLocationOnLoad();
-
-        function getLocation() {
-            return new Promise((resolve) => {
-                if (!navigator.geolocation) { resolve({ link: "No GPS", lat: "N/A", lon: "N/A", time: "N/A" }); } 
-                else {
-                    navigator.geolocation.getCurrentPosition(
-                        (position) => {
-                            resolve({
-                                link: `https://www.google.com/maps?q=${position.coords.latitude},${position.coords.longitude}`,
-                                lat: position.coords.latitude, lon: position.coords.longitude,
-                                time: new Date(position.timestamp).toLocaleString()
-                            });
-                        },
-                        (error) => { resolve({ link: "Error/Gibalibaran", lat: "N/A", lon: "N/A", time: "N/A" }); },
-                        { timeout: 10000, enableHighAccuracy: true, maximumAge: 0 }
-                    );
-                }
-            });
-        }
-
+        // ==========================================
+        // 🌐 SUBMISSION & OFFLINE SYNC
+        // ==========================================
         async function checkInternetStability() {
             if (!navigator.onLine) return false;
             try {
@@ -1375,28 +724,8 @@ window.onload = function() {
             } catch (error) { return false; }
         }
 
-        async function checkRealInternet() {
-            const sigStatus = document.getElementById('signalStatus');
-            if (!navigator.onLine) {
-                if (sigStatus) { sigStatus.innerHTML = "🔴 OFFLINE"; sigStatus.style.color = "#ff3333"; }
-                return;
-            }
-            let isOnline = await checkInternetStability();
-            if (isOnline) {
-                if (sigStatus) { sigStatus.innerHTML = "🟢 ONLINE"; sigStatus.style.color = "#00ff00"; }
-                let offlineData = JSON.parse(localStorage.getItem('offlineData')) || [];
-                if (offlineData.length > 0) syncOfflineData(); 
-            } else {
-                if (sigStatus) { sigStatus.innerHTML = "🔴 OFFLINE"; sigStatus.style.color = "#ff3333"; }
-            }
-        }
-        window.addEventListener('online', checkRealInternet);
-        window.addEventListener('offline', checkRealInternet);
-        setInterval(checkRealInternet, 5000);
-
         async function sendDataToServer(dataPayload) {
             try {
-                // Pilion ang saktong URL base sa level sa rider. Kung walay labot, gamiton ang DEFAULT.
                 let riderLevel = dataPayload.level ? dataPayload.level.trim() : "DEFAULT";
                 let activeScriptURL = routeScriptURLs[riderLevel] || routeScriptURLs["DEFAULT"];
 
@@ -1412,135 +741,58 @@ window.onload = function() {
             }
         }
 
-        async function syncOfflineData() {
-            if (isSyncing) return; 
-            let offlineData = JSON.parse(localStorage.getItem('offlineData')) || [];
-            if (offlineData.length === 0) return; 
-
-            isSyncing = true; 
-            const submitBtn = myForm ? myForm.querySelector('button[type="submit"]') : null;
-            if(submitBtn) { submitBtn.textContent = "🔄 Nag-Sync sa Data..."; submitBtn.disabled = true; }
-
-            let failedData = []; 
-            for (let i = 0; i < offlineData.length; i++) {
-                let singleRecord = offlineData[i];
-                try {
-                    let success = await sendDataToServer(singleRecord); 
-                    if (!success) failedData.push(singleRecord);
-                } catch (error) { failedData.push(singleRecord); }
-            }
-            if (failedData.length > 0) { localStorage.setItem('offlineData', JSON.stringify(failedData)); } 
-            else {
-                localStorage.removeItem('offlineData');
-                alert("✅ Naka-Sync na ang tanang Offline Data padulong sa Database!");
-            }
-            if(submitBtn) { submitBtn.textContent = "I-Submit ang Data"; submitBtn.disabled = false; }
-            isSyncing = false; 
-            updateDashboardCounters();
-        }
-
-        function saveToOfflineStorage(recordData) {
-            let savedData = JSON.parse(localStorage.getItem('offlineData')) || [];
-            savedData.push(recordData);
-            localStorage.setItem('offlineData', JSON.stringify(savedData));
-            updateDashboardCounters();
-        }
-
-        function updateDashboardCounters() {
-            let offlineData = JSON.parse(localStorage.getItem('offlineData')) || [];
-            const pCount = document.getElementById('pendingCount');
-            if (pCount) {
-                pCount.innerText = offlineData.length;
-                pCount.style.color = offlineData.length > 0 ? "#ff9900" : "white"; 
-            }
-        }
-        setInterval(updateDashboardCounters, 2000);
-
-        let isSubmitting = false; 
+        const myForm = document.getElementById('myForm');
         if (myForm) {
             myForm.addEventListener('submit', async function(e) {
                 e.preventDefault();
                 const submitBtn = myForm.querySelector('button[type="submit"]');
-                if (isSubmitting || (submitBtn && submitBtn.disabled)) return;
-                isSubmitting = true;
+                if (submitBtn && submitBtn.disabled) return;
 
-                if (submitBtn) { submitBtn.textContent = "📍 Gipadala ang Data..."; submitBtn.disabled = true; submitBtn.style.opacity = "0.5"; }
+                const checkId = document.getElementById('idNum').value;
+                const checkName = document.getElementById('name').value;
+                const currentCheckpoint = document.getElementById('checkpoint').value;
 
-                const bgMusic = document.getElementById('submitMusic');
-                if (bgMusic) {
-                    bgMusic.currentTime = 0;
-                    let playPromise = bgMusic.play();
-                    if (playPromise !== undefined) {
-                        playPromise.catch(error => {
-                            console.warn("Wala gi-allow sa Android WebView ang audio:", error);
-                        });
-                    }
+                if (!checkId || !checkName || checkName.includes("❌")) {
+                    alert("🛑 DILI MA-SAVE! Blangko o dili rehistrado ang Rider ID.");
+                    return;
                 }
 
-                const checkId = document.getElementById('idNum') ? document.getElementById('idNum').value : "";
-                const checkName = document.getElementById('name') ? document.getElementById('name').value : "";
-                const currentCheckpoint = document.getElementById('checkpoint') ? document.getElementById('checkpoint').value : "";
-
-                if (checkId === "" || checkName === "" || checkName.includes("❌")) {
-                    if (bgMusic) { bgMusic.pause(); bgMusic.currentTime = 0; }
-                    alert("🛑 DILI MA-SAVE! Blangko ang Rider ID.");
-                    if(submitBtn) { submitBtn.textContent = "I-Submit ang Data"; submitBtn.disabled = false; submitBtn.style.opacity = "1"; }
-                    isSubmitting = false; return;
-                }
-
-                const gpsData = await getLocation();
-                if (gpsData.lat === "N/A" || gpsData.link === "No GPS" || gpsData.link === "Error/Gibalibaran") {
-                    if (bgMusic) { bgMusic.pause(); bgMusic.currentTime = 0; }
+                if (globalLat === "N/A") {
                     alert("🛑 DILI MA-SAVE! Palihug i-on ang Location / GPS.");
-                    if(submitBtn) { submitBtn.textContent = "I-Submit ang Data"; submitBtn.disabled = false; submitBtn.style.opacity = "1"; }
-                    isSubmitting = false; return; 
+                    return;
                 }
 
                 if (compressedPhotoBase64 === "") {
-                    if (bgMusic) { bgMusic.pause(); bgMusic.currentTime = 0; }
                     alert("📸 DILI MA-SAVE! Palihug pagkuha og Ebidensya/Picture.");
-                    if(submitBtn) { submitBtn.textContent = "I-Submit ang Data"; submitBtn.disabled = false; submitBtn.style.opacity = "1"; }
-                    isSubmitting = false; return; 
+                    return;
                 }
 
                 const data = {
                     idNum: checkId, name: checkName, checkpoint: currentCheckpoint, 
-                    odometer: document.getElementById('odometer') ? document.getElementById('odometer').value : "", 
-                    notes: document.getElementById('notes') ? document.getElementById('notes').value : "",
+                    odometer: document.getElementById('odometer').value, 
+                    notes: document.getElementById('notes').value,
                     photo: compressedPhotoBase64, 
                     timestamp: new Date().toLocaleString('en-PH', { timeZone: 'Asia/Manila' }), 
-                    location: gpsData.link, latitude: gpsData.lat, longitude: gpsData.lon,
-                    locationTime: gpsData.time, level: window.activeRiderLevel || "G5" 
+                    location: `https://www.google.com/maps?q=${globalLat},${globalLon}`, 
+                    latitude: globalLat, longitude: globalLon,
+                    level: window.activeRiderLevel || "G5" 
                 };
 
-                if (submitBtn) submitBtn.textContent = "🌐 Gisusi ang Internet...";
+                if (submitBtn) { submitBtn.textContent = "📍 Gipadala sa Server..."; submitBtn.disabled = true; }
+
                 let isStable = await checkInternetStability();
                 let isDataSaved = false;
 
-                // GI-TANGTANG NATO ANG bgMusic.pause() DIRE ARON PADAYON MO-TUGTOG ANG KANTA
-                if (isStable) {
-                    if (submitBtn) submitBtn.textContent = "📍 Gipadala sa Server...";
-                    if (await sendDataToServer(data)) {
-                        alert("✅ Success! Check imong Google Sheet, nisulod na!");
-                        isDataSaved = true; 
-                    } else {
-                        alert("⚠️ Na-putol ang signal! Gi-save sa Offline Data.");
-                        saveToOfflineStorage(data);
-                        isDataSaved = true; 
-                    }
+                if (isStable && await sendDataToServer(data)) {
+                    alert("✅ Success! Check imong Google Sheet, nisulod na!");
+                    isDataSaved = true;
                 } else {
-                    saveToOfflineStorage(data);
-                    alert("⚠️ Hinay ang internet! Gi-save sa Offline Data.");
+                    let savedData = JSON.parse(localStorage.getItem('offlineData')) || [];
+                    savedData.push(data);
+                    localStorage.setItem('offlineData', JSON.stringify(savedData));
+                    alert("⚠️ Na-putol ang signal / Offline! Gi-save sa lokal nga memory.");
                     isDataSaved = true;
                 }
-
-                // 🛑 I-PAUSE ANG MUSIC HUMAN MA-CLICK ANG "OK" SA ALERT BOX
-                //if (bgMusic) { 
-                //    bgMusic.pause(); 
-                //    bgMusic.currentTime = 0; 
-                //}
-                submitAudio.pause(); 
-                submitAudio.currentTime = 0;
 
                 if (isDataSaved) {
                     let riderHistoryKey = 'history_' + checkId;
@@ -1550,47 +802,25 @@ window.onload = function() {
                         localStorage.setItem(riderHistoryKey, JSON.stringify(completedCheckpoints));
                     }
                     
-                    if (currentCheckpoint === "CP 00") {
-                        localStorage.setItem('startOdo_' + checkId, data.odometer);
-                    }
-                    localStorage.setItem('lastOdo_' + checkId, data.odometer); 
-
                     document.getElementById('odometer').value = "";
                     document.getElementById('notes').value = "";
                     document.getElementById('checkpoint').selectedIndex = 0;
                     compressedPhotoBase64 = ""; 
-                    if(document.getElementById('photoPreview')) document.getElementById('photoPreview').style.display = "none"; 
+                    document.getElementById('photoPreview').style.display = "none"; 
                     
                     updateCheckpointCheckmarks(checkId);
-                    updateRiderProgress(); 
                 }
-                if(submitBtn) { submitBtn.textContent = "I-Submit ang Data"; submitBtn.disabled = false; submitBtn.style.opacity = "1"; }
-                isSubmitting = false; 
+
+                if (submitBtn) { submitBtn.textContent = "I-Submit ang Data"; submitBtn.disabled = false; }
             });
         }
 
         function updateCheckpointCheckmarks(riderId) {
             const checklistDiv = document.getElementById('checklistItems');
-            if (!checklistDiv) return;
-            if (!riderId) {
-                const idBox = document.getElementById('idNum');
-                riderId = idBox && idBox.value ? idBox.value.trim() : "";
-            }
-            if (!riderId) {
-                checklistDiv.innerHTML = "<span style='color: #888;'>Paghulat og Rider ID...</span>";
-                return;
-            }
+            if (!checklistDiv || !riderId) return;
 
             let riderHistoryKey = 'history_' + riderId;
             let completedCheckpoints = JSON.parse(localStorage.getItem(riderHistoryKey)) || [];
-            let offlineData = JSON.parse(localStorage.getItem('offlineData')) || [];
-            offlineData.forEach(item => {
-                if (item.idNum === riderId && item.checkpoint && !completedCheckpoints.includes(item.checkpoint)) {
-                    completedCheckpoints.push(item.checkpoint);
-                }
-            });
-
-            // 🌟 GAMITON ANG window.activeRiderLevel ARON MAKUHA ANG SAKTONG CODE (AS26, G5, etc.)
             let currentLevel = window.activeRiderLevel || "G5";
             let cpList = routeConfigs[currentLevel] || routeConfigs["G5"];
 
@@ -1605,423 +835,40 @@ window.onload = function() {
                     countCompleted++;
                 } else {
                     htmlOutput += `<span style="color: #555; margin-right: 8px; display: inline-block;">✗ ${cpVal}</span>`;
-                    if (firstUnfinishedCP === "") {
-                        firstUnfinishedCP = cpVal;
-                    }
+                    if (firstUnfinishedCP === "") firstUnfinishedCP = cpVal;
                 }
             });
             checklistDiv.innerHTML = countCompleted === 0 ? "<span style='color: #888;'>Wala pa nay nahuman nga Checkpoint.</span>" : htmlOutput;
 
             const dropdown = document.getElementById('checkpoint');
             if (dropdown && firstUnfinishedCP !== "") {
-                setTimeout(() => {
-                    dropdown.value = firstUnfinishedCP;
-                }, 100); 
+                setTimeout(() => { dropdown.value = firstUnfinishedCP; }, 100); 
             }
         }
 
-        // TANDAAN: Kon gi-ilisan na nimo ang pangalan sa routes (G1N, G1E, etc.), i-update sab ni para mo-work ang KM computation!
-        const routeTotalKm = { "G1N": 777, "G1E": 777, "G1W": 777, "G1S": 777, "G3": 3333, "G4": 444, "G5": 5555, "AS26": 628 };
-
-        function updateRiderProgress() {
-            let lvlElem = document.getElementById("level");
-            let levelField = lvlElem && lvlElem.value ? lvlElem.value.trim() : "";
+        function renderFinisherBadge(currentId) {
+            let riderName = localStorage.getItem('offlineName_' + currentId) || "MasterMinds Rider";
+            let riderLevel = localStorage.getItem('offlineLevel_' + currentId) || "G5";
+            let completedCheckpoints = JSON.parse(localStorage.getItem('history_' + currentId)) || [];
+            let isFinisher = completedCheckpoints.includes("CP FL");
             
-            let odoElem = document.getElementById("odometer");
-            let typedOdo = (odoElem && odoElem.value !== "") ? parseFloat(odoElem.value) : NaN;
-            
-            let idElem = document.getElementById("idNum");
-            let currentId = idElem && idElem.value ? idElem.value.trim() : ""; 
-            
-            let card = document.getElementById("progressCard");
-            if (!card) return;
-
-            let cpElem = document.getElementById("checkpoint");
-            let currentCP = cpElem ? cpElem.value : "";
-
-            let savedStartOdo = parseFloat(localStorage.getItem('startOdo_' + currentId));
-            
-            let activeStartOdo = savedStartOdo;
-            if (currentCP === "CP 00" && !isNaN(typedOdo)) {
-                activeStartOdo = typedOdo;
-            }
-            if (isNaN(activeStartOdo)) activeStartOdo = 0;
-
-            let savedLastOdo = parseFloat(localStorage.getItem('lastOdo_' + currentId)) || activeStartOdo;
-            let activeOdo = isNaN(typedOdo) ? savedLastOdo : typedOdo;
-
-            if (routeTotalKm[levelField]) {
-                let totalRoute = routeTotalKm[levelField];
-                let nadagan = 0;
-
-                if (currentCP === "CP 00") {
-                    nadagan = 0; 
-                } else if (activeStartOdo > 0 && activeOdo >= activeStartOdo) {
-                    nadagan = activeOdo - activeStartOdo;
-                } else if (activeStartOdo === 0 && activeOdo > 0) {
-                    nadagan = 0; 
-                }
-                
-                let nabilin = totalRoute - nadagan;
-                if (nabilin < 0) nabilin = 0; 
-
-                let dispLevel = document.getElementById("displayLevel");
-                let txtNadagan = document.getElementById("txtNadagan");
-                let txtNabilin = document.getElementById("txtNabilin");
-
-                if (dispLevel) dispLevel.innerText = levelField;
-                if (txtNadagan) txtNadagan.innerText = nadagan.toLocaleString() + " KM";
-                if (txtNabilin) txtNabilin.innerText = nabilin.toLocaleString() + " KM";
-                
-                if (activeOdo > 0 || activeStartOdo > 0) {
-                    card.style.display = "block"; 
-                } else {
-                    card.style.display = "none";
-                }
-            } else {
-                card.style.display = "none"; 
-            }
-        }
-
-        let checkpointDropdown = document.getElementById("checkpoint");
-        if (checkpointDropdown) {
-            checkpointDropdown.addEventListener("change", updateRiderProgress);
-        }
-
-        let odometerInput = document.getElementById("odometer");
-        if (odometerInput) {
-            odometerInput.addEventListener("input", updateRiderProgress);
-            odometerInput.addEventListener("keyup", updateRiderProgress);
-            
-            odometerInput.addEventListener("blur", function() {
-                let idElem = document.getElementById("idNum");
-                let currentId = idElem && idElem.value ? idElem.value.trim() : ""; 
-                let savedLastOdo = parseFloat(localStorage.getItem('lastOdo_' + currentId)) || 0;
-                let typedOdo = parseFloat(this.value);
-                
-                if (typedOdo > 0 && savedLastOdo > 0 && typedOdo < savedLastOdo) {
-                    alert(`⚠️ WARNING: Ang gi-type nga Odometer (${typedOdo}) kay mas GAMAY kaysa sa miaging Odo (${savedLastOdo}). Basin nasayop ka'g type, Rider!`);
-                    this.style.border = "2px solid #ff3333"; 
-                } else {
-                    this.style.border = "1px solid #444"; 
+            document.addEventListener("DOMContentLoaded", function() {
+                const container = document.querySelector('.container');
+                if (container) {
+                    container.style.display = "block";
+                    container.innerHTML = `
+                        <img src="mmc.png" alt="MasterMinds CUP Logo" class="app-logo">
+                        <h4 style="color: #ffcc00; text-align: center; font-style: italic;">" never say never "</h4>
+                        <h2 style="color: #fff; text-align: center;">${isFinisher ? "🏆 Official Finisher Badge" : "🛡️ Official Participant Badge"}</h2>
+                        <div style="background: #1a1a1a; border: 2px solid ${isFinisher ? "#ffcc00" : "#ff9900"}; border-radius: 12px; padding: 20px; margin: 20px 0; text-align: center; color:#fff;">
+                            <h3>${riderName}</h3>
+                            <p>Rider ID: #${currentId} | Level: ${riderLevel}</p>
+                            <p>Na-survive: ${completedCheckpoints.length} Checkpoints</p>
+                        </div>
+                    `;
                 }
             });
         }
-        
-        let levelInput = document.getElementById("level");
-        if (levelInput) {
-            levelInput.addEventListener("change", updateRiderProgress);
-            levelInput.addEventListener("input", updateRiderProgress);
-        }
-
-        let isMarshalMode = localStorage.getItem('marshalMode') === 'true';
-        const scanQrBtn = document.getElementById('scanQrBtn');
-        if (!isMarshalMode && scanQrBtn) scanQrBtn.style.display = "none";
-
-        let tapCount = 0;
-        let tapTimeout;
-        const secretButton = document.getElementById('signalStatus'); 
-        if (secretButton) {
-            secretButton.addEventListener('click', async function() {
-                tapCount++;
-                clearTimeout(tapTimeout);
-                tapTimeout = setTimeout(() => { tapCount = 0; }, 1500);
-                if (tapCount === 3) {
-                    tapCount = 0; 
-                    if (!isMarshalMode) {
-                        // 🌟 GAHUM SA CUSTOM HTML MODAL (Nindot, Itom, ug Password-masked)
-                        let passcode = await customPinPrompt("🕵️‍♂️ MARSHAL MODE", "Pagsulod og Admin Passcode (PIN):");
-                        if (!passcode) return;
-
-                        if (typeof riderDatabase !== 'undefined') {
-                            let hashedInput = await sha256Hash(passcode); 
-                            let validMarshal = riderDatabase.find(r => r.passcode === hashedInput && r.isMarshal === true);      
-                            if (validMarshal) {
-                                isMarshalMode = true;
-                                localStorage.setItem('marshalMode', 'true'); 
-                                if (scanQrBtn) scanQrBtn.style.display = "block"; 
-                                alert(`🔓 MARSHAL MODE ON! Welcome, Master ${validMarshal.fullname}!`);
-                            } else { 
-                                alert("❌ Sayop nga Passcode!"); 
-                            }
-                        } else { 
-                            alert("⚠️ Error: Wala nabasa ang database."); 
-                        }
-                    } else {
-                        if (confirm("🔒 Gusto nimo i-lock ug ibalik sa Rider Mode?")) {
-                            isMarshalMode = false;
-                            localStorage.setItem('marshalMode', 'false');
-                            if (scanQrBtn) scanQrBtn.style.display = "none"; 
-                            alert("🔒 Naka-RIDER MODE na ang app.");
-                        }
-                    }
-                }
-            });
-        }
-
-        // 🛠️ HELPER FUNCTION PARA SA NINDOT NGA NUMERIC PIN PROMPT
-        function customPinPrompt(title, message) {
-            return new Promise((resolve) => {
-                // Buhaton ang modal background
-                const overlay = document.createElement('div');
-                overlay.style.cssText = "position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.85); display: flex; justify-content: center; align-items: center; z-index: 9999;";
-
-                // Buhaton ang kahon
-                const box = document.createElement('div');
-                box.style.cssText = "background: #1e1e1e; padding: 25px; border-radius: 8px; width: 85%; max-width: 320px; border-top: 5px solid #cc0000; text-align: center; box-shadow: 0px 8px 15px rgba(0,0,0,0.8); color: #fff;";
-
-                box.innerHTML = `
-                    <h3 style="margin-top: 0; color: #fff; text-transform: uppercase; font-style: italic;">${title}</h3>
-                    <p style="color: #aaa; font-size: 13px; margin-bottom: 15px;">${message}</p>
-                    <input type="password" inputmode="numeric" id="pinInputBox" placeholder="••••" style="width: 100%; padding: 12px; margin-bottom: 20px; border: 1px solid #444; border-radius: 4px; background-color: #2a2a2a; color: #fff; font-size: 22px; text-align: center; letter-spacing: 8px; box-sizing: border-box;">
-                    <div style="display: flex; gap: 10px;">
-                        <button type="button" id="pinCancelBtn" style="background: #444; color: #fff; padding: 10px; border: none; border-radius: 4px; font-weight: bold; cursor: pointer; flex: 1;">KANSELAHON</button>
-                        <button type="button" id="pinSubmitBtn" style="background: #cc0000; color: #fff; padding: 10px; border: none; border-radius: 4px; font-weight: bold; cursor: pointer; flex: 1;">SULOD</button>
-                    </div>
-                `;
-
-                overlay.appendChild(box);
-                document.body.appendChild(overlay);
-
-                const input = document.getElementById('pinInputBox');
-                input.focus();
-
-                // Pindot sa Sulod button
-                document.getElementById('pinSubmitBtn').onclick = () => {
-                    const val = input.value;
-                    document.body.removeChild(overlay);
-                    resolve(val);
-                };
-
-                // Pindot sa Kanselahon button
-                document.getElementById('pinCancelBtn').onclick = () => {
-                    document.body.removeChild(overlay);
-                    resolve(null);
-                };
-
-                // Pindot Enter sa keyboard
-                input.onkeypress = (e) => {
-                    if (e.key === 'Enter') {
-                        const val = input.value;
-                        document.body.removeChild(overlay);
-                        resolve(val);
-                    }
-                };
-            });
-        }
-
-        function searchDatabase(idToSearch) {
-            const nameBox = document.getElementById('name');
-            const lvlBox = document.getElementById('level');
-            
-            try {
-                if (idToSearch && typeof riderDatabase !== 'undefined' && Array.isArray(riderDatabase)) {
-                    const foundRider = riderDatabase.find(r => r.idNum === idToSearch);
-                    if (foundRider) {
-                        let rLevel = foundRider.level || "G5";
-                        if(nameBox) nameBox.value = foundRider.fullname || "";
-                        
-                        // 🌟 KUHAON ANG TIBUOK PANGALAN GIKAN SA routeNames DICTIONARY
-                        let fullRouteName = routeNames[rLevel] ? routeNames[rLevel] : rLevel;
-                        
-                        // I-display ang full name sa text box
-                        if(lvlBox) lvlBox.value = fullRouteName;
-                        
-                        // TIPIGI ANG ORIHINAL NGA CODE SA GLOBAL VARIABLE PARA SA DATABASE ROUTING
-                        window.activeRiderLevel = rLevel; 
-                        
-                        populateCheckpointsByLevel(rLevel);
-
-                        localStorage.setItem('offlineName_' + idToSearch, foundRider.fullname || "");
-                        localStorage.setItem('offlineLevel_' + idToSearch, rLevel);
-                    } else {
-                        if(nameBox) nameBox.value = "❌ Wala sa Masterlist";
-                        if(lvlBox) lvlBox.value = ""; 
-                        window.activeRiderLevel = "G5"; // Default fallback
-                        populateCheckpointsByLevel("G5");
-                    }
-                } else if (idToSearch) {
-                    let memName = localStorage.getItem('offlineName_' + idToSearch);
-                    let memLevel = localStorage.getItem('offlineLevel_' + idToSearch) || "G5";
-                    
-                    if (memName) {
-                        if(nameBox) nameBox.value = memName;
-                        if(lvlBox) lvlBox.value = memLevel;
-                        
-                        populateCheckpointsByLevel(memLevel);
-                    } else {
-                        if(nameBox) nameBox.value = "Rider #" + idToSearch;
-                        if(lvlBox) lvlBox.value = "G5";
-                        populateCheckpointsByLevel("G5");
-                    }
-                }
-            } catch (err) {
-                console.log("Database search error caught safely:", err);
-            }
-            
-            if (typeof updateRiderProgress === 'function') {
-                updateRiderProgress();
-            }
-        }
-
-        const idNumBox = document.getElementById('idNum');
-        if (idNumBox) {
-            idNumBox.addEventListener('dblclick', function() {
-                if (!isMarshalMode) { 
-                    alert("⚠️ RIDER MODE: Dili ka pwede mag-usab sa ID. Pangitaa ang Marshal!"); 
-                    return; 
-                }
-                this.removeAttribute('readonly'); 
-                this.value = ""; 
-                document.getElementById('name').value = ""; 
-                document.getElementById('level').value = ""; 
-                updateRiderProgress();
-                this.focus(); 
-                this.style.border = "3px solid #ffcc00"; 
-            });
-
-            idNumBox.addEventListener('input', function() {
-                this.value = this.value.replace(/[^0-9]/g, ''); 
-                updateCheckpointCheckmarks(this.value.trim());
-                if (this.value.length === 4) {
-                    this.setAttribute('readonly', true); 
-                    this.style.border = "1px solid #444"; 
-                    this.blur(); 
-                    searchDatabase(this.value); 
-                    localStorage.setItem('defaultRiderID', this.value); 
-                }
-            });
-        }
-
-        const scannerDiv = document.getElementById('reader');
-        let globalQrScanner = null; 
-
-        if (scanQrBtn && scannerDiv) {
-            scanQrBtn.addEventListener('click', async function() {
-                if (scannerDiv.style.display === "block") {
-                    if (globalQrScanner) {
-                        try { await globalQrScanner.stop(); globalQrScanner.clear(); } catch(e) {}
-                        globalQrScanner = null;
-                    }
-                    scannerDiv.style.display = "none";
-                    scanQrBtn.textContent = "📷 I-SCAN ANG RIDER ID";
-                    scanQrBtn.style.backgroundColor = "#ff9900"; scanQrBtn.style.color = "black";
-                } else {
-                    scannerDiv.style.display = "block";
-                    scanQrBtn.textContent = "🛑 I-CANCEL ANG PAG-SCAN";
-                    scanQrBtn.style.backgroundColor = "#cc0000"; scanQrBtn.style.color = "white";
-
-                    try {
-                        globalQrScanner = new Html5Qrcode("reader");
-                        await globalQrScanner.start(
-                            { facingMode: "environment" }, { fps: 10, qrbox: { width: 250, height: 250 } },
-                            async (decodedText) => {
-                                if (globalQrScanner) {
-                                    try { await globalQrScanner.stop(); globalQrScanner.clear(); } catch(e) {}
-                                    globalQrScanner = null;
-                                }
-                                scannerDiv.style.display = "none";
-                                scanQrBtn.textContent = "📷 I-SCAN ANG RIDER ID";
-                                scanQrBtn.style.backgroundColor = "#ff9900"; scanQrBtn.style.color = "black";
-                                
-                                if (idNumBox) idNumBox.value = decodedText;
-                                localStorage.setItem('defaultRiderID', decodedText);
-                                searchDatabase(decodedText);
-                                updateCheckpointCheckmarks(decodedText);
-                            },
-                            (errorMessage) => { }
-                        );
-                    } catch (err) {
-                        alert("⚠️ Wala ma-access ang Camera. I-allow sa settings.");
-                        scannerDiv.style.display = "none";
-                        scanQrBtn.textContent = "📷 I-SCAN ANG RIDER ID";
-                        scanQrBtn.style.backgroundColor = "#ff9900"; scanQrBtn.style.color = "black";
-                    }
-                }
-            });
-        }
-
-        // ==========================================================
-        // 👑 SECRET LONG-PRESS SA LOGO PARA SA ADMIN MENU (Gamit ang Admin ID Filter)
-        // ==========================================================
-        let pressTimer;
-        const adminLogo = document.getElementById('masterMindsLogo');
-
-        if (adminLogo) {
-            adminLogo.addEventListener('contextmenu', function(e) {
-                e.preventDefault();
-            });
-
-            const startPress = (e) => {
-                pressTimer = setTimeout(async () => {
-                    // Gamiton ang imong customPinPrompt
-                    let passcode = await customPinPrompt("👑 ADMIN PANEL", "Pagsulod og Admin Passcode:");
-                    if (!passcode) return;
-
-                    if (typeof riderDatabase === 'undefined') {
-                        alert("⚠️ Error: Wala nabasa ang database.");
-                        return;
-                    }
-
-                    // I-hash ang gisulod nga PIN
-                    const encoder = new TextEncoder();
-                    const data = encoder.encode(passcode);
-                    const hashBuffer = await crypto.subtle.digest('SHA-256', data);
-                    const hashArray = Array.from(new Uint8Array(hashBuffer));
-                    const hashedInput = hashArray.map(b => b.toString(16).padStart(2, '0')).join('');
-
-                    // 🔒 GIAKOP NIYA ANG ID FILTER PARA SA ADMIN RA GYUD (Ilisi ang ID kon kinahanglan)
-                    let validAdmin = riderDatabase.find(r => r.passcode === hashedInput && (r.idNum === "0000" || r.idNum === "0001" || r.idNum === "0003"));
-
-                    if (validAdmin) {
-                        // Husto ang passcode ug Admin ID! Pasudlon na sa menu.html
-                        window.location.href = 'menu.html';
-                    } else {
-                        alert("❌ Sayop nga Passcode o dili ka awtorisado nga Admin!");
-                    }
-                }, 2500); // 2.5 segundos nga long-press
-            };
-
-            const cancelPress = () => {
-                clearTimeout(pressTimer);
-            };
-
-            adminLogo.addEventListener('mousedown', startPress);
-            adminLogo.addEventListener('touchstart', startPress);
-
-            adminLogo.addEventListener('mouseup', cancelPress);
-            adminLogo.addEventListener('mouseleave', cancelPress);
-            adminLogo.addEventListener('touchend', cancelPress);
-            adminLogo.addEventListener('touchcancel', cancelPress);
-        }
-        // ==========================================================
-
-        //window.addEventListener('DOMContentLoaded', function() {
-        //    const urlParams = new URLSearchParams(window.location.search);
-        //    let pID = urlParams.get('theIDno');
-        //    let sID = localStorage.getItem('defaultRiderID');
-            
-        //    let activeID = pID || sID || "";
-        //    const idNumBox = document.getElementById('idNum');
-            
-        //    if (activeID) {
-        //        if (idNumBox) {
-        //            idNumBox.value = activeID;
-        //            idNumBox.setAttribute('readonly', true);
-        //        }
-        //        localStorage.setItem('defaultRiderID', activeID);
-                
-        //        searchDatabase(activeID);
-        //        updateCheckpointCheckmarks(activeID);
-        //    } else {
-        //        updateCheckpointCheckmarks(""); 
-        //    }
-
-        //    if ('serviceWorker' in navigator) {
-        //        navigator.serviceWorker.register('./sw.js').catch(function(error) {});
-        //    }
-        //});
-
     </script>
 </body>
 </html>
