@@ -333,78 +333,105 @@
 
     <script src="database.js"></script>
     <script>
-        // Function para mag-generate og SHA-256 hash gikan sa gi-type sa rider
-async function sha256(message) {
-    const msgBuffer = new TextEncoder().encode(message);
-    const hashBuffer = await crypto.subtle.digest('SHA-256', msgBuffer);
-    const hashArray = Array.from(new Uint8Array(hashBuffer));
-    const hashHex = hashArray.map(b => b.toString(16).padStart(2, '0')).join('');
-    return hashHex;
-}
+        function grantAccess(rider) {
+            // 1. I-save sa localStorage
+            localStorage.setItem("tourRiderID", rider.idNum);
+            localStorage.setItem("tourRiderName", rider.fullname);
+            localStorage.setItem("tourIsLoggedIn", "true");
 
-// Gi-update nga Login Function nga mo-support sa Hash Passcode
-async function verifyAndLogin() {
-    let inputtedID = document.getElementById("riderIdInput").value.trim();
-    let inputtedPass = document.getElementById("riderPassInput").value.trim();
-
-    if (!inputtedID || !inputtedPass) {
-        alert("Palihug i-fill up ang ID ug Passcode!");
-        return;
-    }
-
-    if (typeof riderDatabase === 'undefined') {
-        alert("Error: Wala makit-an ang database.js!");
-        return;
-    }
-
-    let rider = riderDatabase.find(r => r.idNum === inputtedID);
-
-    if (rider) {
-        if (rider.passcode) {
-            // I-hash nato ang gi-type sa rider para ma-match sa naa sa database.js
-            let hashedInputPass = await sha256(inputtedPass);
-
-            if (hashedInputPass === rider.passcode) {
-                grantAccess(rider);
-            } else {
-                alert("ACCESS DENIED: Sayop ang imong Passcode!");
+            // 2. Ibutang ang pangalan sa welcome display kung naa man gani
+            let welcomeEl = document.getElementById("welcomeName");
+            if (welcomeEl) {
+                welcomeEl.innerText = `${rider.fullname} (${rider.nickname})`;
             }
-        } else {
-            // Kung walay passcode ang rider sa database
-            grantAccess(rider);
+
+            // 3. ANG PINAKAHINUNGDAN: Tago-a gyud ang Login Section aron dili na piot!
+            let loginSec = document.getElementById("loginSection");
+            if (loginSec) {
+                loginSec.style.display = "none";
+                loginSec.style.visibility = "hidden"; // Para masiguro nga matangtang gyud sa panan-aw
+            }
+
+            // 4. Ipakita ang Scanner Section sa tibuok screen
+            let scannerSec = document.getElementById("scannerSection");
+            if (scannerSec) {
+                scannerSec.style.display = "block";
+            }
+        }    
+        
+        
+        // Function para mag-generate og SHA-256 hash gikan sa gi-type sa rider
+        async function sha256(message) {
+            const msgBuffer = new TextEncoder().encode(message);
+            const hashBuffer = await crypto.subtle.digest('SHA-256', msgBuffer);
+            const hashArray = Array.from(new Uint8Array(hashBuffer));
+            const hashHex = hashArray.map(b => b.toString(16).padStart(2, '0')).join('');
+            return hashHex;
         }
-    } else {
-        alert("ACCESS DENIED: Ang maong ID# kay walay labot o dili rehistrado.");
-        document.getElementById("riderIdInput").value = "";
-        document.getElementById("riderPassInput").value = "";
-    }
-}
 
-function grantAccess(rider) {
-    localStorage.setItem("tourRiderID", rider.idNum);
-    localStorage.setItem("tourRiderName", rider.fullname);
-    localStorage.setItem("tourIsLoggedIn", "true");
+        // Gi-update nga Login Function nga mo-support sa Hash Passcode
+        async function verifyAndLogin() {
+            let inputtedID = document.getElementById("riderIdInput").value.trim();
+            let inputtedPass = document.getElementById("riderPassInput").value.trim();
 
-    document.getElementById("welcomeName").innerText = `${rider.fullname} (${rider.nickname})`;
-    document.getElementById("loginSection").style.display = "none";
-    document.getElementById("scannerSection").style.display = "block";
-}
+            if (!inputtedID || !inputtedPass) {
+                alert("Palihug i-fill up ang ID ug Passcode!");
+                return;
+            }
 
-function logoutRider() {
-    localStorage.clear();
-    location.reload();
-}
+            if (typeof riderDatabase === 'undefined') {
+                alert("Error: Wala makit-an ang database.js!");
+                return;
+            }
 
-window.onload = function() {
-    let isLoggedIn = localStorage.getItem("tourIsLoggedIn");
-    let savedName = localStorage.getItem("tourRiderName");
+            let rider = riderDatabase.find(r => r.idNum === inputtedID);
 
-    if (isLoggedIn === "true" && savedName) {
-        document.getElementById("welcomeName").innerText = savedName;
-        document.getElementById("loginSection").style.display = "none";
-        document.getElementById("scannerSection").style.display = "block";
-    }
-};
+            if (rider) {
+                if (rider.passcode) {
+                    // I-hash nato ang gi-type sa rider para ma-match sa naa sa database.js
+                    let hashedInputPass = await sha256(inputtedPass);
+
+                    if (hashedInputPass === rider.passcode) {
+                        grantAccess(rider);
+                    } else {
+                        alert("ACCESS DENIED: Sayop ang imong Passcode!");
+                    }
+                } else {
+                    // Kung walay passcode ang rider sa database
+                    grantAccess(rider);
+                }
+            } else {
+                alert("ACCESS DENIED: Ang maong ID# kay walay labot o dili rehistrado.");
+                document.getElementById("riderIdInput").value = "";
+                document.getElementById("riderPassInput").value = "";
+            }
+        }
+
+        function grantAccess(rider) {
+            localStorage.setItem("tourRiderID", rider.idNum);
+            localStorage.setItem("tourRiderName", rider.fullname);
+            localStorage.setItem("tourIsLoggedIn", "true");
+
+            document.getElementById("welcomeName").innerText = `${rider.fullname} (${rider.nickname})`;
+            document.getElementById("loginSection").style.display = "none";
+            document.getElementById("scannerSection").style.display = "block";
+        }
+
+        function logoutRider() {
+            localStorage.clear();
+            location.reload();
+        }
+
+        window.onload = function() {
+            let isLoggedIn = localStorage.getItem("tourIsLoggedIn");
+            let savedName = localStorage.getItem("tourRiderName");
+
+            if (isLoggedIn === "true" && savedName) {
+                document.getElementById("welcomeName").innerText = savedName;
+                document.getElementById("loginSection").style.display = "none";
+                document.getElementById("scannerSection").style.display = "block";
+            }
+        };
         
         ////////////////////////////////////////////////////////////////////////////////////////////////////
         // 🔒 PERMANENT STATUS & EXPIRY CHECKER (T or F)
